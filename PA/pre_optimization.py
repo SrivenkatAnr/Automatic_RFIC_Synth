@@ -18,7 +18,7 @@ Functions structure in this file:
 
 #===========================================================================================================================
 import datetime
-import PA.extra_function as cff     # type: ignore
+import common_functions as cff     # type: ignore
 import PA.hand_calculation_1 as hc1 # type: ignore
 
 """

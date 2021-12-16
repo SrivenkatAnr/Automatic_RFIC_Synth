@@ -16,7 +16,7 @@ Functions structure in this file:
 #===========================================================================================================================
 import datetime
 import Ckt_Optimization.grad_descent as gd
-import Ckt_Optimization.common_functions as cf
+import common_functions as cf
 import PA.pre_optimization as pr
 import PA.spectre as sp
 #import PVT_Analysis.temperature_analysis as ta

@@ -29,7 +29,7 @@ Functions structure in this file:
 """
 #===========================================================================================================================
 import numpy as np
-import Ckt_Optimization.common_functions as cf
+import common_functions as cf
 import Ckt_Optimization.loss_func as lf
 #import optimization_functions_fom as off
 import os
