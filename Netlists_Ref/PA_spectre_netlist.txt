@@ -1,7 +1,7 @@
 // PA circuit 1 - Reference
 
 simulator lang=spectre
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d1_usage.scs" section=tt_lib
+include "/cad/library/TSMC/65/lp/models/spectre/crn65lp_2d5_lk_v1d7_usage.scs" section=tt_lib
 
 // ------------------------ SETTING PARAMETER VALUES ------------------------------------
 
