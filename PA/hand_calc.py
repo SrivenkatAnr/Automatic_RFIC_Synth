@@ -33,60 +33,47 @@ def db_to_normal(val_db):
 # Calculating the resistance from the inductance values
 # Outputs : resistance
 def calculate_resistance_inductor(ind,fo,Q):
-    res=Q*2*np.pi*fo*ind
+    res=2*np.pi*fo*ind/Q
     return res
 
 #-----------------------------------------------------------------------------------------------
 # Calculating Ld
 # Outputs : Ld
-def calculate_Ld(Cload,fo):
-    wo=2*np.pi*fo
-    Ld=1/(wo*wo*Cload)
+def calculate_Ld():
+    Ld=10e-9;
     return Ld
+
+#-----------------------------------------------------------------------------------------------
+# Calculating Rl
+# Outputs : Rl
+def calculate_Rl(Rd):
+    Rl=max(50, 20*Rd)
+    return Rl
 
 #-----------------------------------------------------------------------------------------------
 # Calculating gm
 # Outputs : gm
-def calculate_gm(gain,Ld,fo):
-    Rd=2*np.pi*fo*Ld*15
-    return gain/(2*Rd*2.5)
-
-#-----------------------------------------------------------------------------------------------
-# Calculating Cgs
-# Outputs : cgs
-def calculate_cgs(Rs,Ld,F,fo,gm):
-    Rd=2*np.pi*fo*Ld*15
-    wo=2*np.pi*fo
-    wt=wo*np.sqrt((2*gm*Rs+4*Rs/Rd)/(F-1))
-    cgs=gm/wt
-    return cgs
-
-#-----------------------------------------------------------------------------------------------
-# Calculating W
-# Outputs : W
-def calculate_W(cgs,Lmin,Cox):
-    return 3*cgs/(2*Lmin*Cox)
+def calculate_gm(gain,Rl):
+    return gain/Rl
 
 #-----------------------------------------------------------------------------------------------
 # Calculating Io
 # Outputs : Io
-def calculate_Io(gm,un,cox,W,Lmin):
-    return (gm*gm)/(2*un*cox*W/Lmin)
+def calculate_Io(Vdd,Rd,Rl):
+    return Vdd/(Rl+2*Rd)
 
 #-----------------------------------------------------------------------------------------------
-# Calculating Ls and Rs
-# Outputs : Ls,Rs
-def calculate_Ls(rsource,cgs,gm,fo):
-    return rsource*cgs/gm
+# Calculating W
+# Outputs : W
+def calculate_W(gm,Lmin,Id,un,Cox):
+    return (gm**2)*Lmin/(2*Id*un*Cox)
 
 #-----------------------------------------------------------------------------------------------
-# Calculating Lg
-# Outputs : Lg
-def calculate_Lg(Ls,cgs,fo):
-    w=2*np.pi*fo
-    Lg=1/(w*w*cgs)-Ls
-    return Lg
-
+# Calculating coupling cap
+# Outputs : C
+def calculate_Ccoup(fo,R):
+    wo=2*np.pi*fo
+    return 10/(wo*R)
 
 """
 ===========================================================================================================================
@@ -101,26 +88,25 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     output_conditions=optimization_input_parameters['output_conditions']
     
     # Getting the output conditions
-    Cload=output_conditions['Cload']
     fo=output_conditions['wo']/(2*np.pi)
-    Rs=output_conditions['Rs']
+    Rin=output_conditions['Rin']
     gain=db_to_normal(output_conditions['gain_db'])
-    F=db_to_normal(output_conditions['nf_db'])
     Lmin=cir.mos_parameters['Lmin']
     Cox=cir.mos_parameters['cox']
     un=cir.mos_parameters['un']
+    Vdd=cir.mos_parameters['Vdd']
 
     # Calculating the circuit parameters
     circuit_parameters={}
-    circuit_parameters['Ld']=calculate_Ld(Cload,fo)
-    gm=calculate_gm(gain,circuit_parameters['Ld'],fo)
-    cgs=calculate_cgs(Rs,circuit_parameters['Ld'],F,fo,gm)
-    circuit_parameters['W']=calculate_W(cgs,Lmin,Cox)
-    circuit_parameters['Io']=calculate_Io(gm,un,Cox,circuit_parameters['W'],Lmin)
-    circuit_parameters['Ls']=calculate_Ls(Rs,cgs,gm,fo)
-    circuit_parameters['Lg']=calculate_Lg(circuit_parameters['Ls'],cgs,fo)
-    circuit_parameters['Rb']=5000
-    circuit_parameters['Cs']=100/(2*np.pi*50*fo)
+    circuit_parameters['Ld']=calculate_Ld()
+    circuit_parameters['Rd']=calculate_resistance_inductor(circuit_parameters['Ld'],fo,50)
+    circuit_parameters['Rl']=calculate_Rl(circuit_parameters['Rd'])
+    circuit_parameters['Io']=calculate_Io(Vdd,circuit_parameters['Rd'],circuit_parameters['Rl'])
+    gm=calculate_gm(gain,circuit_parameters['Rl'])
+    circuit_parameters['W']=calculate_W(gm,Lmin,circuit_parameters['Io'],un,Cox)
+    circuit_parameters['Rbias']=5000
+    circuit_parameters['Ccoup_in']=calculate_Ccoup(fo,circuit_parameters['Rbias'])
+    circuit_parameters['Ccoup_out']=calculate_Ccoup(fo,circuit_parameters['Rl'])
 
     # Running the circuit
     cir.update_circuit(circuit_parameters)
@@ -129,6 +115,7 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
 # Function to update the Initial Circuit Parameters after calculating the new value of vt
 # Inputs  : circuit_parameters, mos_parameters, extracted_parameters, optimization_input_parameters
 # Outputs : circuit_parameters, dc_outputs, mos_parameters, extracted_parameters
+"""
 def update_initial_parameters(cir,optimization_input_parameters):
 
     i=0
@@ -145,7 +132,7 @@ def update_initial_parameters(cir,optimization_input_parameters):
         
         # Running the circuit
         cir.run_circuit()
-
+"""
 
 
 """
@@ -176,7 +163,7 @@ def automatic_initial_parameters(cir,optimization_input_parameters,optimization_
     # Printing the values
     cff.print_circuit_parameters(cir.circuit_parameters)
     cff.print_extracted_outputs(cir.extracted_parameters)
-
+    """
     #======================================================== Step 2 =======================================================
     print('\n\n--------------------------------- Operating Point Updations ------------------------------------')
 
@@ -191,3 +178,4 @@ def automatic_initial_parameters(cir,optimization_input_parameters,optimization_
     # Printing the values
     cff.print_circuit_parameters(cir.circuit_parameters)
     cff.print_extracted_outputs(cir.extracted_parameters)
+    """

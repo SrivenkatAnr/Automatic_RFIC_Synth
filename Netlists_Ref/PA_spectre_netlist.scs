@@ -59,7 +59,7 @@ M1 (D1 G1 0 0) nch w=wid_amp l=len nf=n_finger
 
 // ----- Sources -----
 Vs (Vin 0) port type=sine dbm=pin freq=fund_1 fundname=fund1 dbm2=pin freq2=fund_2 fundname2=fund2 mag=1 r=50 num=1
-I0 (Vdd Vb) isource dc=cur0
+Io (Vdd Vb) isource dc=cur0
 Vpower (Vdd 0) vsource dc=v_dd
 buf (E1 0) bsource v=v(Vin,0)
 
