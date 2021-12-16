@@ -1,0 +1,20 @@
+* H:\Acads\Circuit-Synthesis-Automation\Proj-Files\.ideation\PA_draft2.asc
+R1 Vout 0 Rl
+M1 D1 G1 0 0 NMOS
+M0 Vb Vb 0 0 NMOS
+I1 Vdd Vb Ibias
+L1 Vdd T1 Ld
+R2 T1 D1 Rd
+C1 Vout D1 Ccoup
+R3 G1 Vb Rbias
+C2 G1 E1 Ccoup
+R4 Vin 0 Rin
+E1 E1 0 Vin 0 E
+V1 Vdd 0 Vpower
+V2 Vin 0 AC Vs
+.model NMOS NMOS
+.model PMOS PMOS
+.lib C:\Users\HP\Documents\LTspiceXVII\lib\cmp\standard.mos
+.ac dec 10 1g 2g
+.backanno
+.end
