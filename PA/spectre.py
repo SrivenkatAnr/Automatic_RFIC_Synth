@@ -651,22 +651,26 @@ def dict_convert(circuit_parameters,circuit_initialization_parameters):
     
     # param_names in write_dict will contain the name of the parameters as it is written in the .scs file
     cir_writing_dict={
-        'wid':'W',
+        'wid_bias':'W',
         'cur0':'Io',
-        'res_b':'Rb',
-        'ind_d':'Ld',
-        'ind_g':'Lg',
-        'ind_s':'Ls',
-        'cap_s':'Cs',
+        'res_bias':'Rbias',
+        'res_in':'Rin',
+        'res_drain':'Rd',
+        'res_load':'Rl',
+        'ind_drain':'Ld',
+        'cap_coup_in':'Ccoup_in',
+        'cap_coup_out':'Ccoup_out',
     }
     for param_name in cir_writing_dict:
         write_dict[param_name]=circuit_parameters[cir_writing_dict[param_name]]
     
+    """
     # Getting the value of resistances
     write_dict['res_g']=circuit_parameters['Lg']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi*50
     write_dict['res_d']=circuit_parameters['Ld']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi*15
     write_dict['res_ls']=circuit_parameters['Ls']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi*15
-
+    """
+    
     # Calculating the number of fingers
     n_finger=int(circuit_parameters['W']/circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max'])+1
     write_dict['n_finger']=n_finger
@@ -687,7 +691,7 @@ def write_circuit_parameters(circuit_parameters,circuit_initialization_parameter
     filename2=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']+'/circ.scs'
 
     # We will write the new values to the Basic Circuit
-    f=open(filename1,'r+')
+    f=open(filename1,'r+') 
     s=''
     for line in fileinput.input(filename1):
         for param_name in write_dict:
