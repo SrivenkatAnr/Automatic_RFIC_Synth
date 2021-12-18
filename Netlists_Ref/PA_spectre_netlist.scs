@@ -1,73 +1,28 @@
 // PA circuit 1 - Reference
 
 simulator lang=spectre
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_bip
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_33
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_mim
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_dnw
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_18
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_bip_npn
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_33
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfrtmom
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_mos_cap_25
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_18
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_disres
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_res
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_na
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfmos_33
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_hvt
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfmvar
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfmos_18
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_na
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_na33
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_lvt
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfres_sa
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_na33
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_esd
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfmim
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_25od33
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_25od33
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_mos_cap
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_25
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_25ud18
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_25
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfmos
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_25ud18
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_na25od33
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfjvar
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfmos_25
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rtmom
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_na25od33
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_dio_na25
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfres_rpo
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_hvt
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfind
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_rfmvar_25
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_na25
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d0.scs" section=tt_lvt
+include "/cad/library/TSMC/65/lp/models/spectre/crn65lp_2d5_lk_v1d7_usage.scs" section=tt_lib
 
 // ------------------------ SETTING PARAMETER VALUES ------------------------------------
 
 // ----- Resistors -----
 parameters res_in=50
 parameters res_drain=0.2
-parameters res_bias=2e4
+parameters res_bias=20000
 parameters res_load=20
 
 // ----- Inductors -----
-parameters ind_drain=1e-8
+parameters ind_drain=1e-08
 
 // ----- Capacitors -----
 parameters cap_coup_in=5e-13
-parameters cap_coup_out=2.5e-9
+parameters cap_coup_out=2.5e-09
 
 // ----- MOSFETs -----
 parameters len=6e-08
-parameters wid_bias=0.9e-3
+parameters wid_bias=0.0009
 parameters wid_amp=wid_bias
-parameters n_finger=342
+parameters n_finger=451
 
 // ----- Sources -----
 parameters cur0=0.000171

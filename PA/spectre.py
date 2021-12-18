@@ -241,7 +241,7 @@ def extract_dc_param(circuit_initialization_parameters):
 
     extracted_parameters['cgs1']=np.absolute(valueE_to_value(lines[11]))
     extracted_parameters['cgd1']=np.absolute(valueE_to_value(lines[12]))
-
+    
     return extracted_parameters
 
 #---------------------------------------------------------------------------------------------------------------------------    
@@ -267,7 +267,7 @@ def extract_ac_param(circuit_initialization_parameters):
     vin_re=valueE_to_value(lines[3])
     vin_im=valueE_to_value(lines[4])
     extracted_parameters['gain_db'],extracted_parameters['gain_phase']=calculate_gain_phase(vout_re,vout_im,vin_re,vin_im)
-
+    
     return extracted_parameters
 
 #---------------------------------------------------------------------------------------------------------------------------    
@@ -298,56 +298,6 @@ def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
         phase-=180
 
     return gain_db,phase
-
-
-#---------------------------------------------------------------------------------------------------------------------------    
-# Extracting the SP from the file
-# Inputs: circuit_initialization_parameters
-# Output: Dictionary with all the parameters
-def extract_sp_param(circuit_initialization_parameters):
-
-    # Getting the filename
-    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/sp.out'
-    lines=extract_file(file_name)
-    
-    extracted_parameters={}
-    
-    # Skipping the first few lines
-    #lines=lines[12:]
-    while 1:
-        if 'format freq' not in lines[0]:
-            lines=lines[1:]
-        else:
-            break
-    lines=lines[4:]
-    
-    line1=lines[0].split()
-    line2=lines[1].split()
-
-    # Extracting the value of s-parameters in dB from the required line
-    num_char_s11=line1[1].split(',')[0]
-    num_char_s21=line1[3].split(',')[0]
-    num_char_s12=line2[0].split(',')[0]
-    num_char_s22=line2[2].split(',')[0]
-
-    # Extracting the phase of the s-parameters
-    num_char_s11_rad=float(line1[2])
-    num_char_s21_rad=float(line1[4])
-    num_char_s12_rad=float(line2[1])
-    num_char_s22_rad=float(line2[3])
-
-    # Calculating the final values
-    extracted_parameters['s11_db']=valueE_to_value(num_char_s11)
-    extracted_parameters['s12_db']=valueE_to_value(num_char_s12)
-    extracted_parameters['s21_db']=valueE_to_value(num_char_s21)
-    extracted_parameters['s22_db']=valueE_to_value(num_char_s22)
-
-    extracted_parameters['k']=calculate_k(extracted_parameters['s11_db'],extracted_parameters['s12_db'],extracted_parameters['s21_db'],extracted_parameters['s22_db'],
-    num_char_s11_rad,num_char_s12_rad,num_char_s21_rad,num_char_s22_rad)
-
-    extracted_parameters['Zin_R'],extracted_parameters['Zin_I']=calculate_Z(extracted_parameters['s11_db'],num_char_s11_rad)
-
-    return extracted_parameters
 
 #---------------------------------------------------------------------------------------------------------------------------    
 # Calculating the value of K from the SP 
@@ -406,29 +356,6 @@ def calculate_Z(s11_db,s11_ph):
 
     return Zin_R,Zin_I
 
-
-
-#---------------------------------------------------------------------------------------------------------------------------    
-# Extracting the Noise from the file
-# Inputs: circuit_initialization_parameters
-# Output: Dictionary with all the parameters
-def extract_noise_param(circuit_initialization_parameters):
-
-    # Getting the filename
-    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/noise.out'
-    lines=extract_file(file_name)
-    
-    extracted_parameters={}
-
-    # Skipping the first few lines
-    lines=lines[7:]
-    lines=lines[0].split()
-
-    # Extracting the value from the required line
-    extracted_parameters['nf_db']=valueE_to_value(lines[1])
-
-    return extracted_parameters
-
 #---------------------------------------------------------------------------------------------------------------------------
 # Extracting all the output parameters from chi file
 # Inputs: optimization_input parameters
@@ -438,8 +365,6 @@ def extract_basic_parameters(circuit_initialization_parameters):
     # Extracting the outputs 
     extracted_parameters_dc=extract_dc_param(circuit_initialization_parameters)
     extracted_parameters_ac=extract_ac_param(circuit_initialization_parameters)
-    extracted_parameters_sp=extract_sp_param(circuit_initialization_parameters)
-    extracted_parameters_noise=extract_noise_param(circuit_initialization_parameters)
     
     # Storing the outputs in a single dictionary
     extracted_parameters={}
@@ -448,10 +373,6 @@ def extract_basic_parameters(circuit_initialization_parameters):
         extracted_parameters[param_name]=extracted_parameters_dc[param_name]
     for param_name in extracted_parameters_ac:
         extracted_parameters[param_name]=extracted_parameters_ac[param_name]
-    for param_name in extracted_parameters_sp:
-        extracted_parameters[param_name]=extracted_parameters_sp[param_name]
-    for param_name in extracted_parameters_noise:
-        extracted_parameters[param_name]=extracted_parameters_noise[param_name]
     
     return extracted_parameters
 
@@ -670,7 +591,6 @@ def dict_convert(circuit_parameters,circuit_initialization_parameters):
     write_dict['res_d']=circuit_parameters['Ld']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi*15
     write_dict['res_ls']=circuit_parameters['Ls']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi*15
     """
-    
     # Calculating the number of fingers
     n_finger=int(circuit_parameters['W']/circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max'])+1
     write_dict['n_finger']=n_finger
@@ -827,8 +747,8 @@ def write_simulation_parameters(circuit_initialization_parameters):
     # Replacing the lines of .scs file
     for line in fileinput.input(filename1):
         if "include " in line:  # This line is used to include the MOS file in the .scs file
-            include_check=1
-            write_check=0
+            include_check=0
+            write_check=1
 
         elif "include" not in line and include_check==1:
             s=s+circuit_initialization_parameters['MOS']['filename'][process_corner]
@@ -855,7 +775,7 @@ def write_simulation_parameters(circuit_initialization_parameters):
     # Replacing the lines of .scs file
     for line in fileinput.input(filename2):
         if "include " in line:  # This line is used to include the MOS file in the .scs file
-            include_check=1
+            include_check=0
             write_check=0
 
         elif "include" not in line and include_check==1:
@@ -935,13 +855,13 @@ def write_extract_basic(circuit_initialization_parameters):
     
     # Writing the tcsh file for Basic Analysis
     write_tcsh_file(circuit_initialization_parameters,'basic')
-
+    
     # Writing the simulation parameters
     write_simulation_parameters(circuit_initialization_parameters)
-
+    
     # Running netlist file
     run_file(circuit_initialization_parameters)
-
+    
     # Extracting the Basic Parameters
     basic_extracted_parameters=extract_basic_parameters(circuit_initialization_parameters)
     
@@ -1013,20 +933,21 @@ def write_extract_iip3(circuit_initialization_parameters):
 # Inputs  : Circuit_Parameters, circuit_initialization_parameters
 # Outputs : Extracted_Parameters
 def write_extract_single(i,circuit_parameters,circuit_initialization_parameters):
-    
+
+     
     # Writing to netlist file
     write_circuit_parameters(circuit_parameters,circuit_initialization_parameters)
-
+    
     # Extracting the Basic Parameters
     basic_extracted_parameters=write_extract_basic(circuit_initialization_parameters)
-
+    
     # Extracting the IIP3 Parameters
-    iip3_extracted_parameters=write_extract_iip3(circuit_initialization_parameters)
-
+    #iip3_extracted_parameters=write_extract_iip3(circuit_initialization_parameters)
+    
     # Extracting Parameters from output files
     extracted_parameters=basic_extracted_parameters.copy()
-    for param_name in iip3_extracted_parameters:
-        extracted_parameters[param_name]=iip3_extracted_parameters[param_name]
+    #for param_name in iip3_extracted_parameters:
+    #    extracted_parameters[param_name]=iip3_extracted_parameters[param_name]
 
     return (i,extracted_parameters)
 
@@ -1052,12 +973,12 @@ def get_final_extracted_parameters(extracted_parameters_combined):
         'cgs1':'mid',
         'cgd1':'mid',
         'freq':'mid',
-        's12_db':'max',
-        's21_db':'max',
-        's22_db':'max',
-        'k':'min',
-        'nf_db':'max',
-        'iip3_dbm':'max'
+        #'s12_db':'max',
+        #'s21_db':'max',
+        #'s22_db':'max',
+        #'k':'min',
+        #'nf_db':'max',
+        #'iip3_dbm':'max'
     }
 
     for param in extracted_parameters_combined[0]:
@@ -1088,7 +1009,7 @@ def get_final_extracted_parameters(extracted_parameters_combined):
     gain_index=gain_array.index(gain_min)
     final_extracted_parameters['gain_db']=gain_min
     final_extracted_parameters['gain_phase']=extracted_parameters_combined[gain_index]['gain_phase']
-
+    """
     # Calculating the value of s11
     s11_array=[]
     ZR_array=[]
@@ -1102,7 +1023,7 @@ def get_final_extracted_parameters(extracted_parameters_combined):
     final_extracted_parameters['s11_db']=s11_max
     final_extracted_parameters['Zin_R']=extracted_parameters_combined[s11_index]['Zin_R']
     final_extracted_parameters['Zin_I']=extracted_parameters_combined[s11_index]['Zin_I']
-
+    """
     return final_extracted_parameters
 
 
@@ -1150,13 +1071,16 @@ def write_extract(circuit_parameters,circuit_initialization_parameters):
     circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_1']=f_operating+f_range
     circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_2']=f_operating+f_range+1e6
         
-
     # Creating processes
     results_async=[pool.apply_async(write_extract_single,args=(i,circuit_parameters_run[i],circuit_initialization_parameters_run[i])) for i in range(3)]
-
+    
     extracted_parameters_combined={}
     for r in results_async:
-        (i,extracted_parameters)=r.get()
+        try:
+            (i,extracted_parameters)=r.get(timeout=10)
+        except mp.TimeoutError:
+            print("timeout error")
+
         extracted_parameters_combined[i]=extracted_parameters
         
     final_extracted_parameters=get_final_extracted_parameters(extracted_parameters_combined)
@@ -1169,3 +1093,4 @@ def write_extract(circuit_parameters,circuit_initialization_parameters):
 
 
 #===========================================================================================================================
+
