@@ -613,7 +613,7 @@ def write_circuit_parameters(circuit_parameters,circuit_initialization_parameter
     f.truncate(0)
     f.write(s)
     f.close()
-
+    """
     # We will write the new values to the IIP3 Circuit
     f=open(filename2,'r+')
     s=''
@@ -625,7 +625,7 @@ def write_circuit_parameters(circuit_parameters,circuit_initialization_parameter
     f.truncate(0)
     f.write(s)
     f.close()
-    
+    """
 #-----------------------------------------------------------------
 # Function that adds MOSFET Parameters to the netlist
 # Inputs  : Optimization Input Parameters
@@ -717,7 +717,7 @@ def write_simulation_parameters(circuit_initialization_parameters):
     f.truncate(0)
     f.write(s)
     f.close()
-
+    """
     # Writing the simulation parameters to IIP3 File
     f=open(filename2,'r+')
     s=''
@@ -757,7 +757,7 @@ def write_simulation_parameters(circuit_initialization_parameters):
     f.truncate(0)
     f.write(s)
     f.close()
-    
+    """
 #-----------------------------------------------------------------
 # Function that modifies tcsh file
 # Inputs  : circuit_initialization_parameters
@@ -818,7 +818,7 @@ def write_extract_basic(circuit_initialization_parameters):
     basic_extracted_parameters=extract_basic_parameters(circuit_initialization_parameters)
     
     return basic_extracted_parameters
-
+"""
 #-----------------------------------------------------------------------------------------------
 # This function will perform simulation for IIP3 Parameters
 # Inputs  : Circuit_Parameters, circuit_initialization_parameters
@@ -879,7 +879,7 @@ def write_extract_iip3(circuit_initialization_parameters):
     iip3_extracted_parameters={'iip3_dbm':iip3}
     
     return iip3_extracted_parameters
-
+"""
 #-----------------------------------------------------------------------------------------------
 # This function will write the circuit parameters, run Eldo and extract the output parameters
 # Inputs  : Circuit_Parameters, circuit_initialization_parameters
@@ -1004,24 +1004,24 @@ def write_extract(circuit_parameters,circuit_initialization_parameters):
     circuit_initialization_parameters_run[0]=copy.deepcopy(circuit_initialization_parameters)
     circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['directory']=circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['directory']+'T1/'
     circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/T1/spectre_run.tcsh'
-    circuit_initialization_parameters_run[0]['simulation']['netlist_parameters']['fund_1']=f_operating-f_range
-    circuit_initialization_parameters_run[0]['simulation']['netlist_parameters']['fund_2']=f_operating-f_range+1e6
+    #circuit_initialization_parameters_run[0]['simulation']['netlist_parameters']['fund_1']=f_operating-f_range
+    #circuit_initialization_parameters_run[0]['simulation']['netlist_parameters']['fund_2']=f_operating-f_range+1e6
 
 
     circuit_initialization_parameters_run[1]={}
     circuit_initialization_parameters_run[1]=copy.deepcopy(circuit_initialization_parameters)
     circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['directory']=circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['directory']+'T2/'
     circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/T2/spectre_run.tcsh'
-    circuit_initialization_parameters_run[1]['simulation']['netlist_parameters']['fund_1']=f_operating
-    circuit_initialization_parameters_run[1]['simulation']['netlist_parameters']['fund_2']=f_operating+1e6
+    #circuit_initialization_parameters_run[1]['simulation']['netlist_parameters']['fund_1']=f_operating
+    #circuit_initialization_parameters_run[1]['simulation']['netlist_parameters']['fund_2']=f_operating+1e6
     
 
     circuit_initialization_parameters_run[2]={}
     circuit_initialization_parameters_run[2]=copy.deepcopy(circuit_initialization_parameters)
     circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['directory']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['directory']+'T3/'
     circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/T3/spectre_run.tcsh'
-    circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_1']=f_operating+f_range
-    circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_2']=f_operating+f_range+1e6
+    #circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_1']=f_operating+f_range
+    #circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_2']=f_operating+f_range+1e6
         
     # Creating processes
     results_async=[pool.apply_async(write_extract_single,args=(i,circuit_parameters_run[i],circuit_initialization_parameters_run[i])) for i in range(3)]
