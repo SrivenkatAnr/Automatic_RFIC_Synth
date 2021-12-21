@@ -76,7 +76,6 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 
 	circuit_initialization_parameters['simulation']['standard_parameters']['directory']='/home/ee18b038/cadence_project/PA_tri1/'
 	circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65_rcm'
-	circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']='iip3_hb_tsmc_65_rcm'
 	circuit_initialization_parameters['simulation']['standard_parameters']['tcsh']='/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/'
 	circuit_initialization_parameters['simulation']['standard_parameters']['iip3_type']='basic'		# 'basic' or 'advanced' 
 
@@ -85,16 +84,14 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']=-70
 	circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']=-40
 	circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']=6
-	#circuit_initialization_parameters['simulation']['standard_parameters']['iip3_calc_points']=3
 	circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']='tt'
 	circuit_initialization_parameters['simulation']['standard_parameters']['conservative']='NO'
 	circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max']=2e-6
-	circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']=1e9
-	#circuit_initialization_parameters['simulation']['standard_parameters']['f_range']=1e6
+	circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']=fo
+	circuit_initialization_parameters['simulation']['standard_parameters']['f_range']=1e8
 
 	circuit_initialization_parameters['simulation']['netlist_parameters']={
 		'pin':-65,
-		'fund_1':fo,
 		'cir_temp':27,
 		'n_harm':5
 	}

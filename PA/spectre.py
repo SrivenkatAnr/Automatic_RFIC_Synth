@@ -182,8 +182,6 @@ def valueE_to_value(value_name):
     return num
 
 
-
-
 #===========================================================================================================================================================
 #--------------------------------------------------------- Other File Extraction Functions -----------------------------------------------------------------
 
@@ -290,64 +288,7 @@ def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
         phase-=180
 
     return gain_db,phase
-"""
-#---------------------------------------------------------------------------------------------------------------------------    
-# Calculating the value of K from the SP 
-# Inputs: s parameters and their phase in radians
-# Output: k
-def calculate_k(s11_db,s12_db,s21_db,s22_db,s11_ph,s12_ph,s21_ph,s22_ph):
-    
-    # Getting the phase in degrees
-    #s11_ph*=(180/np.pi)
-    #s12_ph*=(180/np.pi)
-    #s21_ph*=(180/np.pi)
-    #s22_ph*=(180/np.pi)
 
-    # Calculating the magnitude in normal scale
-    s11_mag=10**(s11_db/20)
-    s12_mag=10**(s12_db/20)
-    s21_mag=10**(s21_db/20)
-    s22_mag=10**(s22_db/20)
-
-    # Calculating the values in a+ib format
-    s11_real=s11_mag*np.cos(s11_ph)
-    s12_real=s12_mag*np.cos(s12_ph)
-    s21_real=s21_mag*np.cos(s21_ph)
-    s22_real=s22_mag*np.cos(s22_ph)
-
-    s11_img=s11_mag*np.sin(s11_ph)
-    s12_img=s12_mag*np.sin(s12_ph)
-    s21_img=s21_mag*np.sin(s21_ph)
-    s22_img=s22_mag*np.sin(s22_ph)
-
-    # Calculating delta squared
-    delta_squared=(s11_real*s22_real-s12_real*s21_real+s12_img*s21_img-s11_img*s22_img)**2+(s11_real*s22_img+s22_real*s11_img-s12_real*s21_img-s21_real*s12_img)**2
-
-    # Calculating k
-    k=(1-(s11_mag**2)-(s22_mag**2)+delta_squared)/(2*s21_mag*s12_mag)
-
-    return k
-
-#---------------------------------------------------------------------------------------------------------------------------    
-# Calculating the value of K from the SP 
-# Inputs: s parameters and their phase in radians
-# Output: k
-def calculate_Z(s11_db,s11_ph):
-    
-    # Calculating the magnitude in normal scale
-    s11_mag=10**(s11_db/20)
-
-    # Calculating the values in a+ib format
-    s11_real=s11_mag*np.cos(s11_ph)
-    s11_img=s11_mag*np.sin(s11_ph)
-
-    # Calculating the outputs
-    denominator=(1-s11_real)**2+s11_img**2
-    Zin_R=50*(1-s11_real**2-s11_img**2)/denominator
-    Zin_I=50*(2*s11_img)/denominator
-
-    return Zin_R,Zin_I
-"""
 #---------------------------------------------------------------------------------------------------------------------------
 # Extracting all the output parameters from chi file
 # Inputs: optimization_input parameters
@@ -576,13 +517,10 @@ def dict_convert(circuit_parameters,circuit_initialization_parameters):
     }
     for param_name in cir_writing_dict:
         write_dict[param_name]=circuit_parameters[cir_writing_dict[param_name]]
-    
-    """
+        
     # Getting the value of resistances
-    write_dict['res_g']=circuit_parameters['Lg']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi*50
-    write_dict['res_d']=circuit_parameters['Ld']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi*15
-    write_dict['res_ls']=circuit_parameters['Ls']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi*15
-    """
+    write_dict['res_drain']=circuit_parameters['Ld']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi/50
+    
     # Calculating the number of fingers
     n_finger=int(circuit_parameters['W']/circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max'])+1
     write_dict['n_finger']=n_finger
@@ -600,7 +538,6 @@ def write_circuit_parameters(circuit_parameters,circuit_initialization_parameter
     
     # Getting the filenames
     filename1=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
-    filename2=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']+'/circ.scs'
 
     # We will write the new values to the Basic Circuit
     f=open(filename1,'r+') 
@@ -613,19 +550,7 @@ def write_circuit_parameters(circuit_parameters,circuit_initialization_parameter
     f.truncate(0)
     f.write(s)
     f.close()
-    """
-    # We will write the new values to the IIP3 Circuit
-    f=open(filename2,'r+')
-    s=''
-    for line in fileinput.input(filename2):
-        for param_name in write_dict:
-            if "parameters "+param_name+'=' in line:    # Checking for a particular parameter in the .scs file
-                line=line.replace(line,print_param(param_name,write_dict[param_name]))  # Replacing the parameter in the .scs file
-        s=s+line
-    f.truncate(0)
-    f.write(s)
-    f.close()
-    """
+
 #-----------------------------------------------------------------
 # Function that adds MOSFET Parameters to the netlist
 # Inputs  : Optimization Input Parameters
@@ -641,7 +566,6 @@ def write_MOS_parameters(circuit_initialization_parameters):
 
     # Getting the filenames
     filename1=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
-    filename2=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']+'/circ.scs'
 
     # Writing the MOS Parameters to Basic File
     f=open(filename1,'r+')
@@ -688,7 +612,6 @@ def write_simulation_parameters(circuit_initialization_parameters):
 
     # Getting the filenames
     filename1=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
-    filename2=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']+'/circ.scs'
 
     # Writing the simulation parameters to Basic File
     f=open(filename1,'r+')
@@ -717,47 +640,7 @@ def write_simulation_parameters(circuit_initialization_parameters):
     f.truncate(0)
     f.write(s)
     f.close()
-    """
-    # Writing the simulation parameters to IIP3 File
-    f=open(filename2,'r+')
-    s=''
-    write_check=1
-    include_check=0
 
-    # Replacing the lines of .scs file
-    for line in fileinput.input(filename2):
-        if "include " in line:  # This line is used to include the MOS file in the .scs file
-            include_check=0
-            write_check=0
-
-        elif "include" not in line and include_check==1:
-            s=s+circuit_initialization_parameters['MOS']['filename'][process_corner]
-            include_check=0
-            write_check=1
-        
-        for param_name in write_dict:   # This line is used to replace the MOS parameters and simulation_parameters
-            if "parameters "+param_name+'=' in line:
-                line=line.replace(line,print_param(param_name,write_dict[param_name]))
-                
-        if 'hb_test' in line and 'errpreset=conservative' in line and circuit_initialization_parameters['simulation']['standard_parameters']['conservative']=='NO':
-            line_split=line.split()
-            line=''
-            for word in line_split:
-                if 'errpreset=conservative' not in word:
-                    line=line+word+' '
-            line=line+'\n'
-        
-        elif 'hb_test' in line and 'errpreset=conservative' not in line and circuit_initialization_parameters['simulation']['standard_parameters']['conservative']=='YES':
-            line=line[:-1]+' errpreset=conservative \n'
-            
-        
-        if write_check==1:
-            s=s+line
-
-    f.truncate(0)
-    f.write(s)
-    f.close()
-    """
 #-----------------------------------------------------------------
 # Function that modifies tcsh file
 # Inputs  : circuit_initialization_parameters
@@ -961,21 +844,7 @@ def get_final_extracted_parameters(extracted_parameters_combined):
     gain_index=gain_array.index(gain_min)
     final_extracted_parameters['gain_db']=gain_min
     final_extracted_parameters['gain_phase']=extracted_parameters_combined[gain_index]['gain_phase']
-    """
-    # Calculating the value of s11
-    s11_array=[]
-    ZR_array=[]
-    ZI_array=[]
-    for i in extracted_parameters_combined:
-        s11_array.append(extracted_parameters_combined[i]['s11_db'])
-        ZR_array.append(extracted_parameters_combined[i]['Zin_R'])
-        ZI_array.append(extracted_parameters_combined[i]['Zin_I'])
-    s11_max=max(s11_array)
-    s11_index=s11_array.index(s11_max)
-    final_extracted_parameters['s11_db']=s11_max
-    final_extracted_parameters['Zin_R']=extracted_parameters_combined[s11_index]['Zin_R']
-    final_extracted_parameters['Zin_I']=extracted_parameters_combined[s11_index]['Zin_I']
-    """
+
     return final_extracted_parameters
 
 
@@ -1004,24 +873,20 @@ def write_extract(circuit_parameters,circuit_initialization_parameters):
     circuit_initialization_parameters_run[0]=copy.deepcopy(circuit_initialization_parameters)
     circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['directory']=circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['directory']+'T1/'
     circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/T1/spectre_run.tcsh'
-    #circuit_initialization_parameters_run[0]['simulation']['netlist_parameters']['fund_1']=f_operating-f_range
-    #circuit_initialization_parameters_run[0]['simulation']['netlist_parameters']['fund_2']=f_operating-f_range+1e6
-
+    circuit_initialization_parameters_run[0]['simulation']['netlist_parameters']['fund_1']=f_operating-f_range
 
     circuit_initialization_parameters_run[1]={}
     circuit_initialization_parameters_run[1]=copy.deepcopy(circuit_initialization_parameters)
     circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['directory']=circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['directory']+'T2/'
     circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/T2/spectre_run.tcsh'
-    #circuit_initialization_parameters_run[1]['simulation']['netlist_parameters']['fund_1']=f_operating
-    #circuit_initialization_parameters_run[1]['simulation']['netlist_parameters']['fund_2']=f_operating+1e6
-    
-
+    circuit_initialization_parameters_run[1]['simulation']['netlist_parameters']['fund_1']=f_operating
+   
     circuit_initialization_parameters_run[2]={}
     circuit_initialization_parameters_run[2]=copy.deepcopy(circuit_initialization_parameters)
     circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['directory']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['directory']+'T3/'
     circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/T3/spectre_run.tcsh'
-    #circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_1']=f_operating+f_range
-    #circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_2']=f_operating+f_range+1e6
+    circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_1']=f_operating+f_range
+
         
     # Creating processes
     results_async=[pool.apply_async(write_extract_single,args=(i,circuit_parameters_run[i],circuit_initialization_parameters_run[i])) for i in range(3)]
