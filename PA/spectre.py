@@ -216,21 +216,26 @@ def extract_dc_param(circuit_initialization_parameters):
     lines=lines[0].split()
 
     # Extracting the values from the required line
-    extracted_parameters['vg1']=valueE_to_value(lines[2])
-    extracted_parameters['vd1']=valueE_to_value(lines[4])
+    extracted_parameters['vg1']=valueE_to_value(lines[5])
+    extracted_parameters['vd1']=valueE_to_value(lines[6])
     
-    extracted_parameters['i_source']=np.absolute(valueE_to_value(lines[5]))
-    extracted_parameters['v_source']=np.absolute(valueE_to_value(lines[1]))
+    extracted_parameters['i_source']=np.absolute(valueE_to_value(lines[4]))
+    extracted_parameters['v_source']=np.absolute(valueE_to_value(lines[3]))
     extracted_parameters['p_source']=extracted_parameters['i_source']*extracted_parameters['v_source']
+    extracted_parameters['Voutdc']=valueE_to_value(lines[1])
+    extracted_parameters['Isup']=valueE_to_value(lines[2])
+    extracted_parameters['Vsup']=valueE_to_value(lines[16])
+    extracted_parameters['Psup']=extracted_parameters['Isup']*extracted_parameters['Vsup']
+    extracted_parameters['gm1']=valueE_to_value(lines[8])
+    extracted_parameters['gds1']=valueE_to_value(lines[9])
+    extracted_parameters['vth1']=valueE_to_value(lines[10])
+    extracted_parameters['vdsat1']=valueE_to_value(lines[12])
+    extracted_parameters['Idsat1']=valueE_to_value(lines[7])
 
-    extracted_parameters['Io']=valueE_to_value(lines[6])
-    extracted_parameters['gm1']=valueE_to_value(lines[7])
-    extracted_parameters['gds1']=valueE_to_value(lines[8])
-    extracted_parameters['vth1']=valueE_to_value(lines[9])
-    extracted_parameters['vdsat1']=valueE_to_value(lines[10])
+    extracted_parameters['cgs1']=np.absolute(valueE_to_value(lines[13]))
+    extracted_parameters['cgd1']=np.absolute(valueE_to_value(lines[14]))
+    extracted_parameters['region']=np.absolute(valueE_to_value(lines[15]))
 
-    extracted_parameters['cgs1']=np.absolute(valueE_to_value(lines[11]))
-    extracted_parameters['cgd1']=np.absolute(valueE_to_value(lines[12]))
     
     return extracted_parameters
 
@@ -516,7 +521,10 @@ def dict_convert(circuit_parameters,circuit_initialization_parameters):
         'cap_coup_out':'C2',
     }
     for param_name in cir_writing_dict:
-        write_dict[param_name]=circuit_parameters[cir_writing_dict[param_name]]
+        try:
+            write_dict[param_name]=circuit_parameters[cir_writing_dict[param_name]]
+        except:
+            pass
         
     # Getting the value of resistances
     write_dict['res_drain']=circuit_parameters['Ld']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi/50
@@ -547,6 +555,7 @@ def write_circuit_parameters(circuit_parameters,circuit_initialization_parameter
             if "parameters "+param_name+'=' in line:    # Checking for a particular parameter in the .scs file
                 line=line.replace(line,print_param(param_name,write_dict[param_name]))  # Replacing the parameter in the .scs file
         s=s+line
+
     f.truncate(0)
     f.write(s)
     f.close()
@@ -800,14 +809,18 @@ def get_final_extracted_parameters(extracted_parameters_combined):
         'i_source':'mid',
         'v_source':'mid',
         'p_source':'mid',
-        'Io':'mid',
+        'Isup':'max',
+        'Vsup':'max',
+        'Psup':'max',
         'gm1':'mid',
         'gds1':'mid',
         'vth1':'mid',
         'vdsat1':'mid',
+        'Idsat1':'max',
         'cgs1':'mid',
         'cgd1':'mid',
         'freq':'mid',
+        'region':'mid',
         #'s12_db':'max',
         #'s21_db':'max',
         #'s22_db':'max',
@@ -818,7 +831,7 @@ def get_final_extracted_parameters(extracted_parameters_combined):
 
     for param in extracted_parameters_combined[0]:
         for i in range(3):
-            final_extracted_parameters[str(i)+'_'+param]=extracted_parameters_combined[i][param]
+            final_extracted_parameters['comb_'+str(i)+'_'+param]=extracted_parameters_combined[i][param]
     
     for param in extracted_parameters_select:
         if extracted_parameters_select[param]=='mid':
@@ -894,7 +907,7 @@ def write_extract(circuit_parameters,circuit_initialization_parameters):
     extracted_parameters_combined={}
     for r in results_async:
         try:
-            (i,extracted_parameters)=r.get(timeout=10)
+            (i,extracted_parameters)=r.get()
         except mp.TimeoutError:
             print("timeout error")
 

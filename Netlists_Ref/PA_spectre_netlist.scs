@@ -40,7 +40,6 @@ parameters cir_temp=27
 // ------------------------ NETLIST STATEMENTS ------------------------------------
 
 // ----- Resistors -----
-Rin (Vin 0) resistor r=res_in
 Rd (T1 D1) resistor r=res_drain
 Rb (G1 Vb) resistor r=res_bias
 Rl (Vout 0) resistor r=res_load
@@ -57,7 +56,7 @@ M0 (Vb Vb 0 0) nch w=wid_bias l=len nf=n_finger
 M1 (D1 G1 0 0) nch w=wid_amp l=len nf=n_finger
 
 // ----- Sources -----
-Vs (Vin 0) port type=sine dbm=pin freq=fund_1 fundname=fund1 mag=1 r=50 num=1
+Vs (Vin 0) port type=sine dbm=pin freq=fund_1 fundname=fund1 mag=1 r=res_in num=1
 Io (Vdd Vb) isource dc=cur0
 Vpower (Vdd 0) vsource dc=v_dd
 buf (E1 0) bsource v=v(Vin,0)
@@ -69,5 +68,5 @@ dc_test dc oppoint=logfile
 ac_test ac start=fund_1 stop=2*fund_1 dec=1
 
 // ------------------------ PRINT STATEMENTS ------------------------------------
-print V(Vout), I(Vpower), V(G1), V(D1), M1:ids, M1:gm, M1:gds, M1:vth, M1:vds, M1:vdsat, M1:cgs, M1:cgd, M1:region, name=dc_test to="dc.out"
+print V(Vout), I(Vpower), V(Vs), I(Vs), V(G1), V(D1), M1:ids, M1:gm, M1:gds, M1:vth, M1:vds, M1:vdsat, M1:cgs, M1:cgd, M1:region, V(Vpower), name=dc_test to="dc.out"
 print re(V(Vout)), im(V(Vout)), re(V(Vin)), im(V(Vin)),mag(V(Vout))/mag(V(Vin)), name=ac_test to="ac.out"

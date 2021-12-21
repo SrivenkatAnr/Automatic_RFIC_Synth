@@ -74,10 +74,9 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']={}
 	circuit_initialization_parameters['simulation']['standard_parameters']={}
 
-	circuit_initialization_parameters['simulation']['standard_parameters']['directory']='/home/ee18b038/cadence_project/PA_tri1/'
-	circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65_rcm'
+	circuit_initialization_parameters['simulation']['standard_parameters']['directory']='/home/ee18b038/cadence_project/PA_single_pt/'
+	circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']='basic_tsmc_65_rcm'
 	circuit_initialization_parameters['simulation']['standard_parameters']['tcsh']='/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/'
-	circuit_initialization_parameters['simulation']['standard_parameters']['iip3_type']='basic'		# 'basic' or 'advanced' 
 
 	circuit_initialization_parameters['simulation']['standard_parameters']['std_temp']=27
 	circuit_initialization_parameters['simulation']['standard_parameters']['pin_fixed']=-65
@@ -113,14 +112,13 @@ get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 
 circuit_parameters={
 	'Rin':50,
-	'Rb':20000,
+	'Rb':1000,
 	'Rl':20,
-	'Rd':0.2,
 	'Ld':1e-8,
 	'C1':5e-13,
 	'C2':2.5e-9,
 	'W':900e-6,
-	'Io':171e-6
+	'Io':4e-3
 }
 
 
@@ -131,8 +129,11 @@ cir.update_circuit(circuit_parameters)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #------------------------------------- OUTPUT PRINT --------------------------------------------
-print('Extracted_Parameters\n')
+print ('\n____________________________________________________________________')
+print ('------------------------Extracted Parameters------------------------\n')
 for param_name in cir.extracted_parameters:
-	print(param_name,' : ',cir.extracted_parameters[param_name])
+    if ('comb_' not in param_name):
+	    print(param_name,' : ',cir.extracted_parameters[param_name])
+print("\n")
 
 #===========================================================================================================================
