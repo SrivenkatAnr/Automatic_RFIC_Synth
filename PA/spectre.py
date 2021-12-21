@@ -14,14 +14,6 @@ Functions structure in this file:
         --> extract_ac_param
         --> extract_sp_param
         --> extract_noise_param
-    --> calculate_iip3_single_point
-    --> calculate_iip3_multiple_points
-        --> calculate_slope
-        --> calculate_best_iip3_point
-        --> check_freq
-        --> extract_vout_magnitude
-        --> extract_vout
-
     --> print_param
     --> dict_convert
     --> write_circuit_parameters
@@ -298,7 +290,7 @@ def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
         phase-=180
 
     return gain_db,phase
-
+"""
 #---------------------------------------------------------------------------------------------------------------------------    
 # Calculating the value of K from the SP 
 # Inputs: s parameters and their phase in radians
@@ -355,7 +347,7 @@ def calculate_Z(s11_db,s11_ph):
     Zin_I=50*(2*s11_img)/denominator
 
     return Zin_R,Zin_I
-
+"""
 #---------------------------------------------------------------------------------------------------------------------------
 # Extracting all the output parameters from chi file
 # Inputs: optimization_input parameters
@@ -376,7 +368,7 @@ def extract_basic_parameters(circuit_initialization_parameters):
     
     return extracted_parameters
 
-
+"""
 #===========================================================================================================================================================
 #------------------------------------------------------------ IIP3 Extraction Functions --------------------------------------------------------------------
 
@@ -549,7 +541,7 @@ def extract_vout(lines):
 
 
 #===========================================================================================================================
-
+"""
 
 """
 ====================================================================================================================================================================================
@@ -679,46 +671,6 @@ def write_MOS_parameters(circuit_initialization_parameters):
     f.write(s)
     f.close()
 
-    # Writing the MOS Parameters to IIP3 File
-    f=open(filename2,'r+')
-    s=''
-    write_check=1
-    include_check=0
-
-    # Replacing the lines of .scs file
-    for line in fileinput.input(filename2):
-        if "include " in line:  # This line is used to include the MOS file in the .scs file
-            include_check=1
-            write_check=0
-
-        elif "include" not in line and include_check==1:
-            s=s+circuit_initialization_parameters['MOS']['filename'][process_corner]
-            include_check=0
-            write_check=1
-        
-        for param_name in write_dict:   # This line is used to replace the MOS parameters and simulation_parameters
-            if "parameters "+param_name+'=' in line:
-                line=line.replace(line,print_param(param_name,write_dict[param_name]))
-        
-        if 'hb_test' in line and 'errpreset=conservative' in line and circuit_initialization_parameters['simulation']['standard_parameters']['conservative']=='NO':
-            line_split=line.split()
-            line=''
-            for word in line_split:
-                if 'errpreset=conservative' not in word:
-                    line=line+word+' '
-            line=line+'\n'
-        
-        elif 'hb_test' in line and 'errpreset=conservative' not in line and circuit_initialization_parameters['simulation']['standard_parameters']['conservative']=='YES':
-            line=line[:-1]+' errpreset=conservative \n'
-
-        if write_check==1:
-            s=s+line
-    
-
-    f.truncate(0)
-    f.write(s)
-    f.close()
-    
 #-----------------------------------------------------------------
 # Function that adds Simulation Parameters
 # Inputs  : Optimization Input Parameters
