@@ -507,13 +507,13 @@ def dict_convert(circuit_parameters,circuit_initialization_parameters):
     cir_writing_dict={
         'wid_bias':'W',
         'cur0':'Io',
-        'res_bias':'Rbias',
+        'res_bias':'Rb',
         'res_in':'Rin',
         'res_drain':'Rd',
         'res_load':'Rl',
         'ind_drain':'Ld',
-        'cap_coup_in':'Ccoup_in',
-        'cap_coup_out':'Ccoup_out',
+        'cap_coup_in':'C1',
+        'cap_coup_out':'C2',
     }
     for param_name in cir_writing_dict:
         write_dict[param_name]=circuit_parameters[cir_writing_dict[param_name]]

@@ -113,12 +113,12 @@ get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 
 circuit_parameters={
 	'Rin':50,
-	'Rbias':20000,
+	'Rb':20000,
 	'Rl':20,
 	'Rd':0.2,
 	'Ld':1e-8,
-	'Ccoup_in':5e-13,
-	'Ccoup_out':2.5e-9,
+	'C1':5e-13,
+	'C2':2.5e-9,
 	'W':900e-6,
 	'Io':171e-6
 }

@@ -42,15 +42,15 @@ parameters cir_temp=27
 // ----- Resistors -----
 Rin (Vin 0) resistor r=res_in
 Rd (T1 D1) resistor r=res_drain
-Rbias (G1 Vb) resistor r=res_bias
+Rb (G1 Vb) resistor r=res_bias
 Rl (Vout 0) resistor r=res_load
 
 // ----- Inductors -----
 Ld (Vdd T1) inductor l=ind_drain
 
 // ----- Capacitors -----
-Ccoup_in (E1 G1) capacitor c=cap_coup_in
-Ccoup_out (D1 Vout) capacitor c=cap_coup_out
+C1 (E1 G1) capacitor c=cap_coup_in
+C2 (D1 Vout) capacitor c=cap_coup_out
 
 // ----- MOSFETs -----
 M0 (Vb Vb 0 0) nch w=wid_bias l=len nf=n_finger
