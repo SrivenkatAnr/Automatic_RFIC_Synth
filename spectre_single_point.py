@@ -107,18 +107,18 @@ get_mos_parameters(circuit_initialization_parameters,'TSMC65')
 #get_mos_parameters(circuit_initialization_parameters,'TSMC65_2')
 
 # ---------- Simulation Conditions ----------
-fo=1e9
+fo=2e9
 get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 
 circuit_parameters={
 	'Rin':50,
 	'Rb':1000,
-	'Rl':20,
-	'Ld':1e-8,
+	'Rl':50,
+	'Ld':12e-9,
 	'C1':5e-13,
 	'C2':2.5e-9,
-	'W':900e-6,
-	'Io':4e-3
+	'W':80e-6,
+	'Io':3e-3
 }
 
 

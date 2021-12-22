@@ -31,7 +31,6 @@ Functions structure in this file:
 import numpy as np
 import common_functions as cf
 import Ckt_Optimization.loss_func as lf
-#import optimization_functions_fom as off
 import os
 from matplotlib import pylab
 from pylab import *
