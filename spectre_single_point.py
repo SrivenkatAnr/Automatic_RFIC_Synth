@@ -74,15 +74,15 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']={}
 	circuit_initialization_parameters['simulation']['standard_parameters']={}
 
-	circuit_initialization_parameters['simulation']['standard_parameters']['directory']='/home/ee18b038/cadence_project/PA_single_pt/'
-	circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']='basic_tsmc_65_rcm'
+	circuit_initialization_parameters['simulation']['standard_parameters']['directory']='/home/ee18b038/cadence_project/PA_tri2/'
+	circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65_rcm'
 	circuit_initialization_parameters['simulation']['standard_parameters']['tcsh']='/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/'
 
 	circuit_initialization_parameters['simulation']['standard_parameters']['std_temp']=27
 	circuit_initialization_parameters['simulation']['standard_parameters']['pin_fixed']=-65
 	circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']=-70
-	circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']=-40
-	circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']=6
+	circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']=30
+	circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']=10
 	circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']='tt'
 	circuit_initialization_parameters['simulation']['standard_parameters']['conservative']='NO'
 	circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max']=2e-6

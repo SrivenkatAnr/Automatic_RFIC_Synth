@@ -50,7 +50,6 @@ class Circuit():
         self.extracted_parameters={}
         self.simulation_parameters={}
         self.circuit_initialization_parameters=circuit_initialization_parameters
-        #write_MOS_parameters(self.circuit_initialization_parameters)
         self.mos_parameters=calculate_mos_parameters(self.circuit_initialization_parameters)
     
     def run_circuit(self):
@@ -314,25 +313,21 @@ def extract_basic_parameters(circuit_initialization_parameters):
     
     return extracted_parameters
 
-"""
+
 #===========================================================================================================================================================
-#------------------------------------------------------------ IIP3 Extraction Functions --------------------------------------------------------------------
+#------------------------------------------- 1dB compression, AM-PM Dev Extraction Functions --------------------------------------------------------------------
 
 #---------------------------------------------------------------------------------------------------------------------------    
 # Calculating the IIP3 from a single point
 # Inputs: Vout_fund, Vout_im3, pin
 # Output: IIP3
-def calculate_iip3_single_point(vout_fund_mag,vout_im3_mag,pin):
-
-    # Calculating values in log scale
-    vout_fund_log=20*np.log10(vout_fund_mag)
-    vout_im3_log=20*np.log10(vout_im3_mag)
-
-    # Calculating iip3
-    iip3=pin+(0.5*(vout_fund_log-vout_im3_log))
-
-    return iip3
-
+def extract_advanced_parameters(circuit_initialization_parameters):
+        
+    # Storing the outputs in a single dictionary
+    extracted_parameters={}
+    
+    return extracted_parameters
+"""
 #---------------------------------------------------------------------------------------------------------------------------    
 # Calculating the IIP3 after extraction of Vout data
 # Inputs: circuit_initialization_parameters, Vout_fund, Vout_im3, pin
@@ -666,74 +661,47 @@ def write_extract_basic(circuit_initialization_parameters):
     basic_extracted_parameters=extract_basic_parameters(circuit_initialization_parameters)
     
     return basic_extracted_parameters
-"""
+
 #-----------------------------------------------------------------------------------------------
-# This function will perform simulation for IIP3 Parameters
+# This function will perform simulation for Advanced Parameters
 # Inputs  : Circuit_Parameters, circuit_initialization_parameters
 # Outputs : Extracted_Parameters
-def write_extract_iip3(circuit_initialization_parameters):
+def write_extract_advanced(circuit_initialization_parameters):
 
-    if circuit_initialization_parameters['simulation']['standard_parameters']['iip3_type']=='basic':
-        
-        # Writing the tcsh file for Basic Analysis
-        write_tcsh_file(circuit_initialization_parameters,'iip3')
+    pin_start=circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']
+    pin_stop=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
+    pin_points=circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']
 
-        pin=circuit_initialization_parameters['simulation']['standard_parameters']['pin_fixed']
-        circuit_initialization_parameters['simulation']['netlist_parameters']['pin']=pin
+    pin=np.linspace(pin_start,pin_stop,pin_points)
             
+    op_params=np.zeros(pin_points,dtype=float)
+
+    for i in range(pin_points): 
+            
+        circuit_initialization_parameters['simulation']['netlist_parameters']['pin']=pin[i]
+                
         # Writing the simulation parameters
         write_simulation_parameters(circuit_initialization_parameters)
+
+        # Writing the tcsh file for Basic Analysis
+        write_tcsh_file(circuit_initialization_parameters,'basic')
 
         # Running netlist file
         run_file(circuit_initialization_parameters)
 
         # Extracting Vout Magnitude
-        file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']+'/circ.raw/hb_test.fd.qpss_hb'
-        vout_fund_mag,vout_im3_mag=extract_vout_magnitude(file_name,circuit_initialization_parameters)
+        file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
+        op_params[i]=extract_advanced_parameters(file_name,circuit_initialization_parameters)
 
-        # Calculating the iip3
-        iip3=calculate_iip3_single_point(vout_fund_mag,vout_im3_mag,pin)
-
-    else:
-
-        pin_start=circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']
-        pin_stop=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
-        pin_points=circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']
-
-        pin=np.linspace(pin_start,pin_stop,pin_points)
-            
-        vout_fund_mag=np.zeros(pin_points,dtype=float)
-        vout_im3_mag=np.zeros(pin_points,dtype=float)
-
-        for i in range(pin_points):
-            
-            circuit_initialization_parameters['simulation']['netlist_parameters']['pin']=pin[i]
-                
-            # Writing the simulation parameters
-            write_simulation_parameters(circuit_initialization_parameters)
-
-            # Writing the tcsh file for Basic Analysis
-            write_tcsh_file(circuit_initialization_parameters,'iip3')
-
-            # Running netlist file
-            run_file(circuit_initialization_parameters)
-
-            # Extracting Vout Magnitude
-            file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']+'/circ.raw/hb_test.fd.qpss_hb'
-            vout_fund_mag[i],vout_im3_mag[i]=extract_vout_magnitude(file_name,circuit_initialization_parameters)
-
-        iip3=calculate_iip3_multiple_points(circuit_initialization_parameters,vout_fund_mag,vout_im3_mag,pin)
-
-    iip3_extracted_parameters={'iip3_dbm':iip3}
+    advanced_extracted_parameters=extract_advanced_parameters(op_params)
     
-    return iip3_extracted_parameters
-"""
+    return advanced_extracted_parameters
+
 #-----------------------------------------------------------------------------------------------
 # This function will write the circuit parameters, run Eldo and extract the output parameters
 # Inputs  : Circuit_Parameters, circuit_initialization_parameters
 # Outputs : Extracted_Parameters
 def write_extract_single(i,circuit_parameters,circuit_initialization_parameters):
-
      
     # Writing to netlist file
     write_circuit_parameters(circuit_parameters,circuit_initialization_parameters)
@@ -741,13 +709,13 @@ def write_extract_single(i,circuit_parameters,circuit_initialization_parameters)
     # Extracting the Basic Parameters
     basic_extracted_parameters=write_extract_basic(circuit_initialization_parameters)
     
-    # Extracting the IIP3 Parameters
-    #iip3_extracted_parameters=write_extract_iip3(circuit_initialization_parameters)
+    # Extracting the Advanced Parameters
+    advanced_extracted_parameters=write_extract_advanced(circuit_initialization_parameters)
     
     # Extracting Parameters from output files
     extracted_parameters=basic_extracted_parameters.copy()
-    #for param_name in iip3_extracted_parameters:
-    #    extracted_parameters[param_name]=iip3_extracted_parameters[param_name]
+    for param_name in iip3_extracted_parameters:
+        extracted_parameters[param_name]=advanced_extracted_parameters[param_name]
 
     return (i,extracted_parameters)
 
