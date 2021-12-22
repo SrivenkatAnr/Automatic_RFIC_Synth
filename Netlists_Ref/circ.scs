@@ -7,12 +7,12 @@ include "/cad/library/TSMC/65/lp/models/spectre/crn65lp_2d5_lk_v1d7_usage.scs" s
 
 // ----- Resistors -----
 parameters res_in=50
-parameters res_drain=0.2
-parameters res_bias=20000
+parameters res_drain=3.01592894745
+parameters res_bias=1000
 parameters res_load=20
 
 // ----- Inductors -----
-parameters ind_drain=1e-08
+parameters ind_drain=1.2e-08
 
 // ----- Capacitors -----
 parameters cap_coup_in=5e-13
@@ -20,15 +20,15 @@ parameters cap_coup_out=2.5e-09
 
 // ----- MOSFETs -----
 parameters len=6e-08
-parameters wid_bias=0.0009
+parameters wid_bias=8e-05
 parameters wid_amp=wid_bias
-parameters n_finger=451
+parameters n_finger=41
 
 // ----- Sources -----
-parameters cur0=0.000171
+parameters cur0=0.003
 parameters v_dd=1.0
-parameters fund_1=999000000.0
-parameters pin=-65
+parameters fund_1=1900000000.0
+parameters pin=30.0
 
 // ----- Analysis -----
 parameters n_harm=5
@@ -40,6 +40,7 @@ parameters cir_temp=27
 // ------------------------ NETLIST STATEMENTS ------------------------------------
 
 // ----- Resistors -----
+Rin (Vin 0) resistor r=res_in
 Rd (T1 D1) resistor r=res_drain
 Rb (G1 Vb) resistor r=res_bias
 Rl (Vout 0) resistor r=res_load
@@ -56,7 +57,7 @@ M0 (Vb Vb 0 0) nch w=wid_bias l=len nf=n_finger
 M1 (D1 G1 0 0) nch w=wid_amp l=len nf=n_finger
 
 // ----- Sources -----
-Vs (Vin 0) port type=sine dbm=pin freq=fund_1 fundname=fund1 mag=1 r=res_in num=1
+Vs (Vin 0) port type=sine dbm=pin freq=fund_1 fundname=fund1 mag=1 r=50 num=1
 Io (Vdd Vb) isource dc=cur0
 Vpower (Vdd 0) vsource dc=v_dd
 buf (E1 0) bsource v=v(Vin,0)
