@@ -82,7 +82,7 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['standard_parameters']['pin_fixed']=-65
 	circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']=-70
 	circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']=30
-	circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']=10
+	circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']=5
 	circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']='tt'
 	circuit_initialization_parameters['simulation']['standard_parameters']['conservative']='NO'
 	circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max']=2e-6
@@ -113,7 +113,7 @@ get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 circuit_parameters={
 	'Rin':50,
 	'Rb':1000,
-	'Rl':50,
+	'Rl':20,
 	'Ld':12e-9,
 	'C1':5e-13,
 	'C2':2.5e-9,

@@ -315,18 +315,22 @@ def extract_basic_parameters(circuit_initialization_parameters):
 
 
 #===========================================================================================================================================================
-#------------------------------------------- 1dB compression, AM-PM Dev Extraction Functions --------------------------------------------------------------------
+#------------------------------------------- AM-AM, AM-PM Deviation Extraction Functions --------------------------------------------------------------------
 
 #---------------------------------------------------------------------------------------------------------------------------    
 # Calculating the IIP3 from a single point
 # Inputs: Vout_fund, Vout_im3, pin
 # Output: IIP3
-def extract_advanced_parameters(circuit_initialization_parameters):
+def extract_advanced_parameters(op_params):
         
     # Storing the outputs in a single dictionary
     extracted_parameters={}
     
     return extracted_parameters
+
+def extract_dev_param(a,b):
+    
+    return 0
 """
 #---------------------------------------------------------------------------------------------------------------------------    
 # Calculating the IIP3 after extraction of Vout data
@@ -674,7 +678,7 @@ def write_extract_advanced(circuit_initialization_parameters):
 
     pin=np.linspace(pin_start,pin_stop,pin_points)
             
-    op_params=np.zeros(pin_points,dtype=float)
+    pow_ph_params=np.zeros(pin_points,dtype=float)
 
     for i in range(pin_points): 
             
@@ -691,9 +695,9 @@ def write_extract_advanced(circuit_initialization_parameters):
 
         # Extracting Vout Magnitude
         file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
-        op_params[i]=extract_advanced_parameters(file_name,circuit_initialization_parameters)
+        pow_ph_params[i]=extract_dev_param(file_name,circuit_initialization_parameters)
 
-    advanced_extracted_parameters=extract_advanced_parameters(op_params)
+    advanced_extracted_parameters=extract_advanced_parameters(pow_ph_params)
     
     return advanced_extracted_parameters
 
@@ -714,7 +718,7 @@ def write_extract_single(i,circuit_parameters,circuit_initialization_parameters)
     
     # Extracting Parameters from output files
     extracted_parameters=basic_extracted_parameters.copy()
-    for param_name in iip3_extracted_parameters:
+    for param_name in advanced_extracted_parameters:
         extracted_parameters[param_name]=advanced_extracted_parameters[param_name]
 
     return (i,extracted_parameters)
