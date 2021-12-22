@@ -561,50 +561,6 @@ def write_circuit_parameters(circuit_parameters,circuit_initialization_parameter
     f.close()
 
 #-----------------------------------------------------------------
-# Function that adds MOSFET Parameters to the netlist
-# Inputs  : Optimization Input Parameters
-# Outputs : NONE
-def write_MOS_parameters(circuit_initialization_parameters):
-    
-    # write_dict will contain the mosfet values
-    write_dict={
-        'len':circuit_initialization_parameters['MOS']['Lmin'],
-        'v_dd':circuit_initialization_parameters['MOS']['Vdd'],
-    }
-    process_corner=circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']
-
-    # Getting the filenames
-    filename1=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
-
-    # Writing the MOS Parameters to Basic File
-    f=open(filename1,'r+')
-    s=''
-    write_check=1
-    include_check=0
-
-    # Replacing the lines of .scs file
-    for line in fileinput.input(filename1):
-        if "include " in line:  # This line is used to include the MOS file in the .scs file
-            include_check=1
-            write_check=0
-
-        elif "include" not in line and include_check==1:
-            s=s+circuit_initialization_parameters['MOS']['filename'][process_corner]
-            include_check=0
-            write_check=1
-        
-        for param_name in write_dict:   # This line is used to replace the MOS parameters and simulation_parameters
-            if "parameters "+param_name+'=' in line:
-                line=line.replace(line,print_param(param_name,write_dict[param_name]))
-
-        if write_check==1:
-            s=s+line
-
-    f.truncate(0)
-    f.write(s)
-    f.close()
-
-#-----------------------------------------------------------------
 # Function that adds Simulation Parameters
 # Inputs  : Optimization Input Parameters
 # Outputs : NONE
