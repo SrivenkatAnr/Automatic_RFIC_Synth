@@ -260,7 +260,8 @@ def extract_ac_param(circuit_initialization_parameters):
     vout_im=valueE_to_value(lines[2])
     vin_re=valueE_to_value(lines[3])
     vin_im=valueE_to_value(lines[4])
-    extracted_parameters['gain_db'],extracted_parameters['gain_phase']=calculate_gain_phase(vout_re,vout_im,vin_re,vin_im)
+    extracted_parameters['gain_db']=calculate_gain_db(vout_re,vout_im,vin_re,vin_im)
+    extracted_parameters['gain_phase']=calculate_gain_phase(vout_re,vout_im,vin_re,vin_im)
     
     return extracted_parameters
 
@@ -293,12 +294,20 @@ def extract_xdb_param(circuit_initialization_parameters):
 # Calculating the gain and angle from the vout and vin values
 # Inputs: vout and vin
 # Output: gain_db and phase
-def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
+def calculate_gain_db(vout_re,vout_im,vin_re,vin_im):
     
     # Calculating gain_dB
     gain=(vout_re**2+vout_im**2)/(vin_re**2+vin_im**2)
     gain_db=10*np.log10(gain)
 
+    return gain_db
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Calculating the gain and angle from the vout and vin values
+# Inputs: vout and vin
+# Output: gain_db and phase
+def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
+    
     # Calculating the phase of vout and vin
     if vout_re>0:
         vout_phase=np.arctan(vout_im/vout_re)*180/np.pi
@@ -316,7 +325,7 @@ def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
     while phase>180:
         phase-=180
 
-    return gain_db,phase
+    return phase
 
 #---------------------------------------------------------------------------------------------------------------------------
 # Extracting all the output parameters from chi file

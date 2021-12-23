@@ -57,7 +57,7 @@ M0 (Vb Vb 0 0) nch w=wid_bias l=len nf=n_finger
 M1 (D1 G1 0 0) nch w=wid_amp l=len nf=n_finger
 
 // ----- Sources -----
-Vs (Vin 0) port type=sine dbm=pin freq=fund_1 fundname=fund1 mag=0.1m r=50 num=1
+Vs (Vin 0) port type=sine dbm=pin freq=fund_1 fundname=fund1 mag=1 m=1 r=50 num=1
 Io (Vdd Vb) isource dc=cur0
 Vpower (Vdd 0) vsource dc=v_dd
 buf (E1 0) bsource v=v(Vin,0)
@@ -67,7 +67,7 @@ Settings options rawfmt=psfascii temp=cir_temp
 // ------------------------ ANALYSIS STATEMENTS ------------------------------------
 dc_test dc oppoint=logfile
 ac_test ac start=fund_1 stop=2*fund_1 dec=1
-hb_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
+hb_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 xdbref="linear" fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
 
 // ------------------------ PRINT STATEMENTS ------------------------------------
 print V(Vout), I(Vpower), V(Vs), I(Vs), V(G1), V(D1), M1:ids, M1:gm, M1:gds, M1:vth, M1:vds, M1:vdsat, M1:cgs, M1:cgd, M1:region, V(Vpower), name=dc_test to="dc.out"
