@@ -272,7 +272,7 @@ def extract_ac_param(circuit_initialization_parameters):
 def extract_xdb_param(circuit_initialization_parameters):
 
     # Getting the filename
-    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/hb_test.xdb.pss_hb'
+    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/gcomp_test.xdb.pss_hb'
     lines=extract_file(file_name)
 
     extracted_parameters={}
@@ -289,6 +289,63 @@ def extract_xdb_param(circuit_initialization_parameters):
     extracted_parameters['op1db']=valueE_to_value(op1db)
 
     return extracted_parameters
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Extracting the AC from the file
+# Inputs: circuit_initialization_parameters
+# Output: Dictionary with all the parameters
+def extract_phdev_param(circuit_initialization_parameters):
+
+    # Getting the filename
+    file_name_template=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-0{}_phdev_test.fd.pss_hb'
+    
+    pin_start=circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']
+    pin_stop=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
+    pin_step=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
+    npin=int((pin_stop-pin_start)/pin_step)
+
+    vin_re_arr = np.zeros(npin,dtype=float)
+    vin_im_arr = np.zeros(npin,dtype=float)
+    vout_re_arr = np.zeros(npin,dtype=float)
+    vout_im_arr = np.zeros(npin,dtype=float)
+    ph_arr = np.zeros(npin,dtype=float)
+
+    for i in range(npin):
+        if (i==0):
+            filename=file_name_template.replace("0{}","000")  
+        elif (i<=9):
+            filename=str(fname.format("0"+str(i)))
+        else:
+            filename=str(fname.format(i)) 
+        for line in extract_file(filename):
+            if '"Vin"' in line and '"V"' not in line:
+               vin_re_arr[i],vin_im_arr[i] = extract_voltage(line)
+            if '"Vout"' in line and '"V"' not in line:
+                vout_re_arr[i],vout_im_arr[i] = extract_voltage(line)
+        ph_arr[i] = calculate_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
+
+    ph_min=min(ph_arr)
+    ph_max=max(ph_arr) 
+    extracted_parameters["am-pm-dev"]=ph_max-ph_min
+
+    return extracted_parameters    
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Extracts Vout_magnitude from hb,pss file line
+# Inputs: Line
+# Output: Vout_Magnitude
+def extract_voltage(lines):
+    
+    # Extracting Vout Magnitude
+    lines=lines.split()
+    char_r=lines[1].split('(')[1]
+    char_i=lines[2].split(')')[0]
+
+    # Converting string to floating point value
+    vout_r=valueE_to_value(char_r)
+    vout_i=valueE_to_value(char_i)
+
+    return vout_mag
 
 #---------------------------------------------------------------------------------------------------------------------------    
 # Calculating the gain and angle from the vout and vin values
@@ -337,6 +394,7 @@ def extract_basic_parameters(circuit_initialization_parameters):
     extracted_parameters_dc=extract_dc_param(circuit_initialization_parameters)
     extracted_parameters_ac=extract_ac_param(circuit_initialization_parameters)
     extracted_parameters_xdb=extract_xdb_param(circuit_initialization_parameters)
+    extracted_parameters_phdev=extract_phdev_param(circuit_initialization_parameters)
     
     # Storing the outputs in a single dictionary
     extracted_parameters={}
@@ -347,6 +405,8 @@ def extract_basic_parameters(circuit_initialization_parameters):
         extracted_parameters[param_name]=extracted_parameters_ac[param_name]
     for param_name in extracted_parameters_xdb:
         extracted_parameters[param_name]=extracted_parameters_xdb[param_name]
+    for param_name in extracted_parameters_phdev:
+        extracted_parameters[param_name]=extracted_parameters_phdev[param_name]
 
     return extracted_parameters
 
@@ -355,19 +415,7 @@ def extract_basic_parameters(circuit_initialization_parameters):
 #------------------------------------------- AM-AM, AM-PM Deviation Extraction Functions --------------------------------------------------------------------
 
 #---------------------------------------------------------------------------------------------------------------------------    
-# Calculating the IIP3 from a single point
-# Inputs: Vout_fund, Vout_im3, pin
-# Output: IIP3
-def extract_advanced_parameters(op_params):
-        
-    # Storing the outputs in a single dictionary
-    extracted_parameters={}
-    
-    return extracted_parameters
 
-def extract_dev_param(a,b):
-    
-    return 0
 """
 #---------------------------------------------------------------------------------------------------------------------------    
 # Calculating the IIP3 after extraction of Vout data
@@ -786,6 +834,7 @@ def get_final_extracted_parameters(extracted_parameters_combined):
         'cgd1':'mid',
         'freq':'mid',
         'region':'mid',
+        'am-pm-dev':'max'
         #'s12_db':'max',
         #'s21_db':'max',
         #'s22_db':'max',
