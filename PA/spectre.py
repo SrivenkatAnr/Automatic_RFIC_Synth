@@ -276,20 +276,16 @@ def extract_xdb_param(circuit_initialization_parameters):
 
     extracted_parameters={}
     ip1db=0
-    g1db=0
     op1db=0
 
-    for line in extract_file(filename):
-    if '"Pin"' in line:
-        ip1db = line.split()[1]
-    if '"Gain"' in line:
-        g1db = line.split()[1]
-    if '"Power"' in line:
-        op1db = line.split()[1]
+    for line in lines:
+        if '"Pin"' in line:
+            ip1db = line.split()[1]
+        if '"Power"' in line:
+            op1db = line.split()[1]
 
-    extracted_parameters['ip1db']=valueE_to_value(pin)
-    extracted_parameters['g1db']=valueE_to_value(gain)
-    extracted_parameters['op1db']=valueE_to_value(power)
+    extracted_parameters['ip1db']=valueE_to_value(ip1db)
+    extracted_parameters['op1db']=valueE_to_value(op1db)
 
     return extracted_parameters
 
@@ -340,7 +336,7 @@ def extract_basic_parameters(circuit_initialization_parameters):
         extracted_parameters[param_name]=extracted_parameters_dc[param_name]
     for param_name in extracted_parameters_ac:
         extracted_parameters[param_name]=extracted_parameters_ac[param_name]
-     for param_name in extracted_parameters_xdb:
+    for param_name in extracted_parameters_xdb:
         extracted_parameters[param_name]=extracted_parameters_xdb[param_name]
 
     return extracted_parameters
@@ -821,16 +817,13 @@ def get_final_extracted_parameters(extracted_parameters_combined):
     # Calculating the value of 1dB compression point
     ip1db_array=[]
     op1db_array=[]
-    g1db_array=[]
     for i in extracted_parameters_combined:
         ip1db_array.append(extracted_parameters_combined[i]['ip1db'])
         op1db_array.append(extracted_parameters_combined[i]['op1db'])
-        g1db_array.append(extracted_parameters_combined[i]['g1db'])
     ip1db_min=min(ip1db_array)
     ip1db_index=ip1db_array.index(ip1db_min)
     final_extracted_parameters['ip1db']=ip1db_min
     final_extracted_parameters['op1db']=extracted_parameters_combined[ip1db_index]['op1db']
-    final_extracted_parameters['g1db']=extracted_parameters_combined[ip1db_index]['g1db']
 
     return final_extracted_parameters
 

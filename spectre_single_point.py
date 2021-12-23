@@ -14,6 +14,7 @@ Functions structure in this file:
 #===========================================================================================================================
 
 import PA.spectre as sp
+import time
 
 #===========================================================================================================================
 #------------------------------------ Other Functions ----------------------------------------------------------------------
@@ -99,6 +100,8 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 #===========================================================================================================================
 #------------------------------------Main Program Code----------------------------------------------------------------------
 
+t_start=time.time()
+
 # Creating a dictionary with the optimization parameters
 circuit_initialization_parameters={}
 
@@ -136,4 +139,6 @@ for param_name in cir.extracted_parameters:
 	    print(param_name,' : ',cir.extracted_parameters[param_name])
 print("\n")
 
+t_end = time.time()
+print("time taken is {} seconds".format(t_end-t_start))
 #===========================================================================================================================
