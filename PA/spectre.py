@@ -750,7 +750,7 @@ def write_extract_basic(circuit_initialization_parameters):
     basic_extracted_parameters=extract_basic_parameters(circuit_initialization_parameters)
     
     return basic_extracted_parameters
-
+"""
 #-----------------------------------------------------------------------------------------------
 # This function will perform simulation for Advanced Parameters
 # Inputs  : Circuit_Parameters, circuit_initialization_parameters
@@ -785,7 +785,7 @@ def write_extract_advanced(circuit_initialization_parameters):
     advanced_extracted_parameters=extract_advanced_parameters(pow_ph_params)
     
     return advanced_extracted_parameters
-
+"""
 #-----------------------------------------------------------------------------------------------
 # This function will write the circuit parameters, run Eldo and extract the output parameters
 # Inputs  : Circuit_Parameters, circuit_initialization_parameters
