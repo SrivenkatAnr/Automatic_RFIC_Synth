@@ -205,7 +205,7 @@ def extract_file(file_name):
 def extract_dc_param(circuit_initialization_parameters):
 
     # Getting the filename
-    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/dc.out'
+    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/dc.out'
     lines=extract_file(file_name)
     
     extracted_parameters={}
@@ -245,7 +245,7 @@ def extract_dc_param(circuit_initialization_parameters):
 def extract_ac_param(circuit_initialization_parameters):
 
     # Getting the filename
-    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/ac.out'
+    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/ac.out'
     lines=extract_file(file_name)
     
     extracted_parameters={}
@@ -272,7 +272,7 @@ def extract_ac_param(circuit_initialization_parameters):
 def extract_xdb_param(circuit_initialization_parameters):
 
     # Getting the filename
-    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/gcomp_test.xdb.pss_hb'
+    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/gcomp_test.xdb.pss_hb'
     lines=extract_file(file_name)
 
     extracted_parameters={}
@@ -297,7 +297,7 @@ def extract_xdb_param(circuit_initialization_parameters):
 def extract_phdev_param(circuit_initialization_parameters,extracted_parameters_xdb):
 
     # Getting the filename
-    fname_template=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-0{}_phdev_test.fd.pss_hb'
+    fname_template=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-0{}_phdev_test.fd.pss_hb'
     
     pin_start=circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']
     pin_stop=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
@@ -631,7 +631,7 @@ def write_circuit_parameters(circuit_parameters,circuit_initialization_parameter
     write_dict=dict_convert(circuit_parameters,circuit_initialization_parameters)
     
     # Getting the filenames
-    filename1=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
+    filename1=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
 
     # We will write the new values to the Basic Circuit
     f=open(filename1,'r+') 
@@ -662,7 +662,7 @@ def write_simulation_parameters(circuit_initialization_parameters):
     write_dict['v_dd']=circuit_initialization_parameters['MOS']['Vdd']
 
     # Getting the filenames
-    filename1=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
+    filename1=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
 
     # Writing the simulation parameters to Basic File
     f=open(filename1,'r+')
@@ -704,12 +704,12 @@ def write_tcsh_file(circuit_initialization_parameters,optimiztion_type):
     s='#tcsh\n'
     s=s+'source ~/.cshrc\n'
     
-    
     if optimiztion_type=='basic':
-        s=s+'cd '+circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'\n'
+        s=s+'cd '+circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'\n'
     """else:
-        s=s+'cd '+circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']+'\n'
+        s=s+'cd '+circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']+'\n'
     """
+    s=s+'cp '+circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']+'Netlists_Ref/circ.scs'+' ./\n'
     s=s+'spectre circ.scs =log circ_log.txt\n'
     s=s+'exit'
     
@@ -782,7 +782,7 @@ def write_extract_advanced(circuit_initialization_parameters):
         run_file(circuit_initialization_parameters)
 
         # Extracting Vout Magnitude
-        file_name=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
+        file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
         pow_ph_params[i]=extract_dev_param(file_name,circuit_initialization_parameters)
 
     advanced_extracted_parameters=extract_advanced_parameters(pow_ph_params)
@@ -912,20 +912,20 @@ def write_extract(circuit_parameters,circuit_initialization_parameters):
     # Creating new circuit initialization parameters
     circuit_initialization_parameters_run[0]={}
     circuit_initialization_parameters_run[0]=copy.deepcopy(circuit_initialization_parameters)
-    circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['directory']=circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['directory']+'T1/'
-    circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/T1/spectre_run.tcsh'
+    circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['sim_directory']=circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['sim_directory']+'T1/'
+    circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['tcsh']+'T1/spectre_run.tcsh'
     circuit_initialization_parameters_run[0]['simulation']['netlist_parameters']['fund_1']=f_operating-f_range
 
     circuit_initialization_parameters_run[1]={}
     circuit_initialization_parameters_run[1]=copy.deepcopy(circuit_initialization_parameters)
-    circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['directory']=circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['directory']+'T2/'
-    circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/T2/spectre_run.tcsh'
+    circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['sim_directory']=circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['sim_directory']+'T2/'
+    circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['tcsh']+'T2/spectre_run.tcsh'
     circuit_initialization_parameters_run[1]['simulation']['netlist_parameters']['fund_1']=f_operating
    
     circuit_initialization_parameters_run[2]={}
     circuit_initialization_parameters_run[2]=copy.deepcopy(circuit_initialization_parameters)
-    circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['directory']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['directory']+'T3/'
-    circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/T3/spectre_run.tcsh'
+    circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['sim_directory']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['sim_directory']+'T3/'
+    circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']+'T3/spectre_run.tcsh'
     circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_1']=f_operating+f_range
 
         
