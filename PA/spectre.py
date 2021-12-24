@@ -299,9 +299,9 @@ def extract_phdev_param(circuit_initialization_parameters,extracted_parameters_x
     # Getting the filename
     fname_template=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-0{}_phdev_test.fd.pss_hb'
     
-    pin_start=circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']
-    pin_stop=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
-    pin_step=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
+    pin_start=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
+    pin_stop=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
+    pin_step=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
     npin=int((pin_stop-pin_start)/pin_step)
 
     vin_re_arr = np.zeros(npin,dtype=float)
@@ -706,16 +706,30 @@ def write_tcsh_file(circuit_initialization_parameters,optimiztion_type):
     
     if optimiztion_type=='basic':
         s=s+'cd '+circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'\n'
-    """else:
+    """
+    else:
         s=s+'cd '+circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']+'\n'
     """
-    s=s+'cp '+circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']+'Netlists_Ref/circ.scs'+' ./\n'
+    #s=s+'cp '+circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']+'Netlists_Ref/circ.scs'+' ./\n'
     s=s+'spectre circ.scs =log circ_log.txt\n'
     s=s+'exit'
     
     f.truncate(0)
     f.write(s)
     f.close()
+
+#-----------------------------------------------------------------
+# Function that modifies tcsh file
+# Inputs  : circuit_initialization_parameters
+# Outputs : NONE
+def copy_netlists(circuit_initialization_parameters,circuit_initialization_parameters_run):
+    
+    src=circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']+'Netlists_Ref/circ.scs'
+    for i in circuit_initialization_parameters_run.keys():
+        #print(circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['sim_directory'],circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['basic_circuit'])
+        dst_dir=circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['basic_circuit']
+        s='cp '+src+' '+dst_dir+'/ '
+        os.system(s)
 
 #===========================================================================================================================
 
@@ -928,6 +942,8 @@ def write_extract(circuit_parameters,circuit_initialization_parameters):
     circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']+'T3/spectre_run.tcsh'
     circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_1']=f_operating+f_range
 
+    #copying netlist files
+    copy_netlists(circuit_initialization_parameters,circuit_initialization_parameters_run)
         
     # Creating processes
     results_async=[pool.apply_async(write_extract_single,args=(i,circuit_parameters_run[i],circuit_initialization_parameters_run[i])) for i in range(3)]
