@@ -1,5 +1,6 @@
 #tcsh
 source ~/.cshrc
-cd /home/ee18b038/cadence_project/PA_tri2/T1/basic_parameters_tsmc_65_rcm
+cd /home/ee18b038/cadence_project/PA_single_pt/T1/basic_tsmc_65_rcm
+cp /home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/Netlists_Ref/circ.scs ./
 spectre circ.scs =log circ_log.txt
 exit

@@ -75,8 +75,8 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']={}
 	circuit_initialization_parameters['simulation']['standard_parameters']={}
 
-	circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']='/home/ee18b038/cadence_project/PA_tri2/'
-	circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65_rcm'
+	circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']='/home/ee18b038/cadence_project/PA_single_pt/'
+	circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']='basic_tsmc_65_rcm'
 	circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']='/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/'
 	circuit_initialization_parameters['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']+'Spectre_Run/'
 	circuit_initialization_parameters['simulation']['standard_parameters']['std_temp']=27
@@ -93,6 +93,7 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['netlist_parameters']={
 		'pin_start':-70,
         'pin_stop':50,
+        'pin_step':1,
 		'cir_temp':27,
 		'n_harm':5
 	}
