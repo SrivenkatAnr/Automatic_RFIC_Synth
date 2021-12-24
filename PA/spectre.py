@@ -294,10 +294,10 @@ def extract_xdb_param(circuit_initialization_parameters):
 # Extracting the AC from the file
 # Inputs: circuit_initialization_parameters
 # Output: Dictionary with all the parameters
-def extract_phdev_param(circuit_initialization_parameters):
+def extract_phdev_param(circuit_initialization_parameters,extracted_parameters_xdb):
 
     # Getting the filename
-    file_name_template=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-0{}_phdev_test.fd.pss_hb'
+    fname_template=circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-0{}_phdev_test.fd.pss_hb'
     
     pin_start=circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']
     pin_stop=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
@@ -309,24 +309,26 @@ def extract_phdev_param(circuit_initialization_parameters):
     vout_re_arr = np.zeros(npin,dtype=float)
     vout_im_arr = np.zeros(npin,dtype=float)
     ph_arr = np.zeros(npin,dtype=float)
+    extracted_parameters={}
 
     for i in range(npin):
         if (i==0):
-            filename=file_name_template.replace("0{}","000")  
+            filename=fname_template.replace("0{}","000")  
         elif (i<=9):
-            filename=str(fname.format("0"+str(i)))
+            filename=str(fname_template.format("0"+str(i)))
         else:
-            filename=str(fname.format(i)) 
+            filename=str(fname_template.format(i)) 
         for line in extract_file(filename):
             if '"Vin"' in line and '"V"' not in line:
                vin_re_arr[i],vin_im_arr[i] = extract_voltage(line)
             if '"Vout"' in line and '"V"' not in line:
                 vout_re_arr[i],vout_im_arr[i] = extract_voltage(line)
-        ph_arr[i] = calculate_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
+        ph_arr[i] = calculate_gain_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
 
+    ip1db = extracted_parameters_xdb['ip1db']
     ph_min=min(ph_arr)
     ph_max=max(ph_arr) 
-    extracted_parameters["am-pm-dev"]=ph_max-ph_min
+    extracted_parameters["am-pm-dev"]=(ph_max-ph_min)
 
     return extracted_parameters    
 
@@ -345,7 +347,7 @@ def extract_voltage(lines):
     vout_r=valueE_to_value(char_r)
     vout_i=valueE_to_value(char_i)
 
-    return vout_mag
+    return (vout_r,vout_i)
 
 #---------------------------------------------------------------------------------------------------------------------------    
 # Calculating the gain and angle from the vout and vin values
@@ -394,7 +396,7 @@ def extract_basic_parameters(circuit_initialization_parameters):
     extracted_parameters_dc=extract_dc_param(circuit_initialization_parameters)
     extracted_parameters_ac=extract_ac_param(circuit_initialization_parameters)
     extracted_parameters_xdb=extract_xdb_param(circuit_initialization_parameters)
-    extracted_parameters_phdev=extract_phdev_param(circuit_initialization_parameters)
+    extracted_parameters_phdev=extract_phdev_param(circuit_initialization_parameters,extracted_parameters_xdb)
     
     # Storing the outputs in a single dictionary
     extracted_parameters={}
@@ -702,11 +704,12 @@ def write_tcsh_file(circuit_initialization_parameters,optimiztion_type):
     s='#tcsh\n'
     s=s+'source ~/.cshrc\n'
     
+    
     if optimiztion_type=='basic':
         s=s+'cd '+circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'\n'
-    else:
+    """else:
         s=s+'cd '+circuit_initialization_parameters['simulation']['standard_parameters']['directory']+circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']+'\n'
-    
+    """
     s=s+'spectre circ.scs =log circ_log.txt\n'
     s=s+'exit'
     
