@@ -385,25 +385,11 @@ def calculate_gain_db(vout_re,vout_im,vin_re,vin_im):
 # Output: gain_db and phase
 def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
     
-    # Calculating the phase of vout and vin
-    if vout_re>0:
-        vout_phase=np.arctan(vout_im/vout_re)*180/np.pi
-    else:
-        vout_phase=180+np.arctan(vout_im/vout_re)*180/np.pi
-    if vin_re>0:
-        vin_phase=np.arctan(vin_im/vin_re)*180/np.pi
-    else:
-        vin_phase=180+np.arctan(vin_im/vin_re)*180/np.pi
-    
-    # Calculating the phase of the gain
-    phase=vout_phase-vin_phase
-    while phase<-180:
-        phase+=180
-    while phase>180:
-        phase-=180
+    vout=np.complex(vout_re,vout_im)
+    vin=np.complex(vin_re,vin_im)
+    phase=np.angle(vout/vin)*180/np.pi
 
     return phase
-
 #---------------------------------------------------------------------------------------------------------------------------
 # Extracting all the output parameters from chi file
 # Inputs: optimization_input parameters
