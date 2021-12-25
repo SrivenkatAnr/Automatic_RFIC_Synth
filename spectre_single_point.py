@@ -88,8 +88,8 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['standard_parameters']['f_range']=1e8
 
 	circuit_initialization_parameters['simulation']['netlist_parameters']={
-		'pin_start':-50,
-        'pin_stop':30,
+		'pin_start':-60,
+        'pin_stop':20,
         'pin_step':1,
 		'cir_temp':27,
 		'n_harm':5

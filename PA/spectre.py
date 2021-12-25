@@ -303,6 +303,7 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
     pin_stop=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
     pin_step=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
     npin=int((pin_stop-pin_start)/pin_step)
+    op_freq=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
 
     vin_re_arr = np.zeros(npin,dtype=float)
     vin_im_arr = np.zeros(npin,dtype=float)
@@ -311,6 +312,8 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
     ph_arr = np.zeros(npin,dtype=float)
     gdb_arr = np.zeros(npin,dtype=float)
     extracted_parameters={}
+
+    freq_flag=0
 
     for i in range(npin):
         if (i==0):
@@ -322,10 +325,16 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
         else:
             filename=str(fname_template.format(i))
         for line in extract_file(filename):
-            if '"Vin"' in line and '"V"' not in line:
-               vin_re_arr[i],vin_im_arr[i] = extract_voltage(line)
-            if '"Vout"' in line and '"V"' not in line:
+            if ('"freq"' in line) and ('"sweep"' not in line):
+                freq=line.split()[1]
+                freq=valueE_to_value(freq)
+                if(freq==op_freq):
+                    freq_flag=1
+            if ('"Vin"' in line) and ('"V"' not in line) and (freq_flag==1):
+                vin_re_arr[i],vin_im_arr[i] = extract_voltage(line)
+            if ('"Vout"' in line) and ('"V"' not in line) and (freq_flag==1):
                 vout_re_arr[i],vout_im_arr[i] = extract_voltage(line)
+                freq_flag=0
         ph_arr[i] = calculate_gain_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
         gdb_arr[i] = calculate_gain_db(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
 

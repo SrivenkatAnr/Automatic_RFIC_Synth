@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 
 fname="circ.raw/swp-{}_phdev_test.fd.pss_hb"
 
-pin_start=-70
-pin_stop=50
+pin_start=-60
+pin_stop=20
 npin=pin_stop-pin_start+1
 
 rvin_arr = np.zeros(npin,dtype=float)
@@ -73,6 +73,8 @@ def calculate_gain(vout_re,vout_im,vin_re,vin_im):
 
     return gain_db
 
+freq_flag=0
+op_freq=1.9e9
 for i in range(npin):
     if (i==0):
         filename=fname.replace("{}","000")  
@@ -83,10 +85,16 @@ for i in range(npin):
     else:
         filename=str(fname.format(i)) 
     for line in extract_file(filename):
-        if '"Vin"' in line and '"V"' not in line:
+        if ('"freq"' in line) and ('"sweep"' not in line):
+            freq=line.split()[1]
+            freq=valueE_to_value(freq)
+            if(freq==op_freq):
+                freq_flag=1
+        if ('"Vin"' in line) and ('"V"' not in line) and freq_flag==1:
             rvin_arr[i],ivin_arr[i] = extract_volt(line)
-        if '"Vout"' in line and '"V"' not in line:
+        if ('"Vout"' in line) and ('"V"' not in line) and freq_flag==1:
             rvout_arr[i],ivout_arr[i] = extract_volt(line)
+            freq_flag=0
     ph_arr[i] = calculate_phase(rvout_arr[i], ivout_arr[i], rvin_arr[i], ivin_arr[i]) 
     gdb_arr[i] = calculate_gain(rvout_arr[i], ivout_arr[i], rvin_arr[i], ivin_arr[i])
 
@@ -95,7 +103,7 @@ plt.title("ph_dev")
 plt.show()
 
 plt.plot(np.linspace(pin_start,pin_stop,npin),gdb_arr)
-plt.title("ph_dev")
+plt.title("gain_comp")
 plt.show()
 
 
