@@ -88,8 +88,8 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['standard_parameters']['f_range']=1e8
 
 	circuit_initialization_parameters['simulation']['netlist_parameters']={
-		'pin_start':-70,
-        'pin_stop':50,
+		'pin_start':-50,
+        'pin_stop':30,
         'pin_step':1,
 		'cir_temp':27,
 		'n_harm':5
@@ -114,13 +114,13 @@ get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 
 circuit_parameters={
 	'Rin':50,
-	'Rb':1000,
-	'Rl':20,
-	'Ld':12e-9,
-	'C1':5e-13,
-	'C2':2.5e-9,
-	'W':80e-6,
-	'Io':3e-3
+	'Rb':5000,
+	'Rl':25,
+	'Ld':10e-9,
+	'C1':3.2e-12,
+	'C2':6.4e-10,
+	'W':76e-6,
+	'Io':28e-3
 }
 
 
@@ -136,8 +136,8 @@ print ('------------------------Extracted Parameters------------------------\n')
 for param_name in cir.extracted_parameters:
     if ('comb_' not in param_name):
 	    print(param_name,' : ',cir.extracted_parameters[param_name])
-print("\n")
 
 t_end = time.time()
-print("time taken is {} seconds".format(t_end-t_start))
+print("time taken is {} seconds\n".format(t_end-t_start))
+
 #===========================================================================================================================

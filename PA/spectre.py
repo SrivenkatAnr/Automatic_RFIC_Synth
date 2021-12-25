@@ -269,7 +269,7 @@ def extract_ac_param(circuit_initialization_parameters):
 # Extracting the AC from the file
 # Inputs: circuit_initialization_parameters
 # Output: Dictionary with all the parameters
-def extract_xdb_param(circuit_initialization_parameters):
+def extract_xdb_auto_param(circuit_initialization_parameters):
 
     # Getting the filename
     file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/gcomp_test.xdb.pss_hb'
@@ -285,8 +285,8 @@ def extract_xdb_param(circuit_initialization_parameters):
         if '"Power"' in line:
             op1db = line.split()[1]
 
-    extracted_parameters['ip1db']=valueE_to_value(ip1db)
-    extracted_parameters['op1db']=valueE_to_value(op1db)
+    extracted_parameters['ip1db_auto']=valueE_to_value(ip1db)
+    extracted_parameters['op1db_auto']=valueE_to_value(op1db)
 
     return extracted_parameters
 
@@ -294,14 +294,14 @@ def extract_xdb_param(circuit_initialization_parameters):
 # Extracting the AC from the file
 # Inputs: circuit_initialization_parameters
 # Output: Dictionary with all the parameters
-def extract_phdev_param(circuit_initialization_parameters,extracted_parameters_xdb):
+def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xdb):
 
     # Getting the filename
-    fname_template=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-0{}_phdev_test.fd.pss_hb'
+    fname_template=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-{}_phdev_test.fd.pss_hb'
     
     pin_start=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
     pin_stop=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
-    pin_step=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
+    pin_step=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
     npin=int((pin_stop-pin_start)/pin_step)
 
     vin_re_arr = np.zeros(npin,dtype=float)
@@ -309,26 +309,35 @@ def extract_phdev_param(circuit_initialization_parameters,extracted_parameters_x
     vout_re_arr = np.zeros(npin,dtype=float)
     vout_im_arr = np.zeros(npin,dtype=float)
     ph_arr = np.zeros(npin,dtype=float)
+    gdb_arr = np.zeros(npin,dtype=float)
     extracted_parameters={}
 
     for i in range(npin):
         if (i==0):
-            filename=fname_template.replace("0{}","000")  
+            filename=fname_template.replace("{}","000")  
         elif (i<=9):
+            filename=str(fname_template.format("00"+str(i)))
+        elif (i<=99):
             filename=str(fname_template.format("0"+str(i)))
         else:
-            filename=str(fname_template.format(i)) 
+            filename=str(fname_template.format(i))
         for line in extract_file(filename):
             if '"Vin"' in line and '"V"' not in line:
                vin_re_arr[i],vin_im_arr[i] = extract_voltage(line)
             if '"Vout"' in line and '"V"' not in line:
                 vout_re_arr[i],vout_im_arr[i] = extract_voltage(line)
         ph_arr[i] = calculate_gain_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
+        gdb_arr[i] = calculate_gain_db(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
 
-    ip1db = extracted_parameters_xdb['ip1db']
-    ph_min=min(ph_arr)
-    ph_max=max(ph_arr) 
+    ip1db = extracted_parameters_xdb['ip1db_auto']
+    ip_index=int((ip1db-pin_start)/pin_step)
+    ph_min=min(ph_arr[:ip_index+1])
+    ph_max=max(ph_arr[:ip_index+1]) 
     extracted_parameters["am-pm-dev"]=(ph_max-ph_min)
+
+    gdb_ss=max(gdb_arr)
+    ip_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
+    extracted_parameters["ip1db_man"]=pin_start+(ip_man_index*pin_step)
 
     return extracted_parameters    
 
@@ -395,8 +404,8 @@ def extract_basic_parameters(circuit_initialization_parameters):
     # Extracting the outputs 
     extracted_parameters_dc=extract_dc_param(circuit_initialization_parameters)
     extracted_parameters_ac=extract_ac_param(circuit_initialization_parameters)
-    extracted_parameters_xdb=extract_xdb_param(circuit_initialization_parameters)
-    extracted_parameters_phdev=extract_phdev_param(circuit_initialization_parameters,extracted_parameters_xdb)
+    extracted_parameters_xdb=extract_xdb_auto_param(circuit_initialization_parameters)
+    extracted_parameters_comp=extract_comp_param(circuit_initialization_parameters,extracted_parameters_xdb)
     
     # Storing the outputs in a single dictionary
     extracted_parameters={}
@@ -407,8 +416,8 @@ def extract_basic_parameters(circuit_initialization_parameters):
         extracted_parameters[param_name]=extracted_parameters_ac[param_name]
     for param_name in extracted_parameters_xdb:
         extracted_parameters[param_name]=extracted_parameters_xdb[param_name]
-    for param_name in extracted_parameters_phdev:
-        extracted_parameters[param_name]=extracted_parameters_phdev[param_name]
+    for param_name in extracted_parameters_comp:
+        extracted_parameters[param_name]=extracted_parameters_comp[param_name]
 
     return extracted_parameters
 
@@ -851,7 +860,8 @@ def get_final_extracted_parameters(extracted_parameters_combined):
         'cgd1':'mid',
         'freq':'mid',
         'region':'mid',
-        'am-pm-dev':'max'
+        'am-pm-dev':'max',
+        'ip1db_man':'min',
         #'s12_db':'max',
         #'s21_db':'max',
         #'s22_db':'max',
@@ -893,12 +903,12 @@ def get_final_extracted_parameters(extracted_parameters_combined):
     ip1db_array=[]
     op1db_array=[]
     for i in extracted_parameters_combined:
-        ip1db_array.append(extracted_parameters_combined[i]['ip1db'])
-        op1db_array.append(extracted_parameters_combined[i]['op1db'])
+        ip1db_array.append(extracted_parameters_combined[i]['ip1db_auto'])
+        op1db_array.append(extracted_parameters_combined[i]['op1db_auto'])
     ip1db_min=min(ip1db_array)
     ip1db_index=ip1db_array.index(ip1db_min)
-    final_extracted_parameters['ip1db']=ip1db_min
-    final_extracted_parameters['op1db']=extracted_parameters_combined[ip1db_index]['op1db']
+    final_extracted_parameters['ip1db_auto']=ip1db_min
+    final_extracted_parameters['op1db_auto']=extracted_parameters_combined[ip1db_index]['op1db_auto']
 
     return final_extracted_parameters
 
