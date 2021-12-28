@@ -67,6 +67,12 @@ def calculate_phase(vout_re,vout_im,vin_re,vin_im):
 
 	return phase
 
+def calculate_phase_new(vout_re,vout_im,vin_re,vin_im):
+    vout=np.complex(vout_re,vout_im)
+    vin=np.complex(vin_re,vin_im)
+    phase=np.angle(vout/vin)*180/np.pi
+    return phase
+
 def calculate_gain(vout_re,vout_im,vin_re,vin_im):
     gain=(vout_re**2+vout_im**2)/(vin_re**2+vin_im**2)
     gain_db=10*np.log10(gain)
@@ -105,5 +111,6 @@ plt.show()
 plt.plot(np.linspace(pin_start,pin_stop,npin),gdb_arr)
 plt.title("gain_comp")
 plt.show()
+
 
 

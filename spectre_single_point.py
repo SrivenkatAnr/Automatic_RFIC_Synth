@@ -92,7 +92,7 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
         'pin_stop':20,
         'pin_step':1,
 		'cir_temp':27,
-		'n_harm':5
+		'n_harm':10
 	}
 
 
@@ -115,12 +115,12 @@ get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 circuit_parameters={
 	'Rin':50,
 	'Rb':5000,
-	'Rl':25,
+	'Rl':12.5,
 	'Ld':10e-9,
 	'C1':3.2e-12,
-	'C2':6.4e-10,
-	'W':76e-6,
-	'Io':28e-3
+	'C2':1.25e-9,
+	'W':210e-6,
+	'Io':40e-3
 }
 
 
@@ -129,9 +129,14 @@ circuit_parameters={
 cir=sp.Circuit(circuit_initialization_parameters)
 cir.update_circuit(circuit_parameters)
 
+print ('____________________________________________________________________')
+print ('------------------------Circuit Parameters------------------------\n')
+for param_name in cir.circuit_parameters:
+	print(param_name,' : ',cir.circuit_parameters[param_name])
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #------------------------------------- OUTPUT PRINT --------------------------------------------
-print ('\n____________________________________________________________________')
+print ('____________________________________________________________________')
 print ('------------------------Extracted Parameters------------------------\n')
 for param_name in cir.extracted_parameters:
     if ('comb_' not in param_name):
