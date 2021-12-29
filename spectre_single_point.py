@@ -88,11 +88,11 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['standard_parameters']['f_range']=1e8
 
 	circuit_initialization_parameters['simulation']['netlist_parameters']={
-		'pin_start':-60,
+        'pin_start':-60,
         'pin_stop':20,
         'pin_step':1,
-		'cir_temp':27,
-		'n_harm':10
+        'cir_temp':27,
+        'n_harm':10
 	}
 
 
@@ -119,7 +119,7 @@ circuit_parameters={
 	'Ld':10e-9,
 	'C1':3.2e-12,
 	'C2':1.25e-9,
-	'W':420e-6,
+	'W':530e-6,
 	'Io':20e-3
 }
 
@@ -143,6 +143,6 @@ for param_name in cir.extracted_parameters:
 	    print(param_name,' : ',cir.extracted_parameters[param_name])
 
 t_end = time.time()
-print("time taken is {} seconds\n".format(t_end-t_start))
+print("\n time taken is {} seconds\n".format(t_end-t_start))
 
 #===========================================================================================================================
