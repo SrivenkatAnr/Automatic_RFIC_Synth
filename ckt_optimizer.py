@@ -78,10 +78,9 @@ def get_mos_parameters(circuit_initialization_parameters,process_name):
 def get_output_conditions(optimization_input_parameters,fo):
     
     optimization_input_parameters['output_conditions']={
-        's11_db':-15.0,
-        'iip3_dbm':-5.0,
-        'gain_db':10.0,
-        'nf_db':4.0,
+        'gain_db':6.0,
+        'op1db':10,
+        'am-pm-dev':5,
         'wo':2.0*np.pi*fo,
         'delta_v':0.1,
         'Rs':50
@@ -111,11 +110,11 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
     circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max']=2e-6
 
     circuit_initialization_parameters['simulation']['netlist_parameters']={
-        'pin':-65,
-        'fund_2':fo+1e6,
-        'fund_1':fo,
+        'pin_start':-60,
+        'pin_stop':20,
+        'pin_step':1,
         'cir_temp':27,
-        'n_harm':5
+        'n_harm':10
     }
 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -140,13 +139,14 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Manual Hand Calculations
     optimization_input_parameters['pre_optimization']['manual_circuit_parameters']={
-        'Rb':274,
-        'Rd':360,
-        'Io':666e-6,
-        'C1':31.8e-12,
-        'C2':163e-12,
-        'W':275e-6,
-        'Rbias':1000
+        'Rin':50,
+        'Rb':5000,
+        'Rl':12.5,
+        'Ld':10e-9,
+        'C1':3.2e-12,
+        'C2':1.25e-9,
+        'W':530e-6,
+        'Io':20e-3
     }
     
 
@@ -168,11 +168,11 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
     optimization_input_parameters['pre_optimization']['simulation']['standard_parameters']['conservative']='NO'
 
     optimization_input_parameters['pre_optimization']['simulation']['netlist_parameters']={
-        'pin':-65,
-        'fund_2':fo+1e6,
-        'fund_1':fo,
+        'pin_start':-60,
+        'pin_stop':20,
+        'pin_step':1,
         'cir_temp':27,
-        'n_harm':5
+        'n_harm':10
     }
 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -396,7 +396,7 @@ get_mos_parameters(circuit_initialization_parameters,'TSMC65')
 #get_mos_parameters(circuit_initialization_parameters,'IBM130')
 
 # ---------- Output Conditions ----------
-fo=1e9
+fo=2e9
 get_output_conditions(optimization_input_parameters,fo)
 
 # ---------- Simulation Conditions ----------

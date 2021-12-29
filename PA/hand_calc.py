@@ -37,43 +37,42 @@ def calculate_resistance_inductor(ind,fo,Q):
     return res
 
 #-----------------------------------------------------------------------------------------------
-# Calculating Ld
-# Outputs : Ld
-def calculate_Ld():
-    Ld=10e-9;
-    return Ld
-
-#-----------------------------------------------------------------------------------------------
-# Calculating Rl
-# Outputs : Rl
-def calculate_Rl(Rd):
-    Rl=max(50, 20*Rd)
-    return Rl
-
-#-----------------------------------------------------------------------------------------------
-# Calculating gm
-# Outputs : gm
-def calculate_gm(gain,Rl):
-    return gain/Rl
-
-#-----------------------------------------------------------------------------------------------
-# Calculating Io
-# Outputs : Io
-def calculate_Io(Vdd,Rd,Rl):
-    return Vdd/(Rl+2*Rd)
-
-#-----------------------------------------------------------------------------------------------
-# Calculating W
-# Outputs : W
-def calculate_W(gm,Lmin,Id,un,Cox):
-    return (gm**2)*Lmin/(2*Id*un*Cox)
-
-#-----------------------------------------------------------------------------------------------
 # Calculating coupling cap
 # Outputs : C
 def calculate_Ccoup(fo,R):
     wo=2*np.pi*fo
-    return 10/(wo*R)
+    return 200/(wo*R)
+
+#-----------------------------------------------------------------------------------------------
+# Calculating drain inductance
+# Outputs : Ld
+def calculate_Ld():
+    Ld_max=10e-9;
+    return Ld_max
+
+#-----------------------------------------------------------------------------------------------
+# Calculating max op_swing
+# Outputs : Vout_max
+def calculate_op_swing(Vdd,gain):
+    Vout_max=Vdd/(1+(2/gain))
+    return Vout_max
+
+#-----------------------------------------------------------------------------------------------
+# Calculating load resistance
+# Outputs : Rl
+def calculate_Rl(Vout_max,Pout):
+    Rl=(Vout_max**2)/(2*Pout)
+    return Rl
+
+#-----------------------------------------------------------------------------------------------
+# Calculating MOSFET width, bias current
+# Outputs : W,Io
+def calculate_W_Io(Vout_max,gain,Lmin,Rl,un,Cox):
+    gm=gain/Rl 
+    Vdsat=Vout_max/gain
+    W=(gm*Lmin)/(un*cox*Vdsat)
+    I=0.5*un*cox*(W/Lmin)*(Vdsat**2)
+    return (W,I)
 
 """
 ===========================================================================================================================
@@ -91,6 +90,7 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     fo=output_conditions['wo']/(2*np.pi)
     Rin=output_conditions['Rin']
     gain=db_to_normal(output_conditions['gain_db'])
+    Pout=db_to_normal(output_conditions['op1db'])*1e-3
     Lmin=cir.mos_parameters['Lmin']
     Cox=cir.mos_parameters['cox']
     un=cir.mos_parameters['un']
@@ -99,12 +99,12 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     # Calculating the circuit parameters
     circuit_parameters={}
     circuit_parameters['Ld']=calculate_Ld()
-    circuit_parameters['Rd']=calculate_resistance_inductor(circuit_parameters['Ld'],fo,50)
-    circuit_parameters['Rl']=calculate_Rl(circuit_parameters['Rd'])
-    circuit_parameters['Io']=calculate_Io(Vdd,circuit_parameters['Rd'],circuit_parameters['Rl'])
-    gm=calculate_gm(gain,circuit_parameters['Rl'])
-    circuit_parameters['W']=calculate_W(gm,Lmin,circuit_parameters['Io'],un,Cox)
     circuit_parameters['Rbias']=5000
+    Vout_max=calculate_op_swing(Vdd,gain)
+    circuit_parameters['Rl']=calculate_Rl(Vout_max,Pout)
+    circuit_parameters['W'],circuit_parameters['Io']=calculate_W_Io(Vout_max,gain,Lmin,circuit_parameters['Rl'],un,Cox)
+
+    circuit_parameters['Rd']=calculate_resistance_inductor(circuit_parameters['Ld'],fo,50)
     circuit_parameters['Ccoup_in']=calculate_Ccoup(fo,circuit_parameters['Rbias'])
     circuit_parameters['Ccoup_out']=calculate_Ccoup(fo,circuit_parameters['Rl'])
 
