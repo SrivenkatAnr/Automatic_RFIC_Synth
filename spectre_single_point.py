@@ -80,7 +80,6 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']='/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/'
 	circuit_initialization_parameters['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']+'Spectre_Run/'
 	circuit_initialization_parameters['simulation']['standard_parameters']['std_temp']=27
-	circuit_initialization_parameters['simulation']['standard_parameters']['pin_fixed']=-65
 	circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']='tt'
 	circuit_initialization_parameters['simulation']['standard_parameters']['conservative']='NO'
 	circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max']=2e-6
