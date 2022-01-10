@@ -103,7 +103,7 @@ def calculate_mos_parameters(circuit_initialization_parameters):
     vt=circuit_initialization_parameters['MOS']['vt']
 
     # Extracting From File
-    mos_parameters = {'un':un,'cox':cox,'vt':vt,'Lmin':Lmin,'vdd':vdd}
+    mos_parameters = {'un':un,'cox':cox,'vt':vt,'Lmin':Lmin,'Vdd':vdd}
     
     # Printing the MOSFET Parameters
     cff.print_MOS_parameters(mos_parameters)

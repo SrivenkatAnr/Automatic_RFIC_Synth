@@ -67,7 +67,7 @@ def calculate_Rl(Vout_max,Pout):
 #-----------------------------------------------------------------------------------------------
 # Calculating MOSFET width, bias current
 # Outputs : W,Io
-def calculate_W_Io(Vout_max,gain,Lmin,Rl,un,Cox):
+def calculate_W_Io(Vout_max,gain,Lmin,Rl,un,cox):
     gm=gain/Rl 
     Vdsat=Vout_max/gain
     W=(gm*Lmin)/(un*cox*Vdsat)
@@ -83,13 +83,12 @@ def calculate_W_Io(Vout_max,gain,Lmin,Rl,un,Cox):
 # Function to calculate the Initial Circuit Parameters  
 # Outputs : NONE
 def calculate_initial_parameters(cir,optimization_input_parameters):
-    
     output_conditions=optimization_input_parameters['output_conditions']
     
     # Getting the output conditions
     fo=output_conditions['wo']/(2*np.pi)
     Rin=output_conditions['Rin']
-    gain=db_to_normal(output_conditions['gain_db'])
+    gain=db_to_normal(output_conditions['gain_db']/2)
     Pout=db_to_normal(output_conditions['op1db'])*1e-3
     Lmin=cir.mos_parameters['Lmin']
     Cox=cir.mos_parameters['cox']
@@ -104,9 +103,9 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     circuit_parameters['Rl']=calculate_Rl(Vout_max,Pout)
     circuit_parameters['W'],circuit_parameters['Io']=calculate_W_Io(Vout_max,gain,Lmin,circuit_parameters['Rl'],un,Cox)
 
-    circuit_parameters['Rd']=calculate_resistance_inductor(circuit_parameters['Ld'],fo,50)
-    circuit_parameters['Ccoup_in']=calculate_Ccoup(fo,circuit_parameters['Rbias'])
-    circuit_parameters['Ccoup_out']=calculate_Ccoup(fo,circuit_parameters['Rl'])
+    #circuit_parameters['Rd']=calculate_resistance_inductor(circuit_parameters['Ld'],fo,50)
+    circuit_parameters['C1']=calculate_Ccoup(fo,circuit_parameters['Rbias'])
+    circuit_parameters['C2']=calculate_Ccoup(fo,circuit_parameters['Rl'])
 
     # Running the circuit
     cir.update_circuit(circuit_parameters)
@@ -115,24 +114,25 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
 # Function to update the Initial Circuit Parameters after calculating the new value of vt
 # Inputs  : circuit_parameters, mos_parameters, extracted_parameters, optimization_input_parameters
 # Outputs : circuit_parameters, dc_outputs, mos_parameters, extracted_parameters
-"""
+
 def update_initial_parameters(cir,optimization_input_parameters):
 
     i=0
-    while i<5 and cir.extracted_parameters['s11_db']>-15.0:
+    gain_exp=db_to_normal(optimization_input_parameters['output_conditions']['gain_db']/2)
+    Rl=cir.circuit_parameters['Rl']
+    gm_exp=1.2*gain_exp/Rl
+    while i<5 and cir.extracted_parameters['op1db_auto']<10:
 
         # Printing the iteration number
         i+=1
         print('----- Iteration ',i,' -----')
 
         # Updating the values
-        fo=optimization_input_parameters['output_conditions']['wo']/(2*np.pi)
-        cir.circuit_parameters['Ls']=cir.circuit_parameters['Ls']*50/cir.extracted_parameters['Zin_R']
-        cir.circuit_parameters['Lg']=cir.circuit_parameters['Lg']-cir.extracted_parameters['Zin_I']/(2*np.pi*fo)
-        
+        gm_ext = cir.extracted_parameters['gm1']
+        cir.circuit_parameters['W']=cir.circuit_parameters['W']*((gm_exp/gm_ext)**2)
         # Running the circuit
         cir.run_circuit()
-"""
+
 
 
 """
@@ -145,9 +145,9 @@ def update_initial_parameters(cir,optimization_input_parameters):
 # Outputs : NONE
 def automatic_initial_parameters(cir,optimization_input_parameters,optimization_results):
     
-    
+    """
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Automatic Operating Point Selection 1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-
+    """
 
     #======================================================== Step 1 =============================================================================================================
     print('\n\n--------------------------------- Operating Point Calculations ------------------------------------')
@@ -163,7 +163,7 @@ def automatic_initial_parameters(cir,optimization_input_parameters,optimization_
     # Printing the values
     cff.print_circuit_parameters(cir.circuit_parameters)
     cff.print_extracted_outputs(cir.extracted_parameters)
-    """
+    
     #======================================================== Step 2 =======================================================
     print('\n\n--------------------------------- Operating Point Updations ------------------------------------')
 
@@ -178,4 +178,4 @@ def automatic_initial_parameters(cir,optimization_input_parameters,optimization_
     # Printing the values
     cff.print_circuit_parameters(cir.circuit_parameters)
     cff.print_extracted_outputs(cir.extracted_parameters)
-    """
+   

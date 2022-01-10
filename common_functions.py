@@ -176,8 +176,8 @@ def update_MOS_parameters(mos,un,cox,vt,Lmin,vdd):
 	mos['un']=un
 	mos['cox']=cox
 	mos['vt']=vt
-	mos['un']=Lmin
-	mos['un']=vdd
+	mos['Lmin']=Lmin
+	mos['Vdd']=vdd
 	return mos
 
 
@@ -225,7 +225,7 @@ def print_MOS_parameters(mos_parameters):
 	print ('cox   = ', num_trunc(mos_parameters['cox'],trunc_val))
 	print ('vt    = ', num_trunc(mos_parameters['vt'],trunc_val))
 	print ('Lmin  = ', num_trunc(mos_parameters['Lmin'],trunc_val))
-	print ('vdd   = ', num_trunc(mos_parameters['vdd'],trunc_val))
+	print ('vdd   = ', num_trunc(mos_parameters['Vdd'],trunc_val))
 	
 #-----------------------------------------------------------------------------------------------
 # Printing the circuit parameters

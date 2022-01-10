@@ -83,7 +83,7 @@ def get_output_conditions(optimization_input_parameters,fo):
         'am-pm-dev':5,
         'wo':2.0*np.pi*fo,
         'delta_v':0.1,
-        'Rs':50
+        'Rin':50
     }
 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
     optimization_input_parameters['pre_optimization']['Step2_Limit']=5
     optimization_input_parameters['pre_optimization']['vdsat_reqd']=0.07
 
-    optimization_input_parameters['pre_optimization']['type']='manual'
+    optimization_input_parameters['pre_optimization']['type']=1
     optimization_input_parameters['pre_optimization']['gmrs_threshold']=0.2
     optimization_input_parameters['pre_optimization']['vdsat_threshold']=0.02
 
@@ -144,11 +144,11 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
     optimization_input_parameters['pre_optimization']['manual_circuit_parameters']={
         'Rin':50,
         'Rb':5000,
-        'Rl':12.5,
+        'Rl':12.4,
         'Ld':10e-9,
-        'C1':3.2e-12,
-        'C2':1.25e-9,
-        'W':530e-6,
+        'C1':3.18e-12,
+        'C2':1.27e-9,
+        'W':420e-6,
         'Io':20e-3
     }
     
