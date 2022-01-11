@@ -39,9 +39,9 @@ def calculate_resistance_inductor(ind,fo,Q):
 #-----------------------------------------------------------------------------------------------
 # Calculating coupling cap
 # Outputs : C
-def calculate_Ccoup(fo,R):
+def calculate_Ccoup(fo,R,thresh):
     wo=2*np.pi*fo
-    return 200/(wo*R)
+    return thresh/(wo*R)
 
 #-----------------------------------------------------------------------------------------------
 # Calculating drain inductance
@@ -102,10 +102,12 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     Vout_max=calculate_op_swing(Vdd,gain)
     circuit_parameters['Rl']=calculate_Rl(Vout_max,Pout)
     circuit_parameters['W'],circuit_parameters['Io']=calculate_W_Io(Vout_max,gain,Lmin,circuit_parameters['Rl'],un,Cox)
+    C1_thresh=optimization_input_parameters['pre_optimization']['C1_threshold']
+    C2_thresh=optimization_input_parameters['pre_optimization']['C2_threshold']
 
     #circuit_parameters['Rd']=calculate_resistance_inductor(circuit_parameters['Ld'],fo,50)
-    circuit_parameters['C1']=calculate_Ccoup(fo,circuit_parameters['Rbias'])
-    circuit_parameters['C2']=calculate_Ccoup(fo,circuit_parameters['Rl'])
+    circuit_parameters['C1']=calculate_Ccoup(fo,circuit_parameters['Rbias'],C1_thresh)
+    circuit_parameters['C2']=calculate_Ccoup(fo,circuit_parameters['Rl'],C2_thresh)
 
     # Running the circuit
     cir.update_circuit(circuit_parameters)
@@ -121,7 +123,7 @@ def update_initial_parameters(cir,optimization_input_parameters):
     gain_exp=db_to_normal(optimization_input_parameters['output_conditions']['gain_db']/2)
     Rl=cir.circuit_parameters['Rl']
     gm_exp=1.2*gain_exp/Rl
-    while i<5 and cir.extracted_parameters['op1db_auto']<10:
+    while i<5 and cir.extracted_parameters['op1db_auto']<optimization_input_parameters['output_conditions']['op1db']:
 
         # Printing the iteration number
         i+=1

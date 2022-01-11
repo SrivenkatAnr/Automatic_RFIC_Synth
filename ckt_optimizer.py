@@ -97,7 +97,7 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
     circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']='/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/'
     circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65_rcm'
     #circuit_initialization_parameters['simulation']['standard_parameters']['iip3_circuit']='iip3_hb_tsmc_65_rcm'
-    circuit_initialization_parameters['simulation']['standard_parameters']['tcsh']='/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/Spectre_Run/'
+    circuit_initialization_parameters['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']+'Spectre_Run/'
     #circuit_initialization_parameters['simulation']['standard_parameters']['iip3_type']='basic'     # 'basic' or 'advanced' 
 
     circuit_initialization_parameters['simulation']['standard_parameters']['std_temp']=27
@@ -189,7 +189,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Parameters for Optimization
     optimization_input_parameters['optimization']['n_runs']=1
-    optimization_input_parameters['optimization']['max_iteration']=300
+    optimization_input_parameters['optimization']['max_iteration']=2
     optimization_input_parameters['optimization']['alpha_min']=-1
     optimization_input_parameters['optimization']['consec_iter']=-1
 
