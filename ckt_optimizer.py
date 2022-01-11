@@ -93,6 +93,7 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
     circuit_initialization_parameters['simulation']={}
     circuit_initialization_parameters['simulation']['standard_parameters']={}
 
+    #file names
     circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']='/home/ee18b038/cadence_project/PA_tri3/'
     circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']='/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/'
     circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65_rcm'
@@ -104,7 +105,7 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
     #circuit_initialization_parameters['simulation']['standard_parameters']['pin_fixed']=-65
     #circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']=-70
     #circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']=-40
-    circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']=6
+    #circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']=6
     #circuit_initialization_parameters['simulation']['standard_parameters']['iip3_calc_points']=3
     circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']='tt'
     circuit_initialization_parameters['simulation']['standard_parameters']['conservative']='NO'
@@ -125,33 +126,31 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
 def get_pre_optimization_parameters(optimization_input_parameters,fo):
 
     optimization_input_parameters['pre_optimization']={}
-
-    optimization_input_parameters['pre_optimization']['Step1b_Limit']=5
-    optimization_input_parameters['pre_optimization']['Step2_Limit']=5
-    optimization_input_parameters['pre_optimization']['vdsat_reqd']=0.07
-
     optimization_input_parameters['pre_optimization']['type']=1
-    optimization_input_parameters['pre_optimization']['gmrs_threshold']=0.2
-    optimization_input_parameters['pre_optimization']['vdsat_threshold']=0.02
-
-    optimization_input_parameters['pre_optimization']['C1_threshold']=200
-    optimization_input_parameters['pre_optimization']['C2_threshold']=200
-    optimization_input_parameters['pre_optimization']['Rbias_threshold']=100
-    optimization_input_parameters['pre_optimization']['Rbias_minimum']=1000
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Manual Hand Calculations
     optimization_input_parameters['pre_optimization']['manual_circuit_parameters']={
         'Rin':50,
         'Rb':5000,
-        'Rl':12.4,
+        'Rl':12.5,
         'Ld':10e-9,
-        'C1':3.18e-12,
-        'C2':1.27e-9,
+        'C1':3.2e-12,
+        'C2':1.25e-9,
         'W':420e-6,
         'Io':20e-3
     }
     
+    optimization_input_parameters['pre_optimization']['Step1b_Limit']=5
+    optimization_input_parameters['pre_optimization']['Step2_Limit']=5
+    optimization_input_parameters['pre_optimization']['vdsat_reqd']=0.07
+
+    optimization_input_parameters['pre_optimization']['gmrs_threshold']=0.2
+    optimization_input_parameters['pre_optimization']['vdsat_threshold']=0.02
+    optimization_input_parameters['pre_optimization']['C1_threshold']=200
+    optimization_input_parameters['pre_optimization']['C2_threshold']=200
+    optimization_input_parameters['pre_optimization']['Rbias_threshold']=100
+    optimization_input_parameters['pre_optimization']['Rbias_minimum']=1000
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Pre Optimization Simulation Parameters
@@ -185,28 +184,30 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization']={}
 
     optimization_input_parameters['optimization']['run']='YES'
-
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Parameters for Optimization
     optimization_input_parameters['optimization']['n_runs']=1
-    optimization_input_parameters['optimization']['max_iteration']=2
-    optimization_input_parameters['optimization']['alpha_min']=-1
-    optimization_input_parameters['optimization']['consec_iter']=-1
-
-    optimization_input_parameters['optimization']['delta_threshold']=0.001
-    optimization_input_parameters['optimization']['alpha_mult']=1
-    optimization_input_parameters['optimization']['loss_type']=0
-    optimization_input_parameters['optimization']['update_check']=0
-
-    optimization_input_parameters['optimization']['optimizing_parameters']=['Rb','Rl','Ld','Io','W','C1','C2']
-    optimization_input_parameters['optimization']['output_parameters_list']=['Io','gain_db','p_source','Psup','op1db_auto','am-pm-dev','ip1db_auto','gm1','vdsat','vg','vd','vs']
 
     if optimization_name=='LOSS':
         optimization_input_parameters['optimization']['optimization_name']='loss1'
     #else:
     #    optimization_input_parameters['optimization']['optimization_name']='fom1'
-        
-    optimization_input_parameters['optimization']['optimization_type']=0
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Parameters for Optimization Run 1
+    optimization_input_parameters['optimization'][1]={}
+    
+    optimization_input_parameters['optimization'][1]['max_iteration']=2
+    optimization_input_parameters['optimization'][1]['alpha_min']=-1
+    optimization_input_parameters['optimization'][1]['consec_iter']=-1
+
+    optimization_input_parameters['optimization'][1]['delta_threshold']=0.001
+    optimization_input_parameters['optimization'][1]['alpha_mult']=1
+    optimization_input_parameters['optimization'][1]['loss_type']=0
+    optimization_input_parameters['optimization'][1]['update_check']=0
+
+    optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Rl','Ld','Io','W','C1','C2']
+    optimization_input_parameters['optimization'][1]['output_parameters_list']=['Io','gain_db','p_source','Psup','op1db_auto','am-pm-dev','ip1db_auto','gm1','vdsat','vg','vd','vs']
+    
+    optimization_input_parameters['optimization'][1]['optimization_type']=0
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Assigning values to the loss weights
@@ -215,7 +216,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     loss_weights['op1db_auto']=1/10.0  
     loss_weights['am-pm-dev']=1/5.0   
     loss_weights['Io']=1000 
-    optimization_input_parameters['optimization']['loss_weights']=loss_weights
+    optimization_input_parameters['optimization'][1]['loss_weights']=loss_weights
 
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -229,24 +230,16 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     alpha_parameters['Io']=1
     alpha_parameters['C1']=1
     alpha_parameters['C2']=1
-    optimization_input_parameters['optimization']['alpha']={}
-    optimization_input_parameters['optimization']['alpha']['values']=alpha_parameters
+    optimization_input_parameters['optimization'][1]['alpha']={}
+    optimization_input_parameters['optimization'][1]['alpha']['values']=alpha_parameters
 
-    optimization_input_parameters['optimization']['alpha']['type']='Normal'
-    optimization_input_parameters['optimization']['alpha']['start']=0.8
-    optimization_input_parameters['optimization']['alpha']['end']=0.05
-
-    #~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Optimization Iterations
-    optimization_input_parameters['optimization'][1]={}
-    optimization_input_parameters['optimization'][1]['max_iteration']=3
-    #optimization_input_parameters['optimization'][2]={}
-    #optimization_input_parameters['optimization'][2]['max_iteration']=100
+    optimization_input_parameters['optimization'][1]['alpha']['type']='Normal'
+    optimization_input_parameters['optimization'][1]['alpha']['start']=0.8
+    optimization_input_parameters['optimization'][1]['alpha']['end']=0.05
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Optimization Simulation Parameters
     optimization_input_parameters['optimization']['simulation']={}
-
     optimization_input_parameters['optimization']['simulation'][1]={}
     optimization_input_parameters['optimization']['simulation'][1]['standard_parameters']={}
 
@@ -434,7 +427,6 @@ if file_choose=='S':
 
     # ------- Set Any Additional Parameters Here --------
     filename=f_directory+'Test_Simulation_Parameters'                       # SET THE FILENAME HERE
-    optimization_input_parameters['optimization']['max_iteration']=300  
     # ------- Set Any Additional Parameters Here --------
     
 
