@@ -17,7 +17,7 @@ Functions structure in this file:
 import datetime
 import Ckt_Optimization.grad_descent as gd
 import common_functions as cf
-import PA.pre_optimization as pr1
+import PA.pre_optimization as pr
 import PA.spectre as sp
 #import PVT_Analysis.temperature_analysis as ta
 #import PVT_Analysis.process_analysis as pa
@@ -187,15 +187,15 @@ def complete_optimization(circuit_initialization_parameters,optimization_input_p
     if name=='PA':
         cir=sp.Circuit(circuit_initialization_parameters)
     else:
-        cir=sp2.Circuit(circuit_initialization_parameters)
+        print("invalid circuit name")
     save_mos_results(cir.mos_parameters,optimization_input_parameters)
 
     #======================================================== PRE OPTIMIZATION ===================================================================================================
 
     if name=='PA':
-        pr1.pre_optimization(cir,optimization_input_parameters,timing_results)
+        pr.pre_optimization(cir,optimization_input_parameters,timing_results)
     else:
-        pr2.pre_optimization(cir,optimization_input_parameters,timing_results)
+        print("invalid circuit name")
 
     #======================================================== OPTIMIZATION =======================================================================================================
 
