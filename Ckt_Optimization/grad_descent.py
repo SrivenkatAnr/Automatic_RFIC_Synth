@@ -494,7 +494,12 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_input_parameter
         for categ_name in optimization_input_parameters['optimization'][run_number]['output_parameters_list']:
             initial_param=extracted_parameters_initial[categ_name]
             final_param=extracted_parameters1[categ_name]
-            percent_change=(final_param-initial_param)/(initial_param*increment_factor)
+            if (initial_param!=0):
+                percent_change=(final_param-initial_param)/(initial_param*increment_factor)
+            elif (final_param!=0):
+                percent_change=(final_param-initial_param)/(final_param*increment_factor)
+            else:
+                percent_change=0
             circuit_parameters_sensitivity[param_name][categ_name]=percent_change
     
     cir.circuit_parameters=circuit_parameters_initial.copy()
@@ -722,7 +727,7 @@ def opt_single_run(cir,optimization_input_parameters,run_number):
     
 
     # Calculating slope and sensitivity
-    circuit_parameters_slope,circuit_parameters_sensitivity=calc_loss_slope(cir,output_conditions,loss_iter[i-1],optimization_input_parameters)
+    circuit_parameters_slope,circuit_parameters_sensitivity=calc_loss_slope(cir,output_conditions,loss_iter[i-1],optimization_input_parameters,run_number)
     loss_slope_iter[i-1]=circuit_parameters_slope.copy()
     sensitivity_iter[i-1]=circuit_parameters_sensitivity.copy()
 

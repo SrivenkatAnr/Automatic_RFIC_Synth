@@ -153,7 +153,7 @@ def pre_optimization(cir,optimization_input_parameters,timing_results):
 
         # Printing the values
         cff.print_circuit_parameters(cir.circuit_parameters)
-        cff.print_extracted_outputs(cir.extracted_parameters)
+        cff.print_extracted_parameters(cir.extracted_parameters)
 
         #cff.wait_key()
 
@@ -187,7 +187,7 @@ def pre_optimization(cir,optimization_input_parameters,timing_results):
     """
     # Printing the values
     cff.print_circuit_parameters(cir.circuit_parameters)
-    cff.print_extracted_outputs(cir.extracted_parameters)
+    cff.print_extracted_parameters(cir.extracted_parameters)
 
     # Storing the results
     save_output_results_pre_optimization(optimization_results,optimization_input_parameters)

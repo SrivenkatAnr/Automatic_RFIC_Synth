@@ -857,6 +857,7 @@ def get_final_extracted_parameters(extracted_parameters_combined):
         'region':'mid',
         'am-pm-dev':'max',
         'ip1db_man':'min',
+        'Voutdc':'mid',
         #'s12_db':'max',
         #'s21_db':'max',
         #'s22_db':'max',

@@ -225,7 +225,7 @@ def print_MOS_parameters(mos_parameters):
 	print ('cox   = ', num_trunc(mos_parameters['cox'],trunc_val))
 	print ('vt    = ', num_trunc(mos_parameters['vt'],trunc_val))
 	print ('Lmin  = ', num_trunc(mos_parameters['Lmin'],trunc_val))
-	print ('vdd   = ', num_trunc(mos_parameters['Vdd'],trunc_val))
+	print ('Vdd   = ', num_trunc(mos_parameters['Vdd'],trunc_val))
 	
 #-----------------------------------------------------------------------------------------------
 # Printing the circuit parameters
@@ -241,10 +241,16 @@ def print_circuit_parameters(circuit_parameters):
 # Printing the extracted parameters
 # Inputs  : extracted_parameters
 # Outputs : NONE
-def print_extracted_outputs(extracted_parameters):
+def print_extracted_parameters(extracted_parameters):
 	print ('\n____________________________________________________________________')
 	print ('-------------------------Extracted Outputs--------------------------\n')
 	for param_name in extracted_parameters:
 		print(param_name,' = ',num_trunc(extracted_parameters[param_name],trunc_val))
+	
+#-----------------------------------------------------------------------------------------------
+# Printing the loss parameters
+def print_loss_parameters(loss_parameters):
+	for param_name in loss_parameters:
+		print(param_name,' = ',num_trunc(loss_parameters[param_name],trunc_val))
 	
 #===========================================================================================================================

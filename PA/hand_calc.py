@@ -98,7 +98,7 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     # Calculating the circuit parameters
     circuit_parameters={}
     circuit_parameters['Ld']=calculate_Ld()
-    circuit_parameters['Rbias']=5000
+    circuit_parameters['Rb']=5000
     Vout_max=calculate_op_swing(Vdd,gain)
     circuit_parameters['Rl']=calculate_Rl(Vout_max,Pout)
     circuit_parameters['W'],circuit_parameters['Io']=calculate_W_Io(Vout_max,gain,Lmin,circuit_parameters['Rl'],un,Cox)
@@ -106,7 +106,7 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     C2_thresh=optimization_input_parameters['pre_optimization']['C2_threshold']
 
     #circuit_parameters['Rd']=calculate_resistance_inductor(circuit_parameters['Ld'],fo,50)
-    circuit_parameters['C1']=calculate_Ccoup(fo,circuit_parameters['Rbias'],C1_thresh)
+    circuit_parameters['C1']=calculate_Ccoup(fo,circuit_parameters['Rb'],C1_thresh)
     circuit_parameters['C2']=calculate_Ccoup(fo,circuit_parameters['Rl'],C2_thresh)
 
     # Running the circuit
@@ -164,7 +164,7 @@ def automatic_initial_parameters(cir,optimization_input_parameters,optimization_
 
     # Printing the values
     cff.print_circuit_parameters(cir.circuit_parameters)
-    cff.print_extracted_outputs(cir.extracted_parameters)
+    cff.print_extracted_parameters(cir.extracted_parameters)
     
     #======================================================== Step 2 =======================================================
     print('\n\n--------------------------------- Operating Point Updations ------------------------------------')
@@ -179,5 +179,5 @@ def automatic_initial_parameters(cir,optimization_input_parameters,optimization_
 
     # Printing the values
     cff.print_circuit_parameters(cir.circuit_parameters)
-    cff.print_extracted_outputs(cir.extracted_parameters)
+    cff.print_extracted_parameters(cir.extracted_parameters)
    

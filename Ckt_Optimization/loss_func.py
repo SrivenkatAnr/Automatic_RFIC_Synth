@@ -42,16 +42,16 @@ def calc_loss(extracted_parameters,output_conditions,loss_weights):
     gain=extracted_parameters['gain_db']
     op1db=extracted_parameters['op1db_auto']
     am_pm_dev=extracted_parameters['am-pm-dev']
-    Io=extracted_parameters['Io']
+    Io=extracted_parameters['Idsat1']
     
     # Reference Values
     gain_ref=output_conditions['gain_db']
-    op1db_ref=output_conditions['op1db_auto']
+    op1db_ref=output_conditions['op1db']
     am_pm_dev_ref=output_conditions['am-pm-dev']
     
     #Defining the weights to calculate Loss
     A1=loss_weights['gain_db']  # Weight for gain
-    A2=loss_weights['op1db_auto'] # Weight for output 1dB power
+    A2=loss_weights['op1db'] # Weight for output 1dB power
     A3=loss_weights['am-pm-dev']   # Weight for am-pm-deviation
     A4=loss_weights['Io']   # Weight for Io
     
