@@ -743,7 +743,7 @@ def opt_single_run(cir,optimization_input_parameters,run_number):
 
     # Finding the best optimization results
     if optimization_input_parameters['optimization']['optimization_name']=='loss1':
-        optimization_results['optimized_results']=lf.check_best_solution(optimization_results,0)
+        optimization_results['optimized_results']=lf.check_best_solution(optimization_results,0.05)
     #elif optimization_input_parameters['optimization']['optimization_name']=='fom1':
     #    optimization_results['optimized_results']=off.check_best_solution(optimization_results,0)
     #    optimization_results['acceptable_solution']=off.check_acceptable_solutions(optimization_results,optimization_input_parameters)
