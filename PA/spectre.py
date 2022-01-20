@@ -351,7 +351,7 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
     am_pm_dev=(ph_max-ph_min)
     extracted_parameters["am-pm-dev"]=min(am_pm_dev,360-am_pm_dev)
 
-    gdb_ss=max(gdb_arr)
+    gdb_ss=gdb_arr[1]
     ip_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
     extracted_parameters["ip1db_man"]=pin_start+(ip_man_index*pin_step)
 
