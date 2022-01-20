@@ -342,7 +342,8 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
     ip_index=int((ip1db-pin_start)/pin_step)
     ph_min=min(ph_arr[:ip_index+1])
     ph_max=max(ph_arr[:ip_index+1]) 
-    extracted_parameters["am-pm-dev"]=(ph_max-ph_min)
+    am_pm_dev=(ph_max-ph_min)
+    extracted_parameters["am-pm-dev"]=min(am_pm_dev,360-am_pm_dev)
 
     gdb_ss=max(gdb_arr)
     ip_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
@@ -388,6 +389,10 @@ def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
     vout=np.complex(vout_re,vout_im)
     vin=np.complex(vin_re,vin_im)
     phase=np.angle(vout/vin)*180/np.pi
+    while phase<-180:
+        phase+=360
+    while phase>180:
+        phase-=360
 
     return phase
 #---------------------------------------------------------------------------------------------------------------------------

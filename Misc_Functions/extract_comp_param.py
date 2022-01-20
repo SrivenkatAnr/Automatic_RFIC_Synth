@@ -46,7 +46,7 @@ def extract_volt(lines):
     vout_i=valueE_to_value(char_i)
     return (vout_r, vout_i)
 
-def calculate_phase(vout_re,vout_im,vin_re,vin_im):
+def calculate_phase_old(vout_re,vout_im,vin_re,vin_im):
 	
 	# Calculating the phase of vout and vin
 	if vout_re>0:
@@ -67,10 +67,16 @@ def calculate_phase(vout_re,vout_im,vin_re,vin_im):
 
 	return phase
 
-def calculate_phase_new(vout_re,vout_im,vin_re,vin_im):
+def calculate_phase(vout_re,vout_im,vin_re,vin_im):
+    
     vout=np.complex(vout_re,vout_im)
     vin=np.complex(vin_re,vin_im)
     phase=np.angle(vout/vin)*180/np.pi
+    while phase<-180:
+        phase+=360
+    while phase>180:
+        phase-=360
+
     return phase
 
 def calculate_gain(vout_re,vout_im,vin_re,vin_im):
