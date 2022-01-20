@@ -205,7 +205,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization'][1]['update_check']=0
 
     optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Rl','Ld','Io','W','C1','C2']
-    optimization_input_parameters['optimization'][1]['output_parameters_list']=['Isup_hb','Ids_dc','Ids_hb','gain_db','p_source','Psup','op1db_auto','am-pm-dev','ip1db_auto','gm','Voutdc','vdsat','vg','vd','gds']
+    optimization_input_parameters['optimization'][1]['output_parameters_list']=['Isup_hb','Ids_dc','Ids_hb','gain_db','p_source','Psup_dc','op1db_auto','am-pm-dev','ip1db_auto','gm','Voutdc','vdsat','vg','vd','gds']
     
     optimization_input_parameters['optimization'][1]['optimization_type']=0
 
@@ -215,7 +215,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     loss_weights['gain_db']=1/6.0  
     loss_weights['op1db']=1/10.0  
     loss_weights['am-pm-dev']=1/5.0   
-    loss_weights['Io']=1000 
+    loss_weights['Isup']=1000 
     optimization_input_parameters['optimization'][1]['loss_weights']=loss_weights
 
 

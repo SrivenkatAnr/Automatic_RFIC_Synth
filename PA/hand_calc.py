@@ -130,7 +130,7 @@ def update_initial_parameters(cir,optimization_input_parameters):
         print('----- Iteration ',i,' -----')
 
         # Updating the values
-        gm_ext = cir.extracted_parameters['gm1']
+        gm_ext = cir.extracted_parameters['gm']
         cir.circuit_parameters['W']=cir.circuit_parameters['W']*((gm_exp/gm_ext)**2)
         # Running the circuit
         cir.run_circuit()

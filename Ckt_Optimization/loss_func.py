@@ -53,7 +53,7 @@ def calc_loss(extracted_parameters,output_conditions,loss_weights):
     A1=loss_weights['gain_db']  # Weight for gain
     A2=loss_weights['op1db'] # Weight for output 1dB power
     A3=loss_weights['am-pm-dev']   # Weight for am-pm-deviation
-    A4=loss_weights['Io']   # Weight for Io
+    A4=loss_weights['Isup']   # Weight for Io
     
     # Calculating Loss
     loss_gain=A1*ramp_func(gain_ref-gain)
