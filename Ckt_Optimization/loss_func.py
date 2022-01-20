@@ -42,7 +42,7 @@ def calc_loss(extracted_parameters,output_conditions,loss_weights):
     gain=extracted_parameters['gain_db']
     op1db=extracted_parameters['op1db_auto']
     am_pm_dev=extracted_parameters['am-pm-dev']
-    Io=extracted_parameters['Idsat1']
+    Io=extracted_parameters['Isup_hb']
     
     # Reference Values
     gain_ref=output_conditions['gain_db']
