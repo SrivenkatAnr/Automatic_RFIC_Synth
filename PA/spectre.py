@@ -215,24 +215,24 @@ def extract_dc_param(circuit_initialization_parameters):
     lines=lines[0].split()
 
     # Extracting the values from the required line
-    extracted_parameters['vg1']=valueE_to_value(lines[5])
-    extracted_parameters['vd1']=valueE_to_value(lines[6])
+    extracted_parameters['vg']=valueE_to_value(lines[5])
+    extracted_parameters['vd']=valueE_to_value(lines[6])
     
     extracted_parameters['i_source']=np.absolute(valueE_to_value(lines[4]))
     extracted_parameters['v_source']=np.absolute(valueE_to_value(lines[3]))
     extracted_parameters['p_source']=extracted_parameters['i_source']*extracted_parameters['v_source']
     extracted_parameters['Voutdc']=valueE_to_value(lines[1])
-    extracted_parameters['Isup']=valueE_to_value(lines[2])
+    extracted_parameters['Isup_dc']=valueE_to_value(lines[2])
     extracted_parameters['Vsup']=valueE_to_value(lines[16])
-    extracted_parameters['Psup']=extracted_parameters['Isup']*extracted_parameters['Vsup']
-    extracted_parameters['gm1']=valueE_to_value(lines[8])
-    extracted_parameters['gds1']=valueE_to_value(lines[9])
-    extracted_parameters['vth1']=valueE_to_value(lines[10])
-    extracted_parameters['vdsat1']=valueE_to_value(lines[12])
-    extracted_parameters['Idsat1']=valueE_to_value(lines[7])
+    extracted_parameters['Psup_dc']=extracted_parameters['Isup_dc']*extracted_parameters['Vsup']
+    extracted_parameters['gm']=valueE_to_value(lines[8])
+    extracted_parameters['gds']=valueE_to_value(lines[9])
+    extracted_parameters['vth']=valueE_to_value(lines[10])
+    extracted_parameters['vdsat']=valueE_to_value(lines[12])
+    extracted_parameters['Idsat']=valueE_to_value(lines[7])
 
-    extracted_parameters['cgs1']=np.absolute(valueE_to_value(lines[13]))
-    extracted_parameters['cgd1']=np.absolute(valueE_to_value(lines[14]))
+    extracted_parameters['cgs']=np.absolute(valueE_to_value(lines[13]))
+    extracted_parameters['cgd']=np.absolute(valueE_to_value(lines[14]))
     extracted_parameters['region']=np.absolute(valueE_to_value(lines[15]))
 
     
@@ -314,6 +314,7 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
     extracted_parameters={}
 
     freq_flag=0
+    dc_flag=0
 
     for i in range(npin):
         if (i==0):
@@ -330,11 +331,16 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
                 freq=valueE_to_value(freq)
                 if(freq==op_freq):
                     freq_flag=1
+                if(freq==0):
+                    dc_flag=1
             if ('"Vin"' in line) and ('"V"' not in line) and (freq_flag==1):
-                vin_re_arr[i],vin_im_arr[i] = extract_voltage(line)
+                vin_re_arr[i],vin_im_arr[i] = extract_voltage_current(line)
             if ('"Vout"' in line) and ('"V"' not in line) and (freq_flag==1):
-                vout_re_arr[i],vout_im_arr[i] = extract_voltage(line)
+                vout_re_arr[i],vout_im_arr[i] = extract_voltage_current(line)
                 freq_flag=0
+            if ('"Vpower:p"' in line) and (i==npin-1) and (dc_flag==1):
+                isup_hb_re,isup_hb_im = extract_voltage_current(line)
+                dc_flag=0
         ph_arr[i] = calculate_gain_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
         gdb_arr[i] = calculate_gain_db(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
 
@@ -349,13 +355,16 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
     ip_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
     extracted_parameters["ip1db_man"]=pin_start+(ip_man_index*pin_step)
 
+    i_sup_hb = np.sqrt(isup_hb_re**2 + isup_hb_im**2)
+    extracted_parameters["Isup_hb"]=isup_hb
+
     return extracted_parameters    
 
 #---------------------------------------------------------------------------------------------------------------------------    
 # Extracts Vout_magnitude from hb,pss file line
 # Inputs: Line
 # Output: Vout_Magnitude
-def extract_voltage(lines):
+def extract_voltage_current(lines):
     
     # Extracting Vout Magnitude
     lines=lines.split()
@@ -843,21 +852,22 @@ def get_final_extracted_parameters(extracted_parameters_combined):
     final_extracted_parameters={}
 
     extracted_parameters_select={
-        'vg1':'mid',
-        'vd1':'mid',
+        'vg':'mid',
+        'vd':'mid',
         'i_source':'mid',
         'v_source':'mid',
         'p_source':'mid',
-        'Isup':'max',
+        'Isup_dc':'max',
+        'Isup_hb':'max',
         'Vsup':'max',
-        'Psup':'max',
-        'gm1':'mid',
-        'gds1':'mid',
-        'vth1':'mid',
-        'vdsat1':'mid',
-        'Idsat1':'max',
-        'cgs1':'mid',
-        'cgd1':'mid',
+        'Psup_dc':'max',
+        'gm':'mid',
+        'gds':'mid',
+        'vth':'mid',
+        'vdsat':'mid',
+        'Idsat':'max',
+        'cgs':'mid',
+        'cgd':'mid',
         'freq':'mid',
         'region':'mid',
         'am-pm-dev':'max',
