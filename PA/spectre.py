@@ -229,7 +229,7 @@ def extract_dc_param(circuit_initialization_parameters):
     extracted_parameters['gds']=valueE_to_value(lines[9])
     extracted_parameters['vth']=valueE_to_value(lines[10])
     extracted_parameters['vdsat']=valueE_to_value(lines[12])
-    extracted_parameters['Idsat']=valueE_to_value(lines[7])
+    extracted_parameters['Ids_dc']=valueE_to_value(lines[7])
 
     extracted_parameters['cgs']=np.absolute(valueE_to_value(lines[13]))
     extracted_parameters['cgd']=np.absolute(valueE_to_value(lines[14]))
@@ -315,7 +315,7 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
 
     freq_flag=0
     dc_flag=0
-
+    
     for i in range(npin):
         if (i==0):
             filename=fname_template.replace("{}","000")  
@@ -338,7 +338,7 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
             if ('"Vout"' in line) and ('"V"' not in line) and (freq_flag==1):
                 vout_re_arr[i],vout_im_arr[i] = extract_voltage_current(line)
                 freq_flag=0
-            if ('"Vpower:p"' in line) and (i==npin-1) and (dc_flag==1):
+            if ('"Vpower:p"' in line) and ('"I"' not in line) and (i==npin-1) and (dc_flag==1):
                 isup_hb_re,isup_hb_im = extract_voltage_current(line)
                 dc_flag=0
         ph_arr[i] = calculate_gain_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
@@ -355,7 +355,7 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
     ip_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
     extracted_parameters["ip1db_man"]=pin_start+(ip_man_index*pin_step)
 
-    i_sup_hb = np.sqrt(isup_hb_re**2 + isup_hb_im**2)
+    isup_hb = np.sqrt(isup_hb_re**2 + isup_hb_im**2)
     extracted_parameters["Isup_hb"]=isup_hb
 
     return extracted_parameters    
@@ -415,7 +415,7 @@ def extract_basic_parameters(circuit_initialization_parameters):
     extracted_parameters_ac=extract_ac_param(circuit_initialization_parameters)
     extracted_parameters_xdb=extract_xdb_auto_param(circuit_initialization_parameters)
     extracted_parameters_comp=extract_comp_param(circuit_initialization_parameters,extracted_parameters_xdb)
-    
+
     # Storing the outputs in a single dictionary
     extracted_parameters={}
     
@@ -840,6 +840,7 @@ def write_extract_single(i,circuit_parameters,circuit_initialization_parameters)
     extracted_parameters=basic_extracted_parameters.copy()
     #for param_name in advanced_extracted_parameters:
     #    extracted_parameters[param_name]=advanced_extracted_parameters[param_name]
+    extracted_parameters['Ids_hb']=extracted_parameters['Isup_hb']-circuit_parameters['Io']
 
     return (i,extracted_parameters)
 
@@ -865,7 +866,8 @@ def get_final_extracted_parameters(extracted_parameters_combined):
         'gds':'mid',
         'vth':'mid',
         'vdsat':'mid',
-        'Idsat':'max',
+        'Ids_dc':'max',
+        'Ids_hb':'max',
         'cgs':'mid',
         'cgd':'mid',
         'freq':'mid',
