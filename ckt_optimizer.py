@@ -195,7 +195,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     # Parameters for Optimization Run 1
     optimization_input_parameters['optimization'][1]={}
     
-    optimization_input_parameters['optimization'][1]['max_iteration']=5
+    optimization_input_parameters['optimization'][1]['max_iteration']=300
     optimization_input_parameters['optimization'][1]['alpha_min']=-1
     optimization_input_parameters['optimization'][1]['consec_iter']=-1
 

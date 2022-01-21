@@ -143,7 +143,7 @@ for param_name in cir.extracted_parameters:
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #------------------------------------- SAVE PLOTS --------------------------------------------
-#cir.plot_ckt_details()
+cir.plot_ckt_details("Output Trends/")
 
 t_end = time.time()
 print("\n time taken is {} seconds\n".format(t_end-t_start))

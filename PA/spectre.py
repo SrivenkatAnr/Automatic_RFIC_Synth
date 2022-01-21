@@ -36,8 +36,8 @@ import os
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool as Pool
 import common_functions as cff # type: ignore
-import copy
-import pylab
+from pylab import *
+import copy 
 
 """
 ====================================================================================================================================================================================
@@ -83,8 +83,25 @@ class Circuit():
     def reset_temp(self):
         self.circuit_initialization_parameters['simulation']['netlist_parameters']['cir_temp']=self.circuit_initialization_parameters['simulation']['standard_parameters']['std_temp'] 
 
-    def plot_ckt_details(self):
-         self.plot()
+    def plot_ckt_details(self,f_dir):
+         pin_arr = self.ckt_trends['pin_arr']
+         for param in self.ckt_trends.keys():
+             if (param!='pin_arr'):
+                 self.plot_func(pin_arr,param,f_dir)
+
+    def plot_func(self,arrX,paramY,f_dir):
+        arrY=self.ckt_trends[paramY]
+        figure()
+        plot(arrX,arrY,'g',label=paramY)
+        #annotate(cff.num_trunc(arrY,3),(arrX,arrY))
+        xlabel('Input Power')
+        ylabel(paramY)
+        legend()
+        grid()
+        if not os.path.exists(f_dir):
+            os.mkdir(f_dir)
+        savefig(f_dir+paramY+'.pdf')
+        close()
 
     #===========================================================================================================================================================
     #------------------------------------------------------ Basic File Extraction Functions --------------------------------------------------------------------
@@ -194,7 +211,8 @@ class Circuit():
         pin_stop=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
         pin_step=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
         npin=int((pin_stop-pin_start)/pin_step)
-        op_freq=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
+        fund_freq=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
+        op_freq=circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']
 
         vin_re_arr = np.zeros(npin,dtype=float)
         vin_im_arr = np.zeros(npin,dtype=float)
@@ -202,6 +220,9 @@ class Circuit():
         vout_im_arr = np.zeros(npin,dtype=float)
         ph_arr = np.zeros(npin,dtype=float)
         gdb_arr = np.zeros(npin,dtype=float)
+        pout_arr = np.zeros(npin,dtype=float)
+        p_sup_hb_arr = np.zeros(npin,dtype=float)
+
         extracted_parameters={}
 
         freq_flag=0
@@ -220,7 +241,7 @@ class Circuit():
                 if ('"freq"' in line) and ('"sweep"' not in line):
                     freq=line.split()[1]
                     freq=valueE_to_value(freq)
-                    if(freq==op_freq):
+                    if(freq==fund_freq):
                         freq_flag=1
                     if(freq==0):
                         dc_flag=1
@@ -229,11 +250,13 @@ class Circuit():
                 if ('"Vout"' in line) and ('"V"' not in line) and (freq_flag==1):
                     vout_re_arr[i],vout_im_arr[i] = extract_voltage_current(line)
                     freq_flag=0
-                if ('"Vpower:p"' in line) and ('"I"' not in line) and (i==npin-1) and (dc_flag==1):
+                if ('"Vpower:p"' in line) and ('"I"' not in line) and (dc_flag==1):
                     isup_hb_re,isup_hb_im = extract_voltage_current(line)
                     dc_flag=0
             ph_arr[i] = calculate_gain_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
             gdb_arr[i] = calculate_gain_db(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
+            pout_arr[i] = (vout_re_arr[i]**2 + vout_im_arr[i]**2)/(2*self.circuit_parameters['Rl'])
+            p_sup_hb_arr[i] = np.sqrt(isup_hb_re**2 + isup_hb_im**2)*self.mos_parameters['Vdd']
 
         ip1db = extracted_parameters_xdb['ip1db_auto']
         ip_index=int((ip1db-pin_start)/pin_step)
@@ -248,7 +271,16 @@ class Circuit():
 
         isup_hb = np.sqrt(isup_hb_re**2 + isup_hb_im**2)
         extracted_parameters["Isup_hb"]=isup_hb
-
+        
+        ckt_trends={}
+        ckt_trends['pin_arr']=np.linspace(pin_start,pin_stop,npin)
+        ckt_trends['ph_arr']=ph_arr
+        ckt_trends['gdb_arr']=gdb_arr
+        ckt_trends['pout_arr']=10*np.log10(pout_arr)
+        ckt_trends['psup_arr']=10*np.log10(p_sup_hb_arr)
+        if (op_freq==fund_freq):
+            self.ckt_trends=ckt_trends        
+        
         return extracted_parameters    
 
 
