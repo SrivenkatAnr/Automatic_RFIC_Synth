@@ -32,7 +32,6 @@ import numpy as np
 import common_functions as cf
 import Ckt_Optimization.loss_func as lf
 import os
-from matplotlib import pylab
 from pylab import *
 #===========================================================================================================================
 
