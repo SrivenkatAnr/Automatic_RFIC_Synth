@@ -702,7 +702,7 @@ def opt_single_run(cir,optimization_input_parameters,run_number):
 
 
         # Printing the values of loss for given iteration
-        print('\n-----------------------------Iteration Number ',i+1,'-------------------------------')
+        print('\n -----------------------------Iteration Number ',i+1,'-------------------------------')
         cf.print_loss_parameters(loss_iter[i])
         
 

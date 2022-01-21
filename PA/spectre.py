@@ -57,7 +57,7 @@ class Circuit():
     def run_circuit(self):
         #if self.circuit_parameters['W']>900e-6:
         #   self.circuit_parameters['W']=850e-6
-        self.extracted_parameters=self.write_extract(self.circuit_parameters,self.circuit_initialization_parameters)
+        self.extracted_parameters=self.write_extract()
 
     def update_circuit(self,circuit_parameters):
         self.circuit_parameters=circuit_parameters
@@ -361,7 +361,7 @@ class Circuit():
         # We will write the new values to the Basic Circuit
         f=open(filename1,'r+') 
         s=''
-        for line in fileinput.input(filename1):
+        for line in fileinput.FileInput(filename1):
             for param_name in write_dict:
                 if "parameters "+param_name+'=' in line:    # Checking for a particular parameter in the .scs file
                     line=line.replace(line,print_param(param_name,write_dict[param_name]))  # Replacing the parameter in the .scs file
@@ -396,7 +396,7 @@ class Circuit():
         include_check=0
         
         # Replacing the lines of .scs file
-        for line in fileinput.input(filename1):
+        for line in fileinput.FileInput(filename1):
             if "include " in line:  # This line is used to include the MOS file in the .scs file
                 include_check=0
                 write_check=1
