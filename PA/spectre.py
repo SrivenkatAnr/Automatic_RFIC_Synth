@@ -34,6 +34,7 @@ import numpy as np
 import fileinput
 import os
 import multiprocessing as mp
+from multiprocessing.pool import ThreadPool as Pool
 import common_functions as cff # type: ignore
 import copy
 import pylab
@@ -112,7 +113,7 @@ class Circuit():
         extracted_parameters['v_source']=np.absolute(valueE_to_value(lines[3]))
         extracted_parameters['p_source']=extracted_parameters['i_source']*extracted_parameters['v_source']
         extracted_parameters['Voutdc']=valueE_to_value(lines[1])
-        extracted_parameters['Isup_dc']=valueE_to_value(lines[2])
+        extracted_parameters['Isup_dc']=np.absolute(valueE_to_value(lines[2]))
         extracted_parameters['Vsup']=valueE_to_value(lines[16])
         extracted_parameters['Psup_dc']=extracted_parameters['Isup_dc']*extracted_parameters['Vsup']
         extracted_parameters['gm']=valueE_to_value(lines[8])
@@ -524,7 +525,6 @@ class Circuit():
         circuit_initialization_parameters=self.circuit_initialization_parameters
         circuit_parameters=self.circuit_parameters
         
-        from multiprocessing.pool import ThreadPool as Pool
         pool=Pool()      
        
         # Creating new circuit parameter files
