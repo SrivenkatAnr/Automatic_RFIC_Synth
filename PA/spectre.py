@@ -51,18 +51,18 @@ class Circuit():
         self.extracted_parameters={}
         self.simulation_parameters={}
         self.circuit_initialization_parameters=circuit_initialization_parameters
-        self.mos_parameters=self.calculate_mos_parameters(self.circuit_initialization_parameters)
+        self.mos_parameters=self.calculate_mos_parameters()
     
     def run_circuit(self):
         #if self.circuit_parameters['W']>900e-6:
         #   self.circuit_parameters['W']=850e-6
-        self.extracted_parameters=write_extract(self.circuit_parameters,self.circuit_initialization_parameters)
+        self.extracted_parameters=self.write_extract(self.circuit_parameters,self.circuit_initialization_parameters)
 
     def update_circuit(self,circuit_parameters):
         self.circuit_parameters=circuit_parameters
         #if self.circuit_parameters['W']>900e-6:
         #   self.circuit_parameters['W']=850e-6
-        self.extracted_parameters=write_extract()
+        self.extracted_parameters=self.write_extract()
     
     def update_circuit_parameters(self,circuit_parameters):
         self.circuit_parameters=circuit_parameters
@@ -477,16 +477,16 @@ class Circuit():
     def write_extract_basic(self,circuit_initialization_parameters):
         
         # Writing the tcsh file for Basic Analysis
-        write_tcsh_file(circuit_initialization_parameters,'basic')
+        self.write_tcsh_file(circuit_initialization_parameters,'basic')
         
         # Writing the simulation parameters
-        write_simulation_parameters(circuit_initialization_parameters)
+        self.write_simulation_parameters(circuit_initialization_parameters)
         
         # Running netlist file
-        run_file(circuit_initialization_parameters)
+        self.run_file(circuit_initialization_parameters)
         
         # Extracting the Basic Parameters
-        basic_extracted_parameters=extract_basic_parameters(circuit_initialization_parameters)
+        basic_extracted_parameters=self.extract_basic_parameters(circuit_initialization_parameters)
         
         return basic_extracted_parameters
 
@@ -498,10 +498,10 @@ class Circuit():
     def write_extract_single(self,i,circuit_parameters,circuit_initialization_parameters):
          
         # Writing to netlist file
-        write_circuit_parameters(circuit_parameters,circuit_initialization_parameters)
+        self.write_circuit_parameters(circuit_parameters,circuit_initialization_parameters)
         
         # Extracting the Basic Parameters
-        basic_extracted_parameters=write_extract_basic(circuit_initialization_parameters)
+        basic_extracted_parameters=self.write_extract_basic(circuit_initialization_parameters)
         
         # Extracting the Advanced Parameters
         #advanced_extracted_parameters=write_extract_advanced(circuit_initialization_parameters)
@@ -524,8 +524,9 @@ class Circuit():
         circuit_initialization_parameters=self.circuit_initialization_parameters
         circuit_parameters=self.circuit_parameters
         
-        pool=mp.Pool()
-
+        from multiprocessing.pool import ThreadPool as Pool
+        pool=Pool()      
+       
         # Creating new circuit parameter files
         circuit_parameters_run={}
         circuit_parameters_run[0]=circuit_parameters.copy()
@@ -569,9 +570,14 @@ class Circuit():
                 (i,extracted_parameters)=r.get()
             except mp.TimeoutError:
                 print("timeout error")
-
+        
             extracted_parameters_combined[i]=extracted_parameters
-            
+
+        #_,extracted_parameters=self.write_extract_single(1,circuit_parameters_run[1],circuit_initialization_parameters_run[1])
+        #extracted_parameters_combined[0]=extracted_parameters
+        #extracted_parameters_combined[1]=extracted_parameters
+        #extracted_parameters_combined[2]=extracted_parameters
+
         final_extracted_parameters=self.get_final_extracted_parameters(extracted_parameters_combined)
         
         pool.close()
