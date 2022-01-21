@@ -88,117 +88,6 @@ class Circuit():
     def plot_ckt_details(self):
          self.plot()
 
-
-
-#===========================================================================================================================
-#------------------------------------ MOSFET EXTRACTION --------------------------------------------------------------------
-
-#-----------------------------------------------------------------
-# Function that extracts the MOSFET File Parameeters
-# Inputs  : Optimization Input Parameters
-# Outputs : MOS_Parameters
-def calculate_mos_parameters(circuit_initialization_parameters):
-    
-    # Setting Lmin and Vdd
-    Lmin=circuit_initialization_parameters['MOS']['Lmin']
-    vdd=circuit_initialization_parameters['MOS']['Vdd']
-    cox=circuit_initialization_parameters['MOS']['cox']
-    un=circuit_initialization_parameters['MOS']['un']
-    vt=circuit_initialization_parameters['MOS']['vt']
-
-    # Extracting From File
-    mos_parameters = {'un':un,'cox':cox,'vt':vt,'Lmin':Lmin,'Vdd':vdd}
-    
-    # Printing the MOSFET Parameters
-    cff.print_MOS_parameters(mos_parameters)
-
-    return mos_parameters
-
-
-"""
-====================================================================================================================================================================================
------------------------------------------------------------- EXTRACTION FUNCTION ---------------------------------------------------------------------------------------------------
-"""
-
-#===========================================================================================================================================================
-#------------------------------------------------------ Character to Real Number Functions -----------------------------------------------------------------
-
-#---------------------------------------------------------------------------------------------------------------------------
-# Changing the values extracted as a string to a floating point value 
-# Input: Value of the number in string format   
-# Output: Value of the number in float
-def valueName_to_value(value_name):
-
-    # Checking if the last character of array is a string
-    if value_name[-1].isalpha()==0:
-        val=float(value_name)
-        return val
-    
-    # Checking if the last character of array is a string
-    if (value_name[-1]=='G' and value_name[-2]=='E') or (value_name[-1]=='g' and value_name[-2]=='e'):
-        val=float(value_name[:-3])*1e6
-        return val
-        
-    # Extracting the numerical part of the number 
-    val=float(value_name[:-1])
-    
-    # Extracting the character that denotes the units ( i.e, millt, micro, nano, etc)
-    mult_name=value_name[-1]
-    mult=1.0
-    
-    # Calculating the value of the unit
-    if mult_name=='M' or mult_name=='m':
-        mult=1e-3
-    elif mult_name=='U' or mult_name=='u':
-        mult=1e-6
-    elif mult_name=='N' or mult_name=='n':
-        mult=1e-9
-    elif mult_name=='P' or mult_name=='p':
-        mult=1e-12
-    elif mult_name=='F' or mult_name=='f':
-        mult=1e-15
-    elif mult_name=='G' or mult_name=='g':
-        mult=1e9
-    else:
-        mult=1.0
-        
-    val=val*mult
-    return val
-    
-#---------------------------------------------------------------------------------------------------------------------------
-# Changing the values extracted as 10e1, 1.5e-2 to a floating point value 
-# Input: Value of the number in string format   
-# Output: Value of the number in float
-def valueE_to_value(value_name):
-    
-    # Extracting the number before and after e
-    if 'e' in value_name:
-        num1=float(value_name.split('e')[0])
-        num2=float(value_name.split('e')[1])
-        
-        # Calculating the final number
-        num=num1*(10**num2)
-    
-    else:
-        num=float(value_name)
-    
-    return num
-
-
-#===========================================================================================================================================================
-#--------------------------------------------------------- Other File Extraction Functions -----------------------------------------------------------------
-
-#---------------------------------------------------------------------------------------------------------------------------
-# Extracting the files as an array of lines
-# Inputs: file name
-# Output: array of lines
-def extract_file(file_name):
-    f=open(file_name)
-    lines=f.readlines()
-    f.close()
-    return lines
-
-
 #===========================================================================================================================================================
 #------------------------------------------------------ Basic File Extraction Functions --------------------------------------------------------------------
 
@@ -364,6 +253,33 @@ def extract_comp_param(circuit_initialization_parameters,extracted_parameters_xd
 
     return extracted_parameters    
 
+
+#---------------------------------------------------------------------------------------------------------------------------
+# Extracting all the output parameters from chi file
+# Inputs: optimization_input parameters
+# Outputs: output parameters dictionary 
+def extract_basic_parameters(circuit_initialization_parameters):
+    
+    # Extracting the outputs 
+    extracted_parameters_dc=extract_dc_param(circuit_initialization_parameters)
+    extracted_parameters_ac=extract_ac_param(circuit_initialization_parameters)
+    extracted_parameters_xdb=extract_xdb_auto_param(circuit_initialization_parameters)
+    extracted_parameters_comp=extract_comp_param(circuit_initialization_parameters,extracted_parameters_xdb)
+
+    # Storing the outputs in a single dictionary
+    extracted_parameters={}
+    
+    for param_name in extracted_parameters_dc:
+        extracted_parameters[param_name]=extracted_parameters_dc[param_name]
+    for param_name in extracted_parameters_ac:
+        extracted_parameters[param_name]=extracted_parameters_ac[param_name]
+    for param_name in extracted_parameters_xdb:
+        extracted_parameters[param_name]=extracted_parameters_xdb[param_name]
+    for param_name in extracted_parameters_comp:
+        extracted_parameters[param_name]=extracted_parameters_comp[param_name]
+
+    return extracted_parameters
+
 #---------------------------------------------------------------------------------------------------------------------------    
 # Extracts Vout_magnitude from hb,pss file line
 # Inputs: Line
@@ -408,194 +324,116 @@ def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
         phase-=360
 
     return phase
-#---------------------------------------------------------------------------------------------------------------------------
-# Extracting all the output parameters from chi file
-# Inputs: optimization_input parameters
-# Outputs: output parameters dictionary 
-def extract_basic_parameters(circuit_initialization_parameters):
-    
-    # Extracting the outputs 
-    extracted_parameters_dc=extract_dc_param(circuit_initialization_parameters)
-    extracted_parameters_ac=extract_ac_param(circuit_initialization_parameters)
-    extracted_parameters_xdb=extract_xdb_auto_param(circuit_initialization_parameters)
-    extracted_parameters_comp=extract_comp_param(circuit_initialization_parameters,extracted_parameters_xdb)
-
-    # Storing the outputs in a single dictionary
-    extracted_parameters={}
-    
-    for param_name in extracted_parameters_dc:
-        extracted_parameters[param_name]=extracted_parameters_dc[param_name]
-    for param_name in extracted_parameters_ac:
-        extracted_parameters[param_name]=extracted_parameters_ac[param_name]
-    for param_name in extracted_parameters_xdb:
-        extracted_parameters[param_name]=extracted_parameters_xdb[param_name]
-    for param_name in extracted_parameters_comp:
-        extracted_parameters[param_name]=extracted_parameters_comp[param_name]
-
-    return extracted_parameters
-
-
-#===========================================================================================================================================================
-#------------------------------------------- AM-AM, AM-PM Deviation Extraction Functions --------------------------------------------------------------------
-
-#---------------------------------------------------------------------------------------------------------------------------    
-
-"""
-#---------------------------------------------------------------------------------------------------------------------------    
-# Calculating the IIP3 after extraction of Vout data
-# Inputs: circuit_initialization_parameters, Vout_fund, Vout_im3, pin
-# Output: IIP3
-def calculate_iip3_multiple_points(circuit_initialization_parameters,vout_fund_mag,vout_im3_mag,pin):
-
-    # Calculating values in log scale
-    vout_fund_log=20*np.log10(vout_fund_mag)
-    vout_im3_log=20*np.log10(vout_im3_mag)
-
-    n_pin=circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']
-    n_points=circuit_initialization_parameters['simulation']['standard_parameters']['iip3_calc_points']
-    
-    # Creating arrays for slopes and y-intercepts of fundamental and im3 components
-    fund_slope=np.zeros(n_pin+1-n_points,dtype=float)
-    fund_intercept=np.zeros(n_pin+1-n_points,dtype=float)
-    im3_slope=np.zeros(n_pin+1-n_points,dtype=float)
-    im3_intercept=np.zeros(n_pin+1-n_points,dtype=float)
-
-    # Calculating the slopes and y-intercepts
-    for i in range(n_pin+1-n_points):
-        fund_slope[i],fund_intercept[i]=calculate_slope(pin[i:i+n_points-1],vout_fund_log[i:i+n_points-1])
-        im3_slope[i],im3_intercept[i]=calculate_slope(pin[i:i+n_points-1],vout_im3_log[i:i+n_points-1])
-    
-    # Finding the best points for iip3 calculation
-    best_point=calculate_best_iip3_point(fund_slope,im3_slope)
-    
-    # Calculating the iip3 given the slope and y-intercept of fundamental and im3
-    iip3=(im3_intercept[best_point]-fund_intercept[best_point])/(fund_slope[best_point]-im3_slope[best_point])
-
-    return iip3
-
-#---------------------------------------------------------------------------------------------------------------------------    
-# Calculating the slope and y-intercept
-# Inputs: x and y coordinates of the points
-# Output: slope, y-intercept
-def calculate_slope(x,y):
-    A = np.vstack([x, np.ones(len(x))]).T
-    m, c = np.linalg.lstsq(A, y, rcond=None)[0]
-    return m,c
-
-#---------------------------------------------------------------------------------------------------------------------------    
-# Calculating the point with slope closest to 1dB/dB for fund and 3dB/dB for im3
-# Inputs: Slope of fundamental and im3
-# Output: Location of the best point
-def calculate_best_iip3_point(fund_slope,im3_slope):
-    
-    # Getting the length of the array
-    l=len(fund_slope)
-
-    # Choosing the best point as the first point
-    best_point=0
-    best_error=(fund_slope[0]-1)**2+(im3_slope[0]-3)**2
-
-    for i in range(1,l):
-        error=(fund_slope[i]-1)**2+(im3_slope[i]-3)**2
-        if error<best_error:    # Checking if the current point is better than the best point
-            best_point=i
-            best_error=error
-    return best_point
-
-#---------------------------------------------------------------------------------------------------------------------------    
-# Checks if the frequency is within range ( within (target-error,target+error) )
-# Inputs: Test Frequency, Target Frequency, Error
-# Output: 1 if Yes and 0 if No
-def check_freq(f_test,f_target,f_error):
-    if f_test<f_target+f_error and f_test>f_target-f_error:
-        return 1
-    else:
-        return 0
-
-#---------------------------------------------------------------------------------------------------------------------------    
-# Extracting Vout magnitude of fundamental and im3 from file ( for hb_sweep )
-# Inputs: Filename, Optimization Input Parameters
-# Output: Magnitude of Vout at fundamental and im3
-def extract_vout_magnitude(file_name,circuit_initialization_parameters):
-
-    lines=extract_file(file_name)
-    
-    fund_1=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
-    fund_2=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_2']
-
-    f_im3=2*fund_2-fund_1
-    f_error=(fund_2-fund_1)/100
-
-    flag=0
-    flag_fun=0
-    flag_im3=0
-    flag_test=0
-
-    while 1:
-        if len(lines[0].split())<2:
-            lines=lines[1:]
-        
-        elif 'freq' in lines[0].split()[0] and flag==0:
-            flag=1
-            lines=lines[1:]
-        
-        elif 'freq' in lines[0].split()[0] and flag==1:
-            if flag_fun==0 and check_freq(float(lines[0].split()[1]),fund_2,f_error)==1 :
-                
-                #Extracting Vout for fundamental
-                flag_test=1
-                while flag_test==1:
-                    if 'Vout' in lines[0].split()[0]:
-                        flag_test=0
-                        vout_fund=extract_vout(lines[0])
-                    else:
-                        lines=lines[1:]
-                flag_fun=1
-            
-            elif flag_im3==0 and check_freq(float(lines[0].split()[1]),f_im3,f_error)==1 :
-                
-                #Extracting Vout for im3
-                flag_test=1
-                while flag_test==1:
-                    if 'Vout' in lines[0].split()[0]:
-                        flag_test=0
-                        vout_im3=extract_vout(lines[0])
-                    else:
-                        lines=lines[1:]
-                flag_im3=1
-            lines=lines[1:]
-            
-            if flag_fun==1 and flag_im3==1:
-                break
-        
-        else:
-            lines=lines[1:]
-
-    return vout_fund,vout_im3
-
-#---------------------------------------------------------------------------------------------------------------------------    
-# Extracts Vout_magnitude from hb,pss file line
-# Inputs: Line
-# Output: Vout_Magnitude
-def extract_vout(lines):
-    
-    # Extracting Vout Magnitude
-    lines=lines.split()
-    char_r=lines[1].split('(')[1]
-    char_i=lines[2].split(')')[0]
-
-    # Converting string to floating point value
-    vout_r=valueE_to_value(char_r)
-    vout_i=valueE_to_value(char_i)
-    
-    # Calculating the magnitude of the output
-    vout_mag=np.sqrt(vout_r*vout_r+vout_i*vout_i)
-
-    return vout_mag
 
 
 #===========================================================================================================================
+#------------------------------------ MOSFET EXTRACTION --------------------------------------------------------------------
+
+#-----------------------------------------------------------------
+# Function that extracts the MOSFET File Parameeters
+# Inputs  : Optimization Input Parameters
+# Outputs : MOS_Parameters
+def calculate_mos_parameters(circuit_initialization_parameters):
+    
+    # Setting Lmin and Vdd
+    Lmin=circuit_initialization_parameters['MOS']['Lmin']
+    vdd=circuit_initialization_parameters['MOS']['Vdd']
+    cox=circuit_initialization_parameters['MOS']['cox']
+    un=circuit_initialization_parameters['MOS']['un']
+    vt=circuit_initialization_parameters['MOS']['vt']
+
+    # Extracting From File
+    mos_parameters = {'un':un,'cox':cox,'vt':vt,'Lmin':Lmin,'Vdd':vdd}
+    
+    # Printing the MOSFET Parameters
+    cff.print_MOS_parameters(mos_parameters)
+
+    return mos_parameters
+
+
+
 """
+====================================================================================================================================================================================
+------------------------------------------------------------ EXTRACTION FUNCTION ---------------------------------------------------------------------------------------------------
+"""
+
+#===========================================================================================================================================================
+#------------------------------------------------------ Character to Real Number Functions -----------------------------------------------------------------
+
+#---------------------------------------------------------------------------------------------------------------------------
+# Changing the values extracted as a string to a floating point value 
+# Input: Value of the number in string format   
+# Output: Value of the number in float
+def valueName_to_value(value_name):
+
+    # Checking if the last character of array is a string
+    if value_name[-1].isalpha()==0:
+        val=float(value_name)
+        return val
+    
+    # Checking if the last character of array is a string
+    if (value_name[-1]=='G' and value_name[-2]=='E') or (value_name[-1]=='g' and value_name[-2]=='e'):
+        val=float(value_name[:-3])*1e6
+        return val
+        
+    # Extracting the numerical part of the number 
+    val=float(value_name[:-1])
+    
+    # Extracting the character that denotes the units ( i.e, millt, micro, nano, etc)
+    mult_name=value_name[-1]
+    mult=1.0
+    
+    # Calculating the value of the unit
+    if mult_name=='M' or mult_name=='m':
+        mult=1e-3
+    elif mult_name=='U' or mult_name=='u':
+        mult=1e-6
+    elif mult_name=='N' or mult_name=='n':
+        mult=1e-9
+    elif mult_name=='P' or mult_name=='p':
+        mult=1e-12
+    elif mult_name=='F' or mult_name=='f':
+        mult=1e-15
+    elif mult_name=='G' or mult_name=='g':
+        mult=1e9
+    else:
+        mult=1.0
+        
+    val=val*mult
+    return val
+    
+#---------------------------------------------------------------------------------------------------------------------------
+# Changing the values extracted as 10e1, 1.5e-2 to a floating point value 
+# Input: Value of the number in string format   
+# Output: Value of the number in float
+def valueE_to_value(value_name):
+    
+    # Extracting the number before and after e
+    if 'e' in value_name:
+        num1=float(value_name.split('e')[0])
+        num2=float(value_name.split('e')[1])
+        
+        # Calculating the final number
+        num=num1*(10**num2)
+    
+    else:
+        num=float(value_name)
+    
+    return num
+
+
+#===========================================================================================================================================================
+#--------------------------------------------------------- Other File Extraction Functions -----------------------------------------------------------------
+
+#---------------------------------------------------------------------------------------------------------------------------
+# Extracting the files as an array of lines
+# Inputs: file name
+# Output: array of lines
+def extract_file(file_name):
+    f=open(file_name)
+    lines=f.readlines()
+    f.close()
+    return lines
 
 """
 ====================================================================================================================================================================================
@@ -995,3 +833,164 @@ def write_extract(circuit_parameters,circuit_initialization_parameters):
 
 #===========================================================================================================================
 
+#===========================================================================================================================================================
+#------------------------------------------- AM-AM, AM-PM Deviation Extraction Functions --------------------------------------------------------------------
+
+#---------------------------------------------------------------------------------------------------------------------------    
+
+"""
+#---------------------------------------------------------------------------------------------------------------------------    
+# Calculating the IIP3 after extraction of Vout data
+# Inputs: circuit_initialization_parameters, Vout_fund, Vout_im3, pin
+# Output: IIP3
+def calculate_iip3_multiple_points(circuit_initialization_parameters,vout_fund_mag,vout_im3_mag,pin):
+
+    # Calculating values in log scale
+    vout_fund_log=20*np.log10(vout_fund_mag)
+    vout_im3_log=20*np.log10(vout_im3_mag)
+
+    n_pin=circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']
+    n_points=circuit_initialization_parameters['simulation']['standard_parameters']['iip3_calc_points']
+    
+    # Creating arrays for slopes and y-intercepts of fundamental and im3 components
+    fund_slope=np.zeros(n_pin+1-n_points,dtype=float)
+    fund_intercept=np.zeros(n_pin+1-n_points,dtype=float)
+    im3_slope=np.zeros(n_pin+1-n_points,dtype=float)
+    im3_intercept=np.zeros(n_pin+1-n_points,dtype=float)
+
+    # Calculating the slopes and y-intercepts
+    for i in range(n_pin+1-n_points):
+        fund_slope[i],fund_intercept[i]=calculate_slope(pin[i:i+n_points-1],vout_fund_log[i:i+n_points-1])
+        im3_slope[i],im3_intercept[i]=calculate_slope(pin[i:i+n_points-1],vout_im3_log[i:i+n_points-1])
+    
+    # Finding the best points for iip3 calculation
+    best_point=calculate_best_iip3_point(fund_slope,im3_slope)
+    
+    # Calculating the iip3 given the slope and y-intercept of fundamental and im3
+    iip3=(im3_intercept[best_point]-fund_intercept[best_point])/(fund_slope[best_point]-im3_slope[best_point])
+
+    return iip3
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Calculating the slope and y-intercept
+# Inputs: x and y coordinates of the points
+# Output: slope, y-intercept
+def calculate_slope(x,y):
+    A = np.vstack([x, np.ones(len(x))]).T
+    m, c = np.linalg.lstsq(A, y, rcond=None)[0]
+    return m,c
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Calculating the point with slope closest to 1dB/dB for fund and 3dB/dB for im3
+# Inputs: Slope of fundamental and im3
+# Output: Location of the best point
+def calculate_best_iip3_point(fund_slope,im3_slope):
+    
+    # Getting the length of the array
+    l=len(fund_slope)
+
+    # Choosing the best point as the first point
+    best_point=0
+    best_error=(fund_slope[0]-1)**2+(im3_slope[0]-3)**2
+
+    for i in range(1,l):
+        error=(fund_slope[i]-1)**2+(im3_slope[i]-3)**2
+        if error<best_error:    # Checking if the current point is better than the best point
+            best_point=i
+            best_error=error
+    return best_point
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Checks if the frequency is within range ( within (target-error,target+error) )
+# Inputs: Test Frequency, Target Frequency, Error
+# Output: 1 if Yes and 0 if No
+def check_freq(f_test,f_target,f_error):
+    if f_test<f_target+f_error and f_test>f_target-f_error:
+        return 1
+    else:
+        return 0
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Extracting Vout magnitude of fundamental and im3 from file ( for hb_sweep )
+# Inputs: Filename, Optimization Input Parameters
+# Output: Magnitude of Vout at fundamental and im3
+def extract_vout_magnitude(file_name,circuit_initialization_parameters):
+
+    lines=extract_file(file_name)
+    
+    fund_1=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
+    fund_2=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_2']
+
+    f_im3=2*fund_2-fund_1
+    f_error=(fund_2-fund_1)/100
+
+    flag=0
+    flag_fun=0
+    flag_im3=0
+    flag_test=0
+
+    while 1:
+        if len(lines[0].split())<2:
+            lines=lines[1:]
+        
+        elif 'freq' in lines[0].split()[0] and flag==0:
+            flag=1
+            lines=lines[1:]
+        
+        elif 'freq' in lines[0].split()[0] and flag==1:
+            if flag_fun==0 and check_freq(float(lines[0].split()[1]),fund_2,f_error)==1 :
+                
+                #Extracting Vout for fundamental
+                flag_test=1
+                while flag_test==1:
+                    if 'Vout' in lines[0].split()[0]:
+                        flag_test=0
+                        vout_fund=extract_vout(lines[0])
+                    else:
+                        lines=lines[1:]
+                flag_fun=1
+            
+            elif flag_im3==0 and check_freq(float(lines[0].split()[1]),f_im3,f_error)==1 :
+                
+                #Extracting Vout for im3
+                flag_test=1
+                while flag_test==1:
+                    if 'Vout' in lines[0].split()[0]:
+                        flag_test=0
+                        vout_im3=extract_vout(lines[0])
+                    else:
+                        lines=lines[1:]
+                flag_im3=1
+            lines=lines[1:]
+            
+            if flag_fun==1 and flag_im3==1:
+                break
+        
+        else:
+            lines=lines[1:]
+
+    return vout_fund,vout_im3
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Extracts Vout_magnitude from hb,pss file line
+# Inputs: Line
+# Output: Vout_Magnitude
+def extract_vout(lines):
+    
+    # Extracting Vout Magnitude
+    lines=lines.split()
+    char_r=lines[1].split('(')[1]
+    char_i=lines[2].split(')')[0]
+
+    # Converting string to floating point value
+    vout_r=valueE_to_value(char_r)
+    vout_i=valueE_to_value(char_i)
+    
+    # Calculating the magnitude of the output
+    vout_mag=np.sqrt(vout_r*vout_r+vout_i*vout_i)
+
+    return vout_mag
+
+
+#===========================================================================================================================
+"""
