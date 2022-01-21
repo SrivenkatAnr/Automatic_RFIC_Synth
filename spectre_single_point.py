@@ -141,6 +141,10 @@ for param_name in cir.extracted_parameters:
     if ('comb_' not in param_name):
 	    print(param_name,' : ',cir.extracted_parameters[param_name])
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#------------------------------------- SAVE PLOTS --------------------------------------------
+cir.plot_ckt_details()
+
 t_end = time.time()
 print("\n time taken is {} seconds\n".format(t_end-t_start))
 

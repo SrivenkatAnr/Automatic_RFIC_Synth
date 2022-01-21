@@ -36,6 +36,7 @@ import os
 import multiprocessing as mp
 import common_functions as cff # type: ignore
 import copy
+import pylab
 
 """
 ====================================================================================================================================================================================
@@ -82,7 +83,10 @@ class Circuit():
         self.circuit_initialization_parameters['simulation']['netlist_parameters']['cir_temp']=temp
     
     def reset_temp(self):
-        self.circuit_initialization_parameters['simulation']['netlist_parameters']['cir_temp']=self.circuit_initialization_parameters['simulation']['standard_parameters']['std_temp']  
+        self.circuit_initialization_parameters['simulation']['netlist_parameters']['cir_temp']=self.circuit_initialization_parameters['simulation']['standard_parameters']['std_temp'] 
+
+    def plot_ckt_details(self):
+         self.plot()
 
 
 
