@@ -280,51 +280,6 @@ def extract_basic_parameters(circuit_initialization_parameters):
 
     return extracted_parameters
 
-#---------------------------------------------------------------------------------------------------------------------------    
-# Extracts Vout_magnitude from hb,pss file line
-# Inputs: Line
-# Output: Vout_Magnitude
-def extract_voltage_current(lines):
-    
-    # Extracting Vout Magnitude
-    lines=lines.split()
-    char_r=lines[1].split('(')[1]
-    char_i=lines[2].split(')')[0]
-
-    # Converting string to floating point value
-    vout_r=valueE_to_value(char_r)
-    vout_i=valueE_to_value(char_i)
-
-    return (vout_r,vout_i)
-
-#---------------------------------------------------------------------------------------------------------------------------    
-# Calculating the gain and angle from the vout and vin values
-# Inputs: vout and vin
-# Output: gain_db and phase
-def calculate_gain_db(vout_re,vout_im,vin_re,vin_im):
-    
-    # Calculating gain_dB
-    gain=(vout_re**2+vout_im**2)/(vin_re**2+vin_im**2)
-    gain_db=10*np.log10(gain)
-
-    return gain_db
-
-#---------------------------------------------------------------------------------------------------------------------------    
-# Calculating the gain and angle from the vout and vin values
-# Inputs: vout and vin
-# Output: gain_db and phase
-def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
-    
-    vout=np.complex(vout_re,vout_im)
-    vin=np.complex(vin_re,vin_im)
-    phase=np.angle(vout/vin)*180/np.pi
-    while phase<-180:
-        phase+=360
-    while phase>180:
-        phase-=360
-
-    return phase
-
 
 #===========================================================================================================================
 #------------------------------------ MOSFET EXTRACTION --------------------------------------------------------------------
@@ -356,96 +311,6 @@ def calculate_mos_parameters(circuit_initialization_parameters):
 ====================================================================================================================================================================================
 ------------------------------------------------------------ EXTRACTION FUNCTION ---------------------------------------------------------------------------------------------------
 """
-
-#===========================================================================================================================================================
-#------------------------------------------------------ Character to Real Number Functions -----------------------------------------------------------------
-
-#---------------------------------------------------------------------------------------------------------------------------
-# Changing the values extracted as a string to a floating point value 
-# Input: Value of the number in string format   
-# Output: Value of the number in float
-def valueName_to_value(value_name):
-
-    # Checking if the last character of array is a string
-    if value_name[-1].isalpha()==0:
-        val=float(value_name)
-        return val
-    
-    # Checking if the last character of array is a string
-    if (value_name[-1]=='G' and value_name[-2]=='E') or (value_name[-1]=='g' and value_name[-2]=='e'):
-        val=float(value_name[:-3])*1e6
-        return val
-        
-    # Extracting the numerical part of the number 
-    val=float(value_name[:-1])
-    
-    # Extracting the character that denotes the units ( i.e, millt, micro, nano, etc)
-    mult_name=value_name[-1]
-    mult=1.0
-    
-    # Calculating the value of the unit
-    if mult_name=='M' or mult_name=='m':
-        mult=1e-3
-    elif mult_name=='U' or mult_name=='u':
-        mult=1e-6
-    elif mult_name=='N' or mult_name=='n':
-        mult=1e-9
-    elif mult_name=='P' or mult_name=='p':
-        mult=1e-12
-    elif mult_name=='F' or mult_name=='f':
-        mult=1e-15
-    elif mult_name=='G' or mult_name=='g':
-        mult=1e9
-    else:
-        mult=1.0
-        
-    val=val*mult
-    return val
-    
-#---------------------------------------------------------------------------------------------------------------------------
-# Changing the values extracted as 10e1, 1.5e-2 to a floating point value 
-# Input: Value of the number in string format   
-# Output: Value of the number in float
-def valueE_to_value(value_name):
-    
-    # Extracting the number before and after e
-    if 'e' in value_name:
-        num1=float(value_name.split('e')[0])
-        num2=float(value_name.split('e')[1])
-        
-        # Calculating the final number
-        num=num1*(10**num2)
-    
-    else:
-        num=float(value_name)
-    
-    return num
-
-
-#===========================================================================================================================================================
-#--------------------------------------------------------- Other File Extraction Functions -----------------------------------------------------------------
-
-#---------------------------------------------------------------------------------------------------------------------------
-# Extracting the files as an array of lines
-# Inputs: file name
-# Output: array of lines
-def extract_file(file_name):
-    f=open(file_name)
-    lines=f.readlines()
-    f.close()
-    return lines
-
-"""
-====================================================================================================================================================================================
------------------------------------------------------------- FILE WRITE FUNCTIONS --------------------------------------------------------------------------------------------------
-"""
-
-#-----------------------------------------------------------------
-# Command that returns the string that has to be printed in the .scs file
-# Inputs  : Name of the parameter, Value of the parameter
-# Outputs : String to be printed
-def print_param(param_var,val):
-    return "parameters "+param_var+'='+str(val)+'\n'
 
 #-----------------------------------------------------------------      
 # Function that converts input parameter dictionary to writing dictionary
@@ -591,8 +456,6 @@ def copy_netlists(circuit_initialization_parameters,circuit_initialization_param
         s='cp '+src+' '+dst_dir+'/ '
         os.system(s)
 
-#===========================================================================================================================
-
 
 """
 ====================================================================================================================================================================================
@@ -627,6 +490,145 @@ def write_extract_basic(circuit_initialization_parameters):
     basic_extracted_parameters=extract_basic_parameters(circuit_initialization_parameters)
     
     return basic_extracted_parameters
+    
+#===========================================================================================================================
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Extracts Vout_magnitude from hb,pss file line
+# Inputs: Line
+# Output: Vout_Magnitude
+def extract_voltage_current(lines):
+    
+    # Extracting Vout Magnitude
+    lines=lines.split()
+    char_r=lines[1].split('(')[1]
+    char_i=lines[2].split(')')[0]
+
+    # Converting string to floating point value
+    vout_r=valueE_to_value(char_r)
+    vout_i=valueE_to_value(char_i)
+
+    return (vout_r,vout_i)
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Calculating the gain and angle from the vout and vin values
+# Inputs: vout and vin
+# Output: gain_db and phase
+def calculate_gain_db(vout_re,vout_im,vin_re,vin_im):
+    
+    # Calculating gain_dB
+    gain=(vout_re**2+vout_im**2)/(vin_re**2+vin_im**2)
+    gain_db=10*np.log10(gain)
+
+    return gain_db
+
+#---------------------------------------------------------------------------------------------------------------------------    
+# Calculating the gain and angle from the vout and vin values
+# Inputs: vout and vin
+# Output: gain_db and phase
+def calculate_gain_phase(vout_re,vout_im,vin_re,vin_im):
+    
+    vout=np.complex(vout_re,vout_im)
+    vin=np.complex(vin_re,vin_im)
+    phase=np.angle(vout/vin)*180/np.pi
+    while phase<-180:
+        phase+=360
+    while phase>180:
+        phase-=360
+
+    return phase
+
+
+#===========================================================================================================================================================
+#------------------------------------------------------ Character to Real Number Functions -----------------------------------------------------------------
+
+#---------------------------------------------------------------------------------------------------------------------------
+# Changing the values extracted as a string to a floating point value 
+# Input: Value of the number in string format   
+# Output: Value of the number in float
+def valueName_to_value(value_name):
+
+    # Checking if the last character of array is a string
+    if value_name[-1].isalpha()==0:
+        val=float(value_name)
+        return val
+    
+    # Checking if the last character of array is a string
+    if (value_name[-1]=='G' and value_name[-2]=='E') or (value_name[-1]=='g' and value_name[-2]=='e'):
+        val=float(value_name[:-3])*1e6
+        return val
+        
+    # Extracting the numerical part of the number 
+    val=float(value_name[:-1])
+    
+    # Extracting the character that denotes the units ( i.e, millt, micro, nano, etc)
+    mult_name=value_name[-1]
+    mult=1.0
+    
+    # Calculating the value of the unit
+    if mult_name=='M' or mult_name=='m':
+        mult=1e-3
+    elif mult_name=='U' or mult_name=='u':
+        mult=1e-6
+    elif mult_name=='N' or mult_name=='n':
+        mult=1e-9
+    elif mult_name=='P' or mult_name=='p':
+        mult=1e-12
+    elif mult_name=='F' or mult_name=='f':
+        mult=1e-15
+    elif mult_name=='G' or mult_name=='g':
+        mult=1e9
+    else:
+        mult=1.0
+        
+    val=val*mult
+    return val
+    
+#---------------------------------------------------------------------------------------------------------------------------
+# Changing the values extracted as 10e1, 1.5e-2 to a floating point value 
+# Input: Value of the number in string format   
+# Output: Value of the number in float
+def valueE_to_value(value_name):
+    
+    # Extracting the number before and after e
+    if 'e' in value_name:
+        num1=float(value_name.split('e')[0])
+        num2=float(value_name.split('e')[1])
+        
+        # Calculating the final number
+        num=num1*(10**num2)
+    
+    else:
+        num=float(value_name)
+    
+    return num
+
+
+#===========================================================================================================================================================
+#--------------------------------------------------------- Other File Extraction Functions -----------------------------------------------------------------
+
+#---------------------------------------------------------------------------------------------------------------------------
+# Extracting the files as an array of lines
+# Inputs: file name
+# Output: array of lines
+def extract_file(file_name):
+    f=open(file_name)
+    lines=f.readlines()
+    f.close()
+    return lines
+
+"""
+====================================================================================================================================================================================
+------------------------------------------------------------ FILE WRITE FUNCTIONS --------------------------------------------------------------------------------------------------
+"""
+
+#-----------------------------------------------------------------
+# Command that returns the string that has to be printed in the .scs file
+# Inputs  : Name of the parameter, Value of the parameter
+# Outputs : String to be printed
+def print_param(param_var,val):
+    return "parameters "+param_var+'='+str(val)+'\n'
+
 """
 #-----------------------------------------------------------------------------------------------
 # This function will perform simulation for Advanced Parameters
