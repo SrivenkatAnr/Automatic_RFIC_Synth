@@ -468,6 +468,8 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_input_parameter
         # Calculating the increment value
         increment_factor=delta_threshold # The value by which parameter increases = increment_factor*parameter
         increment=cir.circuit_parameters[param_name]*increment_factor
+        if (param_name=='Rl') and ((cir.circuit_parameters[param_name]*(1+increment_factor))>50):
+            increment=0            
     
         # Incrementing the circuit parameter
         circuit_parameters1=cir.circuit_parameters.copy()
@@ -485,8 +487,11 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_input_parameter
         # Calculating Slope 
         circuit_parameters_slope[param_name]={}
         for param in loss_dict:
-            circuit_parameters_slope[param_name][param]=(loss_dict1[param]-loss_dict[param])/increment
-            
+            if (increment !=0):
+                circuit_parameters_slope[param_name][param]=(loss_dict1[param]-loss_dict[param])/increment
+            else:
+                circuit_parameters_slope[param_name][param]=0
+
         circuit_parameters_sensitivity[param_name]={}
         
         # Calculating Sensitivity
@@ -742,7 +747,7 @@ def opt_single_run(cir,optimization_input_parameters,run_number):
 
     # Finding the best optimization results
     if optimization_input_parameters['optimization']['optimization_name']=='loss1':
-        optimization_results['optimized_results']=lf.check_best_solution(optimization_results,0.05)
+        optimization_results['optimized_results']=lf.check_best_solution(optimization_results,0)
     #elif optimization_input_parameters['optimization']['optimization_name']=='fom1':
     #    optimization_results['optimized_results']=off.check_best_solution(optimization_results,0)
     #    optimization_results['acceptable_solution']=off.check_acceptable_solutions(optimization_results,optimization_input_parameters)
