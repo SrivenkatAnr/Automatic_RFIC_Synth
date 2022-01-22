@@ -205,7 +205,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization'][1]['update_check']=0
 
     optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Rl','Ld','Io','W','C1','C2']
-    optimization_input_parameters['optimization'][1]['output_parameters_list']=['Isup_hb','Ids_dc','Ids_hb','gain_db','p_source','Psup_dc','op1db_auto','am-pm-dev','ip1db_auto','gm','Voutdc','vdsat','vg','vd','gds']
+    optimization_input_parameters['optimization'][1]['output_parameters_list']=['Isup_hb','Ids_dc','Ids_hb','gain_db','p_source','Psup_dc','op1db_auto','ip1db_auto','op1db_man','ip1db_man','am-pm-dev','gm','Voutdc','vdsat','vg','vd','gds']
     
     optimization_input_parameters['optimization'][1]['optimization_type']=0
 
@@ -256,8 +256,8 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization']['simulation'][1]['standard_parameters']['conservative']='NO'
 
     optimization_input_parameters['optimization']['simulation'][1]['netlist_parameters']={
-        'pin_start':-60,
-        'pin_stop':20,
+        'pin_start':-25,
+        'pin_stop':15,
         'pin_step':1,
         'cir_temp':27,
         'n_harm':10

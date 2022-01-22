@@ -83,7 +83,7 @@ class Circuit():
     def reset_temp(self):
         self.circuit_initialization_parameters['simulation']['netlist_parameters']['cir_temp']=self.circuit_initialization_parameters['simulation']['standard_parameters']['std_temp'] 
 
-    def plot_ckt_details(self,f_dir):
+    def plot_ckt_trends(self,f_dir):
          pin_arr = self.ckt_trends['pin_arr']
          for param in self.ckt_trends.keys():
              if (param!='pin_arr'):
@@ -255,8 +255,8 @@ class Circuit():
                     dc_flag=0
             ph_arr[i] = calculate_gain_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
             gdb_arr[i] = calculate_gain_db(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
-            pout_arr[i] = (vout_re_arr[i]**2 + vout_im_arr[i]**2)/(2*self.circuit_parameters['Rl'])
-            p_sup_hb_arr[i] = np.sqrt(isup_hb_re**2 + isup_hb_im**2)*self.mos_parameters['Vdd']
+            pout_arr[i] = (vout_re_arr[i]**2 + vout_im_arr[i]**2)/(2*self.circuit_parameters['Rl']*1e-3)
+            p_sup_hb_arr[i] = np.sqrt(isup_hb_re**2 + isup_hb_im**2)*self.mos_parameters['Vdd']/1e-3
 
         ip1db = extracted_parameters_xdb['ip1db_auto']
         ip_index=int((ip1db-pin_start)/pin_step)
@@ -266,8 +266,9 @@ class Circuit():
         extracted_parameters["am-pm-dev"]=min(am_pm_dev,360-am_pm_dev)
 
         gdb_ss=gdb_arr[1]
-        ip_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
-        extracted_parameters["ip1db_man"]=pin_start+(ip_man_index*pin_step)
+        db1_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
+        extracted_parameters["ip1db_man"]=pin_start+(db1_man_index*pin_step)
+        extracted_parameters["op1db_man"]=10*np.log10(pout_arr[db1_man_index])
 
         isup_hb = np.sqrt(isup_hb_re**2 + isup_hb_im**2)
         extracted_parameters["Isup_hb"]=isup_hb
@@ -685,16 +686,27 @@ class Circuit():
         final_extracted_parameters['gain_db']=gain_min
         final_extracted_parameters['gain_phase']=extracted_parameters_combined[gain_index]['gain_phase']
 
-        # Calculating the value of 1dB compression point
+        # Calculating the value of 1dB compression point automatically
         ip1db_array=[]
         op1db_array=[]
         for i in extracted_parameters_combined:
             ip1db_array.append(extracted_parameters_combined[i]['ip1db_auto'])
             op1db_array.append(extracted_parameters_combined[i]['op1db_auto'])
-        ip1db_min=min(ip1db_array)
-        ip1db_index=ip1db_array.index(ip1db_min)
-        final_extracted_parameters['ip1db_auto']=ip1db_min
-        final_extracted_parameters['op1db_auto']=extracted_parameters_combined[ip1db_index]['op1db_auto']
+        op1db_min=min(op1db_array)
+        op1db_index=op1db_array.index(op1db_min)
+        final_extracted_parameters['op1db_auto']=op1db_min
+        final_extracted_parameters['ip1db_auto']=extracted_parameters_combined[op1db_index]['ip1db_auto']
+
+        # Calculating the value of automatic 1dB compression point manually
+        ip1db_array=[]
+        op1db_array=[]
+        for i in extracted_parameters_combined:
+            ip1db_array.append(extracted_parameters_combined[i]['ip1db_man'])
+            op1db_array.append(extracted_parameters_combined[i]['op1db_man'])
+        op1db_min=min(op1db_array)
+        op1db_index=op1db_array.index(op1db_min)
+        final_extracted_parameters['op1db_man']=op1db_min
+        final_extracted_parameters['ip1db_man']=extracted_parameters_combined[op1db_index]['ip1db_man']
 
         return final_extracted_parameters
 

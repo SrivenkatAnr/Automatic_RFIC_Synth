@@ -810,7 +810,7 @@ def main_opt(cir,optimization_input_parameters,timing_results):
         f.write('Optimization '+str(i)+' End\n Time : '+str(datetime.datetime.now())+'\n\n')
         f.close()
     
-    cir.plot_ckt_details(optimization_input_parameters['filename']['output']+'/Optimization1/plots/Pin_Sweep_Trends/')
+    cir.plot_ckt_trends(optimization_input_parameters['filename']['output']+'/Optimization1/plots/Pin_Sweep_Trends/')
 
     timing_results['optimization']['overall']['stop']=datetime.datetime.now()
 

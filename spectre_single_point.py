@@ -116,9 +116,9 @@ circuit_parameters={
 	'Rb':5000,
 	'Rl':12.5,
 	'Ld':10e-9,
-	'C1':3.2e-12,
-	'C2':1.25e-9,
-	'W':420e-6,
+	'C1':3.12e-12,
+	'C2':1.27e-9,
+	'W':416e-6,
 	'Io':20e-3
 }
 
@@ -143,7 +143,7 @@ for param_name in cir.extracted_parameters:
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #------------------------------------- SAVE PLOTS --------------------------------------------
-cir.plot_ckt_details("Output Trends/")
+cir.plot_ckt_trends("Output Trends/")
 
 t_end = time.time()
 print("\n time taken is {} seconds\n".format(t_end-t_start))
