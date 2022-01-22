@@ -84,10 +84,12 @@ class Circuit():
         self.circuit_initialization_parameters['simulation']['netlist_parameters']['cir_temp']=self.circuit_initialization_parameters['simulation']['standard_parameters']['std_temp'] 
 
     def plot_ckt_trends(self,f_dir):
+         print("\nstarting to plot over ckt trends")
          pin_arr = self.ckt_trends['pin_arr']
          for param in self.ckt_trends.keys():
              if (param!='pin_arr'):
                  self.plot_func(pin_arr,param,f_dir)
+         print("Plotted ckt trends")
 
     def plot_func(self,arrX,paramY,f_dir):
         arrY=self.ckt_trends[paramY]
