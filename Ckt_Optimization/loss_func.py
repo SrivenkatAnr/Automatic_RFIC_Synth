@@ -40,7 +40,7 @@ def calc_loss(extracted_parameters,output_conditions,loss_weights):
     
     # Extracted Values
     gain=extracted_parameters['gain_db']
-    op1db=extracted_parameters['op1db_auto']
+    op1db=extracted_parameters['op1db_man']
     am_pm_dev=extracted_parameters['am-pm-dev']
     Io=extracted_parameters['Isup_hb']
     
