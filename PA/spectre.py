@@ -84,14 +84,17 @@ class Circuit():
         self.circuit_initialization_parameters['simulation']['netlist_parameters']['cir_temp']=self.circuit_initialization_parameters['simulation']['standard_parameters']['std_temp'] 
 
     def plot_ckt_trends(self,f_dir):
-         print("\nstarting to plot over ckt trends")
+         print("Starting Plots ckt_trends")
          pin_arr = self.ckt_trends['pin_arr']
          for param in self.ckt_trends.keys():
              if (param!='pin_arr'):
-                 self.plot_func(pin_arr,param,f_dir)
-         print("Plotted ckt trends")
+                 self.plot_pin_swp(pin_arr,param,f_dir)
+         print("Plotting Over ckt_trends")
+         print("Starting Plots output FFT")
+         self.plot_pout_fft(f_dir)
+         print("Plotting Over output FFT")
 
-    def plot_func(self,arrX,paramY,f_dir):
+    def plot_pin_swp(self,arrX,paramY,f_dir):
         arrY=self.ckt_trends[paramY]
         figure()
         plot(arrX,arrY,'g',label=paramY)
@@ -104,7 +107,50 @@ class Circuit():
             os.mkdir(f_dir)
         savefig(f_dir+paramY+'.pdf')
         close()
+    
+    def plot_pout_fft(self,f_dir):
+        data_dir=self.circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+'T2/'
+        if not os.path.exists(f_dir):
+            os.mkdir(f_dir)
+        npin=len(self.ckt_trends['pin_arr'])
+        i=npin-1
+        fname_template=data_dir+self.circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-{}_phdev_test.fd.pss_hb'
+        if (i==0):
+            filename=fname_template.replace("{}","000")  
+        elif (i<=9):
+            filename=str(fname_template.format("00"+str(i)))
+        elif (i<=99):
+            filename=str(fname_template.format("0"+str(i)))
+        else:
+            filename=str(fname_template.format(i))
 
+        freq_arr=[]
+        pout_arr=[]
+        freq_flag=0
+        
+        for line in extract_file(filename):
+            if ('"freq"' in line) and ('"sweep"' not in line):
+                freq=line.split()[1]
+                freq=valueE_to_value(freq)
+                freq_flag=1
+                freq_arr.append(freq)
+            if ('"Vout"' in line) and ('"V"' not in line) and (freq_flag==1):
+                vout_re_arr,vout_im_arr = extract_voltage_current(line)
+                pout=(vout_re_arr**2 + vout_im_arr**2)/(2*self.circuit_parameters['Rl']*1e-3)
+                freq_flag=0
+                if pout!=0:
+                    pout_arr.append(10*np.log10(pout))
+                else:
+                    pout_arr.append(-np.inf)
+        figure()
+        bar(freq_arr,pout_arr,color='green',label="Pout FFT",width=0.2)
+        #plot(freq_arr,pout_arr,color='green',label="Pout FFT")
+        xlabel('Frequency')
+        ylabel('Pout in dBm')
+        legend()
+        grid()
+        savefig(f_dir+'pout_fft'+'.pdf')
+        close()
     #===========================================================================================================================================================
     #------------------------------------------------------ Basic File Extraction Functions --------------------------------------------------------------------
 
