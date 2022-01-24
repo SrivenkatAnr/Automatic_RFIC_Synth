@@ -86,6 +86,11 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']=fo
 	circuit_initialization_parameters['simulation']['standard_parameters']['f_range']=1e8
 
+	circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']=2000
+	circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']=100
+	circuit_initialization_parameters['simulation']['standard_parameters']['Rbias_threshold']=100
+	circuit_initialization_parameters['simulation']['standard_parameters']['Rbias_minimum']=1000
+
 	circuit_initialization_parameters['simulation']['netlist_parameters']={
         'pin_start':-25,
         'pin_stop':15,
@@ -113,13 +118,13 @@ get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 
 circuit_parameters={
 	'Rin':50,
-	'Rb':5000,
-	'Rl':12.5,
-	'Ld':10e-9,
-	'C1':3.12e-12,
-	'C2':1.27e-9,
-	'W':416e-6,
-	'Io':20e-3
+	'Rb':5410,
+	'Rl':38.8,
+	'Ld':5.56e-9,
+	#'C1':89.7e-12,
+	#'C2':35.5e-9,
+	'W':1.48e-3,
+	'Io':18.1e-3
 }
 
 

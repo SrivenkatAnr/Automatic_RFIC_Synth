@@ -419,7 +419,12 @@ class Circuit():
                 pass
             
         # Getting the value of resistances
-        write_dict['res_drain']=circuit_parameters['Ld']*circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi/50
+        wo=circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']*2*np.pi
+        write_dict['res_drain']=circuit_parameters['Ld']*wo/50
+        if ('C1' not in circuit_parameters.keys()):
+            write_dict['cap_coup_in']=circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']/(wo*circuit_parameters['Rb'])
+        if ('C2' not in circuit_parameters.keys()):
+            write_dict['cap_coup_out']=circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']/(wo*circuit_parameters['Rl'])
         
         # Calculating the number of fingers
         n_finger=int(circuit_parameters['W']/circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max'])+1
