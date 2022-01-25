@@ -200,7 +200,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     # Parameters for Optimization Run 1
     optimization_input_parameters['optimization'][1]={}
     
-    optimization_input_parameters['optimization'][1]['max_iteration']=3
+    optimization_input_parameters['optimization'][1]['max_iteration']=300
     optimization_input_parameters['optimization'][1]['alpha_min']=-1
     optimization_input_parameters['optimization'][1]['consec_iter']=-1
 
@@ -208,6 +208,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization'][1]['alpha_mult']=1
     optimization_input_parameters['optimization'][1]['loss_type']=0
     optimization_input_parameters['optimization'][1]['update_check']=0
+    optimization_input_parameters['optimization'][1]['allowance']=0.1
 
     optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Rl','Ld','Io','W']
     optimization_input_parameters['optimization'][1]['output_parameters_list']=['Isup_hb','Ids_dc','Ids_hb','gain_db','p_source','Psup_dc','op1db_auto','ip1db_auto','op1db_man','ip1db_man','am-pm-dev','gm','Voutdc','vdsat','vg','vd','gds']

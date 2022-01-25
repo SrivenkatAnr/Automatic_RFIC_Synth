@@ -468,8 +468,8 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_input_parameter
         # Calculating the increment value
         increment_factor=delta_threshold # The value by which parameter increases = increment_factor*parameter
         increment=cir.circuit_parameters[param_name]*increment_factor
-        if (param_name=='Rl') and ((cir.circuit_parameters[param_name]*(1+increment_factor))>50):
-            increment=0            
+        if (param_name=='Rl') and ((cir.circuit_parameters[param_name]+increment)>50):
+            increment=50-cir.circuit_parameters[param_name]         
     
         # Incrementing the circuit parameter
         circuit_parameters1=cir.circuit_parameters.copy()
@@ -616,6 +616,7 @@ def opt_single_run(cir,optimization_input_parameters,run_number):
     delta_threshold   = optimization_input_parameters['optimization'][run_number]['delta_threshold']
     loss_type         = optimization_input_parameters['optimization'][run_number]['loss_type']
     optimization_type = optimization_input_parameters['optimization'][run_number]['optimization_type']
+    allowance = optimization_input_parameters['optimization'][run_number]['allowance']
     
     alpha_parameters         = optimization_input_parameters['optimization'][run_number]['alpha']['values']
     alpha_parameters_initial = optimization_input_parameters['optimization'][run_number]['alpha']['values'].copy()
@@ -747,7 +748,7 @@ def opt_single_run(cir,optimization_input_parameters,run_number):
 
     # Finding the best optimization results
     if optimization_input_parameters['optimization']['optimization_name']=='loss1':
-        optimization_results['optimized_results']=lf.check_best_solution(optimization_results,0)
+        optimization_results['optimized_results']=lf.check_best_solution(optimization_results,allowance)
     #elif optimization_input_parameters['optimization']['optimization_name']=='fom1':
     #    optimization_results['optimized_results']=off.check_best_solution(optimization_results,0)
     #    optimization_results['acceptable_solution']=off.check_acceptable_solutions(optimization_results,optimization_input_parameters)
