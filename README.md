@@ -10,3 +10,5 @@ invoked using *python spectre_single_point.py*
 Using ckt_optimizer.py, we can specify a set of output constraints to the PA circuit and the circuit will use gradient descent algorithm to find the optimal circuit parameters satisfying the specified constraints.
 
 invoked using *python ckt_optimizer.py | tee logfile*
+
+Majority of the codes used are derived from this [repo](https://github.com/RoopeshPyneni/AutomaticCircuitSynthesis)
