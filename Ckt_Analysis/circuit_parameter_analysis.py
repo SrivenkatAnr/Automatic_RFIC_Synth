@@ -165,12 +165,19 @@ def plot_circuit_parameter_analysis(extracted_parameters_iter,file_directory,swe
     # Plotting the data
     for parameter in parameters_list:
         parameter_array=[extracted_parameters_iter[key][parameter] for key in circuit_parameter_array]
+        scale_flag=0
+        if (max(parameter_array)<0.1 and min(parameter_array)>0.001):
+            parameter_array=np.array(parameter_array)*1e3
+            scale_flag=1 
 
         if sweep_type=='linear':
             figure()
-            plot(circuit_parameter_array,parameter_array)
+            plot(circuit_parameter_array,parameter_array,'x')
             xlabel(parameter_name)
-            ylabel(parameter)
+            if (scale_flag==1):
+                ylabel(parameter+'*1e-3')
+            else:
+                ylabel(parameter)
             grid()
             savefig(file_sub_directory+str(parameter)+'.pdf')
             close()
