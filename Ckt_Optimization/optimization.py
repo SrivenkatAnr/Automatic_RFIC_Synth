@@ -19,8 +19,12 @@ import Ckt_Optimization.grad_descent as gd
 import common_functions as cf
 import PA.pre_optimization as pr
 import PA.spectre as sp
-#import PVT_Analysis.temperature_analysis as ta
-#import PVT_Analysis.process_analysis as pa
+#import Ckt_Analysis.sensitivity_analysis as sensa
+#import Ckt_Analysis.temperature_analysis as tmpa
+#import Ckt_Analysis.process_analysis as proca
+#import Ckt_Analysis.iip3_analysis as iip3a
+#import Ckt_Analysis.freq_analysis as freqa
+import Ckt_Analysis.circuit_parameter_analysis as cpa
 import os
 
 #===========================================================================================================================
@@ -201,14 +205,30 @@ def complete_optimization(circuit_initialization_parameters,optimization_input_p
 
     gd.main_opt(cir,optimization_input_parameters,timing_results)
 
-    #======================================================== TEMPERATURE ANALYSIS ===============================================================================================
+	#=============================== SENSITIVITY ANALYSIS ==========================================
 
-    #ta.temperature_analysis(cir,optimization_input_parameters,timing_results)
+	#sensa.sensitivity_analysis(cir,optimization_input_parameters,timing_results)
 
-    #========================================================== PROCESS ANALYSIS =================================================================================================
+	#=============================== TEMPERATURE ANALYSIS ==========================================
 
-    #pa.process_analysis(cir,optimization_input_parameters,timing_results)
-    
+	#tmpa.temperature_analysis(cir,optimization_input_parameters,timing_results)
+
+	#=============================== PROCESS ANALYSIS ==============================================
+
+	#proca.process_analysis(cir,optimization_input_parameters,timing_results)
+
+	#=============================== IIP3 ANALYSIS =================================================
+
+	#iip3a.iip3_analysis(cir,optimization_input_parameters,timing_results)
+
+	#=============================== FREQUENCY ANALYSIS ============================================
+
+	#freqa.frequency_analysis(cir,optimization_input_parameters,timing_results)
+	
+	#=============================== CIRCUIT PARAMETER ANALYSIS ============================================
+
+    cpa.circuit_parameter_analysis(cir,optimization_input_parameters,timing_results)
+
     #======================================================== AFTER OPTIMIZATION =================================================================================================
     
     # Calculating Ending Time

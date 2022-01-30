@@ -131,19 +131,19 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
 def get_pre_optimization_parameters(optimization_input_parameters,fo):
 
     optimization_input_parameters['pre_optimization']={}
-    optimization_input_parameters['pre_optimization']['type']=1
+    optimization_input_parameters['pre_optimization']['type']='manual'
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Manual Hand Calculations
     optimization_input_parameters['pre_optimization']['manual_circuit_parameters']={
         'Rin':50,
-        'Rb':5000,
-        'Rl':12.5,
-        'Ld':10e-9,
-        'C1':3.2e-12,
-        'C2':1.25e-9,
-        'W':420e-6,
-        'Io':20e-3
+        'Rb':2359,
+        'Rl':34.95,
+        'Ld':5.99e-9,
+        #'C1':3.2e-12,
+        #'C2':1.25e-9,
+        'W':1.38e-3,
+        'Io':17.8e-3
     }
     
     optimization_input_parameters['pre_optimization']['Step1b_Limit']=5
@@ -188,7 +188,6 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
 
     optimization_input_parameters['optimization']={}
 
-    optimization_input_parameters['optimization']['run']='YES'
     optimization_input_parameters['optimization']['n_runs']=1
 
     if optimization_name=='LOSS':
@@ -314,8 +313,6 @@ def get_temperature_analysis_parameters(optimization_input_parameters,fo):
 
     optimization_input_parameters['temperature_analysis']={}
 
-    optimization_input_parameters['temperature_analysis']['run']='YES'
-
     optimization_input_parameters['temperature_analysis']['start_temp']=-40
     optimization_input_parameters['temperature_analysis']['stop_temp']=120
     optimization_input_parameters['temperature_analysis']['n_temp']=5
@@ -383,6 +380,47 @@ def get_process_analysis_parameters(optimization_input_parameters,fo):
     }
 
 """
+
+#---------------------------------------------------------------------------------------------------------------------------
+# Function that sets the frequency analysis parameters to the optimization_input_parameters dictionary
+def get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo):
+
+	optimization_input_parameters['circuit_parameter_analysis']={}
+
+	optimization_input_parameters['circuit_parameter_analysis']['run']='YES'
+	optimization_input_parameters['circuit_parameter_analysis']['n_runs']=1
+	
+	optimization_input_parameters['circuit_parameter_analysis'][0]={}
+	optimization_input_parameters['circuit_parameter_analysis'][0]['parameter_name']='Ld'
+	optimization_input_parameters['circuit_parameter_analysis'][0]['parameter_select_type']='relative'
+	optimization_input_parameters['circuit_parameter_analysis'][0]['start']=0.8
+	optimization_input_parameters['circuit_parameter_analysis'][0]['stop']=1.2
+	optimization_input_parameters['circuit_parameter_analysis'][0]['n_value']=11
+	optimization_input_parameters['circuit_parameter_analysis'][0]['sweep_type']='linear' # 'log'
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~
+	# Frequency Analysis Simulation Parameters
+	optimization_input_parameters['circuit_parameter_analysis']['simulation']={}
+	optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']={}
+
+	#optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['iip3_type']='basic'
+	optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['std_temp']=27
+	#optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['pin_fixed']=-65
+	#optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['pin_start']=-70
+	#optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['pin_stop']=-40
+	#optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['pin_points']=16
+	#optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['iip3_calc_points']=5
+	optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['process_corner']='tt'
+	optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['conservative']='YES'
+
+	optimization_input_parameters['circuit_parameter_analysis']['simulation']['netlist_parameters']={
+        'pin_start':-25,
+        'pin_stop':15,
+        'pin_step':1,
+        'cir_temp':27,
+        'n_harm':10
+    }
+
 #===========================================================================================================================
 #------------------------------------Main Program Code----------------------------------------------------------------------
 
@@ -416,12 +454,17 @@ get_optimization_parameters(optimization_input_parameters,fo,optimization_name)
 # ---------- Temperature Analysis Parameters ----------
 #get_process_analysis_parameters(optimization_input_parameters,fo)
 
-
+# ---------- Circuit Parameter Analysis Parameters ----------
+get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #----------------------------------------- FILE NAMES ------------------------------------------
 
 optimization_input_parameters['filename']={}
 optimization_input_parameters['filename']['run_status']='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/run_status.txt'
+
+optimization_input_parameters['optimization']['run']='NO'
+#optimization_input_parameters['temperature_analysis']['run']='YES'
+optimization_input_parameters['circuit_parameter_analysis']['run']='YES'
 
 f_directory='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/'+str(optimization_name)+'/'
 
