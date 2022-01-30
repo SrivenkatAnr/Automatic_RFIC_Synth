@@ -65,6 +65,16 @@ def calculate_Rl(Vout_max,Pout):
     return Rl
 
 #-----------------------------------------------------------------------------------------------
+# Calculating bias resistance
+# Outputs : Rb
+def calculate_Rb(W,wo):
+    cap_per_wid=1.2e-9
+    gate_cap=W*cap_per_wid
+    gate_imp=1/(wo*gate_cap)
+    Rb=max(5000,50*gate_imp)
+    return Rb
+
+#-----------------------------------------------------------------------------------------------
 # Calculating MOSFET width, bias current
 # Outputs : W,Io
 def calculate_W_Io(Vout_max,gain,Lmin,Rl,un,cox):
@@ -98,16 +108,16 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     # Calculating the circuit parameters
     circuit_parameters={}
     circuit_parameters['Ld']=calculate_Ld()
-    circuit_parameters['Rb']=5000
     Vout_max=calculate_op_swing(Vdd,gain)
     circuit_parameters['Rl']=calculate_Rl(Vout_max,Pout)
     circuit_parameters['W'],circuit_parameters['Io']=calculate_W_Io(Vout_max,gain,Lmin,circuit_parameters['Rl'],un,Cox)
-    C1_thresh=optimization_input_parameters['pre_optimization']['C1_threshold']
-    C2_thresh=optimization_input_parameters['pre_optimization']['C2_threshold']
+    circuit_parameters['Rb']=calculate_Rb(circuit_parameters['W'],output_conditions['wo'])
+    #C1_thresh=cir.circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']
+    #C2_thresh=cir.circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']
 
     #circuit_parameters['Rd']=calculate_resistance_inductor(circuit_parameters['Ld'],fo,50)
-    circuit_parameters['C1']=calculate_Ccoup(fo,circuit_parameters['Rb'],C1_thresh)
-    circuit_parameters['C2']=calculate_Ccoup(fo,circuit_parameters['Rl'],C2_thresh)
+    #circuit_parameters['C1']=calculate_Ccoup(fo,circuit_parameters['Rb'],C1_thresh)
+    #circuit_parameters['C2']=calculate_Ccoup(fo,circuit_parameters['Rl'],C2_thresh)
 
     # Running the circuit
     cir.update_circuit(circuit_parameters)

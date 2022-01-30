@@ -113,6 +113,11 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
     circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']=fo
     circuit_initialization_parameters['simulation']['standard_parameters']['f_range']=1e8
 
+    circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']=2000
+    circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']=100
+    circuit_initialization_parameters['simulation']['standard_parameters']['Rbias_threshold']=100
+    circuit_initialization_parameters['simulation']['standard_parameters']['Rbias_minimum']=1000
+
     circuit_initialization_parameters['simulation']['netlist_parameters']={
         'pin_start':-60,
         'pin_stop':20,
@@ -147,10 +152,10 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
 
     optimization_input_parameters['pre_optimization']['gmrs_threshold']=0.2
     optimization_input_parameters['pre_optimization']['vdsat_threshold']=0.02
-    optimization_input_parameters['pre_optimization']['C1_threshold']=200
-    optimization_input_parameters['pre_optimization']['C2_threshold']=200
-    optimization_input_parameters['pre_optimization']['Rbias_threshold']=100
-    optimization_input_parameters['pre_optimization']['Rbias_minimum']=1000
+    #optimization_input_parameters['pre_optimization']['C1_threshold']=200
+    #optimization_input_parameters['pre_optimization']['C2_threshold']=200
+    #optimization_input_parameters['pre_optimization']['Rbias_threshold']=100
+    #optimization_input_parameters['pre_optimization']['Rbias_minimum']=1000
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Pre Optimization Simulation Parameters
@@ -195,7 +200,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     # Parameters for Optimization Run 1
     optimization_input_parameters['optimization'][1]={}
     
-    optimization_input_parameters['optimization'][1]['max_iteration']=2
+    optimization_input_parameters['optimization'][1]['max_iteration']=3
     optimization_input_parameters['optimization'][1]['alpha_min']=-1
     optimization_input_parameters['optimization'][1]['consec_iter']=-1
 
@@ -204,7 +209,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization'][1]['loss_type']=0
     optimization_input_parameters['optimization'][1]['update_check']=0
 
-    optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Rl','Ld','Io','W','C1','C2']
+    optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Rl','Ld','Io','W']
     optimization_input_parameters['optimization'][1]['output_parameters_list']=['Isup_hb','Ids_dc','Ids_hb','gain_db','p_source','Psup_dc','op1db_auto','ip1db_auto','op1db_man','ip1db_man','am-pm-dev','gm','Voutdc','vdsat','vg','vd','gds']
     
     optimization_input_parameters['optimization'][1]['optimization_type']=0
