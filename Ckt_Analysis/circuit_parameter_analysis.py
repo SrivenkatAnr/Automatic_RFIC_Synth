@@ -171,14 +171,15 @@ def plot_circuit_parameter_analysis(extracted_parameters_iter,file_directory,swe
             scale_flag=1 
 
         if sweep_type=='linear':
-            figure()
-            plot(circuit_parameter_array,parameter_array,'x')
-            xlabel(parameter_name)
+            fig,ax= subplots()
+            ax.plot(circuit_parameter_array,parameter_array,'x')
+            ax.set_xlabel(parameter_name)
             if (scale_flag==1):
-                ylabel(parameter+'*1e-3')
+                ax.set_ylabel(parameter+'*1e-3')
             else:
-                ylabel(parameter)
-            grid()
+                ax.set_ylabel(parameter)
+            ax.grid()
+            ax.ticklabel_format(useOffset=False)
             savefig(file_sub_directory+str(parameter)+'.pdf')
             close()
         

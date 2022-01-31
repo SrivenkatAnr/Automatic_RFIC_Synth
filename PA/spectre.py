@@ -97,10 +97,17 @@ class Circuit():
     def plot_pin_swp(self,arrX,paramY,f_dir):
         arrY=self.ckt_trends[paramY]
         figure()
+        scale_flag=0
+        if (max(arrY)<0.1 and min(arrY)>0.001):
+            arrY=np.array(arrY)*1e3
+            scale_flag=1
         plot(arrX,arrY,'g',label=paramY)
         #annotate(cff.num_trunc(arrY,3),(arrX,arrY))
         xlabel('Input Power')
-        ylabel(paramY)
+        if (scale_flag==1):
+            ylabel(paramY+'*1e-3')
+        else:
+            ylabel(paramY)
         legend()
         grid()
         if not os.path.exists(f_dir):
@@ -304,7 +311,7 @@ class Circuit():
             ph_arr[i] = calculate_gain_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
             gdb_arr[i] = calculate_gain_db(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
             pout_arr[i] = (vout_re_arr[i]**2 + vout_im_arr[i]**2)/(2*self.circuit_parameters['Rl']*1e-3)
-            p_sup_hb_arr[i] = np.sqrt(isup_hb_re**2 + isup_hb_im**2)*self.mos_parameters['Vdd']/1e-3
+            p_sup_hb_arr[i] = np.sqrt(isup_hb_re**2 + isup_hb_im**2)*self.mos_parameters['Vdd']
 
         ip1db = extracted_parameters_xdb['ip1db_auto']
         ip_index=int((ip1db-pin_start)/pin_step)
@@ -318,15 +325,17 @@ class Circuit():
         extracted_parameters["ip1db_man"]=pin_start+(db1_man_index*pin_step)
         extracted_parameters["op1db_man"]=10*np.log10(pout_arr[db1_man_index])
 
-        isup_hb = np.sqrt(isup_hb_re**2 + isup_hb_im**2)
-        extracted_parameters["Isup_hb"]=isup_hb
+        psup_hb_1db = p_sup_hb_arr[db1_man_index]
+        extracted_parameters["Isup_hb"]=psup_hb_1db/self.mos_parameters['Vdd']
+        extracted_parameters["Ids_hb"]=extracted_parameters["Isup_hb"] - self.circuit_parameters['Io']
         
         ckt_trends={}
         ckt_trends['pin_arr']=np.linspace(pin_start,pin_stop,npin)
         ckt_trends['ph_arr']=ph_arr
         ckt_trends['gdb_arr']=gdb_arr
         ckt_trends['pout_arr']=10*np.log10(pout_arr)
-        ckt_trends['psup_arr']=10*np.log10(p_sup_hb_arr)
+        ckt_trends['psup_arr']=p_sup_hb_arr
+        ckt_trends['pamp_arr']=np.array(p_sup_hb_arr)-(self.circuit_parameters['Io']*self.mos_parameters['Vdd'])
         if (op_freq==fund_freq):
             self.ckt_trends=ckt_trends        
         
@@ -597,7 +606,6 @@ class Circuit():
         extracted_parameters=basic_extracted_parameters.copy()
         #for param_name in advanced_extracted_parameters:
         #    extracted_parameters[param_name]=advanced_extracted_parameters[param_name]
-        extracted_parameters['Ids_hb']=extracted_parameters['Isup_hb']-circuit_parameters['Io']
 
         return (i,extracted_parameters)
 
