@@ -391,10 +391,10 @@ def get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo):
 	optimization_input_parameters['circuit_parameter_analysis']['n_runs']=1
 	
 	optimization_input_parameters['circuit_parameter_analysis'][0]={}
-	optimization_input_parameters['circuit_parameter_analysis'][0]['parameter_name']='Rb'
+	optimization_input_parameters['circuit_parameter_analysis'][0]['parameter_name']='W'
 	optimization_input_parameters['circuit_parameter_analysis'][0]['parameter_select_type']='relative'
-	optimization_input_parameters['circuit_parameter_analysis'][0]['start']=0.5
-	optimization_input_parameters['circuit_parameter_analysis'][0]['stop']=1.5
+	optimization_input_parameters['circuit_parameter_analysis'][0]['start']=0.25
+	optimization_input_parameters['circuit_parameter_analysis'][0]['stop']=0.5
 	optimization_input_parameters['circuit_parameter_analysis'][0]['n_value']=11
 	optimization_input_parameters['circuit_parameter_analysis'][0]['sweep_type']='linear' # 'log'
 

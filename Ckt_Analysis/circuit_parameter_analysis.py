@@ -122,8 +122,9 @@ def circuit_parameter_analysis(cir,optimization_input_parameters,timing_results)
         
         # Performing the analysis
         for value in parameter_array:
-            cir.circuit_parameters[parameter_name]=value
-            cir.run_circuit()
+            circuit_parameters1 = cir.circuit_parameters.copy()
+            circuit_parameters1[parameter_name]=value
+            cir.update_circuit(circuit_parameters1)
             update_extracted_parameters(cir.extracted_parameters,optimization_input_parameters,value,i)     # Writing the values to the output file
             extracted_parameters_iter[value]=cir.extracted_parameters.copy()
 
