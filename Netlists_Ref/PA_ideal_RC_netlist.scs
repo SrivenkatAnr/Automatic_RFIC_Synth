@@ -6,14 +6,10 @@ include "/cad/library/TSMC/65/lp/models/spectre/crn65lp_2d5_lk_v1d7_usage.scs" s
 // ------------------------ SETTING PARAMETER VALUES ------------------------------------
 
 // ----- Resistors -----
-parameters res_in_len=50
-parameters res_in_wid=50
-parameters res_bias_len=50
-parameters res_bias_wid=50
-parameters res_drain_len=50
-parameters res_drain_wid=50
-parameters res_load_len=50
-parameters res_load_wid=50
+parameters res_in=50
+parameters res_drain=3.01592894745
+parameters res_bias=1000
+parameters res_load=20
 
 // ----- Inductors -----
 parameters ind_drain=1.2e-08
@@ -43,10 +39,10 @@ parameters pin_sweep=(pin_start+pin_stop)/2
 // ------------------------ NETLIST STATEMENTS ------------------------------------
 
 // ----- Resistors -----
-Rin (Vin 0 0) rnpolywo_m wr=res_in_wid lr=res_in_len
-Rd (T1 D1 0) rnpolywo_m wr=res_drain_wid lr=res_drain_len
-Rb (G1 Vb 0) rnpolywo_m wr=res_bias_wid lr=res_bias_len
-Rl (Vout 0 0) rnpolywo_m wr=res_load_wid lr=res_load_len
+Rin (Vin 0) resistor r=res_in
+Rd (T1 D1) resistor r=res_drain
+Rb (G1 Vb) resistor r=res_bias
+Rl (Vout 0) resistor r=res_load
 
 // ----- Inductors -----
 Ld (Vdd T1) inductor l=ind_drain

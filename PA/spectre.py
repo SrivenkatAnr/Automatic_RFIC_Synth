@@ -370,7 +370,7 @@ class Circuit():
 
 
     #===========================================================================================================================
-    #------------------------------------ MOSFET EXTRACTION --------------------------------------------------------------------
+    #------------------------------------ MODEL FILE EXTRACTION --------------------------------------------------------------------
 
     #-----------------------------------------------------------------
     # Function that extracts the MOSFET File Parameeters
@@ -395,6 +395,31 @@ class Circuit():
 
         return mos_parameters
 
+    #-----------------------------------------------------------------      
+    # Function that converts resistance to length and width
+    def get_TSMC_resistor(resistance):
+        sheet_resistance=124.45
+        W_min=0.4e-6
+        dW=0.0691e-6
+        width=W_min-dW
+        length=width*resistance/sheet_resistance
+        
+        return length,W_min
+
+    #-----------------------------------------------------------------      
+    # Function that converts capacitance to length and width for MOS capacitor
+    def calculate_MOS_capacitor(cap):
+        cox=17.25*1e-3
+        w_check=np.sqrt(cap/cox)
+        if w_check>2e-5:
+            length=2e-5
+            width=cap/(cox*length)
+            return width,length
+        if w_check<1.2e-7:
+            width=1.2e-7
+            length=cap/(cox*width)
+            return width,length
+        return w_check,w_check
 
 
     """
@@ -438,6 +463,14 @@ class Circuit():
         # Calculating the number of fingers
         n_finger=int(circuit_parameters['W']/circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max'])+1
         write_dict['n_finger']=n_finger
+
+        # Getting the width and length for TSMC Resistors
+        write_dict['res_bias_len'],write_dict['res_bias_wid']=get_TSMC_resistor(write_dict(res_bias))
+        write_dict['res_in_len'],write_dict['res_in_wid']=get_TSMC_resistor(write_dict(res_in))
+        write_dict['res_drain_len'],write_dict['res_drain_wid']=get_TSMC_resistor(write_dict(res_drain))
+        write_dict['res_load_len'],write_dict['res_load_wid']=get_TSMC_resistor(write_dict(res_load))
+
+        # Getting the width, length, mf for Capacitors
 
         return write_dict
                 
