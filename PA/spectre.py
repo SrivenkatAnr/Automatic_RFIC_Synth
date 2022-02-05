@@ -257,7 +257,7 @@ class Circuit():
     # Extracting the AC from the file
     # Inputs: circuit_initialization_parameters
     # Output: Dictionary with all the parameters
-    def extract_comp_param(self,circuit_initialization_parameters,extracted_parameters_xdb):
+    def extract_comp_param(self,circuit_initialization_parameters):
 
         # Getting the filename
         fname_template=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-{}_phdev_test.fd.pss_hb'
@@ -313,13 +313,6 @@ class Circuit():
             pout_arr[i] = (vout_re_arr[i]**2 + vout_im_arr[i]**2)/(2*self.circuit_parameters['Rl']*1e-3)
             p_sup_hb_arr[i] = np.sqrt(isup_hb_re**2 + isup_hb_im**2)*self.mos_parameters['Vdd']
 
-        ip1db = extracted_parameters_xdb['ip1db_auto']
-        ip_index=int((ip1db-pin_start)/pin_step)
-        ph_min=min(ph_arr[:ip_index+1])
-        ph_max=max(ph_arr[:ip_index+1]) 
-        am_pm_dev=(ph_max-ph_min)
-        extracted_parameters["am-pm-dev"]=min(am_pm_dev,360-am_pm_dev)
-
         gdb_ss=gdb_arr[1]
         db1_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
         extracted_parameters["ip1db_man"]=pin_start+(db1_man_index*pin_step)
@@ -328,6 +321,11 @@ class Circuit():
         psup_hb_1db = p_sup_hb_arr[db1_man_index]
         extracted_parameters["Isup_hb"]=psup_hb_1db/self.mos_parameters['Vdd']
         extracted_parameters["Ids_hb"]=extracted_parameters["Isup_hb"] - self.circuit_parameters['Io']
+
+        ph_min=min(ph_arr[:db1_man_index+1])
+        ph_max=max(ph_arr[:db1_man_index+1]) 
+        am_pm_dev=(ph_max-ph_min)
+        extracted_parameters["am-pm-dev"]=min(am_pm_dev,360-am_pm_dev)
         
         ckt_trends={}
         ckt_trends['pin_arr']=np.linspace(pin_start,pin_stop,npin)
@@ -351,8 +349,8 @@ class Circuit():
         # Extracting the outputs 
         extracted_parameters_dc=self.extract_dc_param(circuit_initialization_parameters)
         extracted_parameters_ac=self.extract_ac_param(circuit_initialization_parameters)
-        extracted_parameters_xdb=self.extract_xdb_auto_param(circuit_initialization_parameters)
-        extracted_parameters_comp=self.extract_comp_param(circuit_initialization_parameters,extracted_parameters_xdb)
+        #extracted_parameters_xdb=self.extract_xdb_auto_param(circuit_initialization_parameters)
+        extracted_parameters_comp=self.extract_comp_param(circuit_initialization_parameters)
 
         # Storing the outputs in a single dictionary
         extracted_parameters={}
@@ -361,8 +359,8 @@ class Circuit():
             extracted_parameters[param_name]=extracted_parameters_dc[param_name]
         for param_name in extracted_parameters_ac:
             extracted_parameters[param_name]=extracted_parameters_ac[param_name]
-        for param_name in extracted_parameters_xdb:
-            extracted_parameters[param_name]=extracted_parameters_xdb[param_name]
+        #for param_name in extracted_parameters_xdb:
+        #    extracted_parameters[param_name]=extracted_parameters_xdb[param_name]
         for param_name in extracted_parameters_comp:
             extracted_parameters[param_name]=extracted_parameters_comp[param_name]
 
@@ -397,7 +395,7 @@ class Circuit():
 
     #-----------------------------------------------------------------      
     # Function that converts resistance to length and width
-    def get_TSMC_resistor(resistance):
+    def get_TSMC_resistor(self,resistance):
         sheet_resistance=124.45
         W_min=0.4e-6
         dW=0.0691e-6
@@ -408,7 +406,7 @@ class Circuit():
 
     #-----------------------------------------------------------------      
     # Function that converts capacitance to length and width for MOS capacitor
-    def calculate_MOS_capacitor(cap):
+    def calculate_MOS_capacitor(self,cap):
         cox=17.25*1e-3
         w_check=np.sqrt(cap/cox)
         if w_check>2e-5:
@@ -465,10 +463,9 @@ class Circuit():
         write_dict['n_finger']=n_finger
 
         # Getting the width and length for TSMC Resistors
-        write_dict['res_bias_len'],write_dict['res_bias_wid']=get_TSMC_resistor(write_dict(res_bias))
-        write_dict['res_in_len'],write_dict['res_in_wid']=get_TSMC_resistor(write_dict(res_in))
-        write_dict['res_drain_len'],write_dict['res_drain_wid']=get_TSMC_resistor(write_dict(res_drain))
-        write_dict['res_load_len'],write_dict['res_load_wid']=get_TSMC_resistor(write_dict(res_load))
+        write_dict['res_bias_len'],write_dict['res_bias_wid']=self.get_TSMC_resistor(write_dict['res_bias'])
+        write_dict['res_in_len'],write_dict['res_in_wid']=self.get_TSMC_resistor(write_dict['res_in'])
+        write_dict['res_load_len'],write_dict['res_load_wid']=self.get_TSMC_resistor(write_dict['res_load'])
 
         # Getting the width, length, mf for Capacitors
 
@@ -780,6 +777,7 @@ class Circuit():
         final_extracted_parameters['gain_db']=gain_min
         final_extracted_parameters['gain_phase']=extracted_parameters_combined[gain_index]['gain_phase']
 
+        """
         # Calculating the value of 1dB compression point automatically
         ip1db_array=[]
         op1db_array=[]
@@ -790,6 +788,7 @@ class Circuit():
         op1db_index=op1db_array.index(op1db_min)
         final_extracted_parameters['op1db_auto']=op1db_min
         final_extracted_parameters['ip1db_auto']=extracted_parameters_combined[op1db_index]['ip1db_auto']
+        """
 
         # Calculating the value of automatic 1dB compression point manually
         ip1db_array=[]

@@ -112,6 +112,7 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     circuit_parameters['Rl']=calculate_Rl(Vout_max,Pout)
     circuit_parameters['W'],circuit_parameters['Io']=calculate_W_Io(Vout_max,gain,Lmin,circuit_parameters['Rl'],un,Cox)
     circuit_parameters['Rb']=calculate_Rb(circuit_parameters['W'],output_conditions['wo'])
+    circuit_parameters['Rin']=Rin
     #C1_thresh=cir.circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']
     #C2_thresh=cir.circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']
 
@@ -133,7 +134,7 @@ def update_initial_parameters(cir,optimization_input_parameters):
     gain_exp=db_to_normal(optimization_input_parameters['output_conditions']['gain_db']/2)
     Rl=cir.circuit_parameters['Rl']
     gm_exp=1.2*gain_exp/Rl
-    while i<5 and cir.extracted_parameters['op1db_auto']<optimization_input_parameters['output_conditions']['op1db']:
+    while i<5 and cir.extracted_parameters['op1db_man']<optimization_input_parameters['output_conditions']['op1db']:
 
         # Printing the iteration number
         i+=1

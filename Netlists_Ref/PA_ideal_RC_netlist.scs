@@ -33,6 +33,7 @@ parameters fund_1=1900000000.0
 parameters n_harm=5
 parameters pin_start=-70
 parameters pin_stop=5
+parameters pin_step=1
 parameters cir_temp=27
 parameters pin_sweep=(pin_start+pin_stop)/2
 
@@ -70,7 +71,7 @@ ac_test ac start=fund_1 stop=2*fund_1 dec=1
 
 gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
 
-swp sweep param=pin_sweep start=pin_start stop=pin_stop step=1 {
+swp sweep param=pin_sweep start=pin_start stop=pin_stop step=pin_step {
 phdev_test hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"
 }
 // ------------------------ PRINT STATEMENTS ------------------------------------

@@ -94,7 +94,7 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['netlist_parameters']={
         'pin_start':-25,
         'pin_stop':15,
-        'pin_step':1,
+        'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
 	}
@@ -123,8 +123,8 @@ circuit_parameters={
 	'Ld':5.99e-9,
 	#'C1':89.7e-12,
 	#'C2':35.5e-9,
-	'W':1.48e-3,
-	'Io':20e-3
+	'W':1.38e-3,
+	'Io':17.8e-3
 }
 
 

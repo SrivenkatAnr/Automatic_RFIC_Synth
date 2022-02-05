@@ -119,9 +119,9 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
     circuit_initialization_parameters['simulation']['standard_parameters']['Rbias_minimum']=1000
 
     circuit_initialization_parameters['simulation']['netlist_parameters']={
-        'pin_start':-60,
-        'pin_stop':20,
-        'pin_step':1,
+        'pin_start':-25,
+        'pin_stop':15,
+        'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
     }
@@ -131,7 +131,7 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
 def get_pre_optimization_parameters(optimization_input_parameters,fo):
 
     optimization_input_parameters['pre_optimization']={}
-    optimization_input_parameters['pre_optimization']['type']='manual'
+    optimization_input_parameters['pre_optimization']['type']=1
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Manual Hand Calculations
@@ -175,9 +175,9 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
     optimization_input_parameters['pre_optimization']['simulation']['standard_parameters']['conservative']='NO'
 
     optimization_input_parameters['pre_optimization']['simulation']['netlist_parameters']={
-        'pin_start':-60,
-        'pin_stop':20,
-        'pin_step':1,
+        'pin_start':-25,
+        'pin_stop':15,
+        'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
     }
@@ -199,7 +199,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     # Parameters for Optimization Run 1
     optimization_input_parameters['optimization'][1]={}
     
-    optimization_input_parameters['optimization'][1]['max_iteration']=300
+    optimization_input_parameters['optimization'][1]['max_iteration']=2
     optimization_input_parameters['optimization'][1]['alpha_min']=-1
     optimization_input_parameters['optimization'][1]['consec_iter']=-1
 
@@ -210,7 +210,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization'][1]['allowance']=0.1
 
     optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Rl','Ld','Io','W']
-    optimization_input_parameters['optimization'][1]['output_parameters_list']=['Isup_hb','Ids_dc','Ids_hb','gain_db','p_source','Psup_dc','op1db_auto','ip1db_auto','op1db_man','ip1db_man','am-pm-dev','gm','Voutdc','vdsat','vg','vd','gds']
+    optimization_input_parameters['optimization'][1]['output_parameters_list']=['Isup_hb','Ids_dc','Ids_hb','gain_db','p_source','Psup_dc','op1db_man','ip1db_man','am-pm-dev','gm','Voutdc','vdsat','vg','vd','gds']
     
     optimization_input_parameters['optimization'][1]['optimization_type']=0
 
@@ -263,7 +263,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization']['simulation'][1]['netlist_parameters']={
         'pin_start':-25,
         'pin_stop':15,
-        'pin_step':1,
+        'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
     }
@@ -416,7 +416,7 @@ def get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo):
 	optimization_input_parameters['circuit_parameter_analysis']['simulation']['netlist_parameters']={
         'pin_start':-25,
         'pin_stop':15,
-        'pin_step':1,
+        'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
     }
@@ -462,9 +462,9 @@ get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo)
 optimization_input_parameters['filename']={}
 optimization_input_parameters['filename']['run_status']='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/run_status.txt'
 
-optimization_input_parameters['optimization']['run']='NO'
+optimization_input_parameters['optimization']['run']='YES'
 #optimization_input_parameters['temperature_analysis']['run']='YES'
-optimization_input_parameters['circuit_parameter_analysis']['run']='YES'
+optimization_input_parameters['circuit_parameter_analysis']['run']='NO'
 
 f_directory='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/'+str(optimization_name)+'/'
 
