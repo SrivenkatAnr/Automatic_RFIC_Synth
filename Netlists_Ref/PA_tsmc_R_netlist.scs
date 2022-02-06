@@ -18,12 +18,8 @@ parameters res_load_wid=50
 parameters ind_drain=1.2e-08
 
 // ----- Capacitors -----
-parameters cap_in_len=5e-13
-parameters cap_in_wid=2.5e-09
-parameters cap_in_mf=2
-parameters cap_out_len=5e-13
-parameters cap_out_wid=2.5e-09
-parameters cap_out_mf=2
+parameters cap_coup_in=5e-13
+parameters cap_coup_out=2.5e-09
 
 // ----- MOSFETs -----
 parameters len=6e-08
@@ -56,8 +52,8 @@ Rl (Vout_p 0 0) rnpolywo_m wr=res_load_wid lr=res_load_len
 Ld (Vdd T1) inductor l=ind_drain
 
 // ----- Capacitors -----
-C1 (E1 G1 0) mimcap_sin_3t wt=cap_in_wid lt=cap_in_len mf=cap_in_mf
-C2 (D1 Vout 0) mimcap_sin_3t wt=cap_out_wid lt=cap_out_len mf=cap_out_mf
+C1 (E1 G1) capacitor c=cap_coup_in
+C2 (D1 Vout) capacitor c=cap_coup_out
 
 // ----- MOSFETs -----
 M0 (Vb Vb 0 0) nch w=wid_bias l=len nf=n_finger
@@ -79,7 +75,7 @@ ac_test ac start=fund_1 stop=2*fund_1 dec=1
 ip (Vout Vout_p) iprobe
 
 //gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
- 
+
 swp sweep param=pin_sweep start=pin_start stop=pin_stop step=pin_step {
 phdev_test hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"
 }

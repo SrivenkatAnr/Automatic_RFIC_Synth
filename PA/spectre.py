@@ -411,6 +411,18 @@ class Circuit():
             return width,length
         return w_check,w_check
 
+    #-----------------------------------------------------------------      
+    # Function that converts capacitance to length, width and mf for MiM capacitor
+    def calculate_MiM_capacitor(self,cap):
+        if (cap>10e-12):
+            mf = 1 + int(cap/10e-12)
+            w_max=100e-6
+            return w_max,w_max,mf
+        else:
+            mf = 1 + int(cap/5.63e-15)
+            w_min=2e-6
+            return w_min,w_min,mf
+
 
     """
     ====================================================================================================================================================================================
@@ -460,6 +472,8 @@ class Circuit():
         write_dict['res_load_len'],write_dict['res_load_wid']=self.get_TSMC_resistor(write_dict['res_load'])
 
         # Getting the width, length, mf for Capacitors
+        write_dict['cap_in_len'],write_dict['cap_in_wid'],write_dict['cap_in_mf']=self.calculate_MiM_capacitor(write_dict['cap_coup_in'])
+        write_dict['cap_out_len'],write_dict['cap_out_wid'],write_dict['cap_out_mf']=self.calculate_MiM_capacitor(write_dict['cap_coup_out'])
 
         return write_dict
                 
