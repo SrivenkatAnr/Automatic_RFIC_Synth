@@ -165,13 +165,11 @@ class Circuit():
     # Extracting the DC from the file
     # Inputs: circuit_initialization_parameters
     # Output: Dictionary with all the parameters
-    def extract_dc_param(self,circuit_initialization_parameters):
+    def extract_dc_param(self,circuit_initialization_parameters,extracted_parameters):
 
         # Getting the filename
         file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/dc.out'
         lines=extract_file(file_name)
-        
-        extracted_parameters={}
 
         # Skipping the first few lines
         lines=lines[7:]
@@ -205,13 +203,11 @@ class Circuit():
     # Extracting the AC from the file
     # Inputs: circuit_initialization_parameters
     # Output: Dictionary with all the parameters
-    def extract_ac_param(self,circuit_initialization_parameters):
+    def extract_ac_param(self,circuit_initialization_parameters,extracted_parameters):
 
         # Getting the filename
         file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/ac.out'
         lines=extract_file(file_name)
-        
-        extracted_parameters={}
 
         # Skipping the first few lines
         lines=lines[7:]
@@ -223,8 +219,10 @@ class Circuit():
         vout_im=valueE_to_value(lines[2])
         vin_re=valueE_to_value(lines[3])
         vin_im=valueE_to_value(lines[4])
+        Rl_ext=valueE_to_value(lines[6])
         extracted_parameters['gain_db']=calculate_gain_db(vout_re,vout_im,vin_re,vin_im)
         extracted_parameters['gain_phase']=calculate_gain_phase(vout_re,vout_im,vin_re,vin_im)
+        extracted_parameters['Rl_ext']=Rl_ext
         
         return extracted_parameters
 
@@ -232,13 +230,12 @@ class Circuit():
     # Extracting the AC from the file
     # Inputs: circuit_initialization_parameters
     # Output: Dictionary with all the parameters
-    def extract_xdb_auto_param(self,circuit_initialization_parameters):
+    def extract_xdb_auto_param(self,circuit_initialization_parameters,extracted_parameters):
 
         # Getting the filename
         file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/gcomp_test.xdb.pss_hb'
         lines=extract_file(file_name)
 
-        extracted_parameters={}
         ip1db=0
         op1db=0
 
@@ -257,7 +254,7 @@ class Circuit():
     # Extracting the AC from the file
     # Inputs: circuit_initialization_parameters
     # Output: Dictionary with all the parameters
-    def extract_comp_param(self,circuit_initialization_parameters):
+    def extract_comp_param(self,circuit_initialization_parameters,extracted_parameters):
 
         # Getting the filename
         fname_template=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-{}_phdev_test.fd.pss_hb'
@@ -277,8 +274,6 @@ class Circuit():
         gdb_arr = np.zeros(npin,dtype=float)
         pout_arr = np.zeros(npin,dtype=float)
         p_sup_hb_arr = np.zeros(npin,dtype=float)
-
-        extracted_parameters={}
 
         freq_flag=0
         dc_flag=0
@@ -310,7 +305,7 @@ class Circuit():
                     dc_flag=0
             ph_arr[i] = calculate_gain_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
             gdb_arr[i] = calculate_gain_db(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
-            pout_arr[i] = (vout_re_arr[i]**2 + vout_im_arr[i]**2)/(2*self.circuit_parameters['Rl']*1e-3)
+            pout_arr[i] = (vout_re_arr[i]**2 + vout_im_arr[i]**2)/(2*extracted_parameters['Rl_ext']*1e-3)
             p_sup_hb_arr[i] = np.sqrt(isup_hb_re**2 + isup_hb_im**2)*self.mos_parameters['Vdd']
 
         gdb_ss=gdb_arr[1]
@@ -345,24 +340,12 @@ class Circuit():
     # Inputs: optimization_input parameters
     # Outputs: output parameters dictionary 
     def extract_basic_parameters(self,circuit_initialization_parameters):
-        
-        # Extracting the outputs 
-        extracted_parameters_dc=self.extract_dc_param(circuit_initialization_parameters)
-        extracted_parameters_ac=self.extract_ac_param(circuit_initialization_parameters)
-        #extracted_parameters_xdb=self.extract_xdb_auto_param(circuit_initialization_parameters)
-        extracted_parameters_comp=self.extract_comp_param(circuit_initialization_parameters)
 
-        # Storing the outputs in a single dictionary
         extracted_parameters={}
-        
-        for param_name in extracted_parameters_dc:
-            extracted_parameters[param_name]=extracted_parameters_dc[param_name]
-        for param_name in extracted_parameters_ac:
-            extracted_parameters[param_name]=extracted_parameters_ac[param_name]
-        #for param_name in extracted_parameters_xdb:
-        #    extracted_parameters[param_name]=extracted_parameters_xdb[param_name]
-        for param_name in extracted_parameters_comp:
-            extracted_parameters[param_name]=extracted_parameters_comp[param_name]
+        self.extract_dc_param(circuit_initialization_parameters,extracted_parameters)
+        self.extract_ac_param(circuit_initialization_parameters,extracted_parameters)
+        #self.extract_xdb_param(circuit_initialization_parameters,extracted_parameters)
+        self.extract_comp_param(circuit_initialization_parameters,extracted_parameters)
 
         return extracted_parameters
 
@@ -396,13 +379,22 @@ class Circuit():
     #-----------------------------------------------------------------      
     # Function that converts resistance to length and width
     def get_TSMC_resistor(self,resistance):
-        sheet_resistance=124.45
-        W_min=0.4e-6
-        dW=0.0691e-6
-        width=W_min-dW
-        length=width*resistance/sheet_resistance
-        
-        return length,W_min
+	    sheet_resistance=124.45
+	    L_min=0.8e-6
+	    W_min=0.4e-6
+	    dW=0.0691e-6
+
+	    if resistance<sheet_resistance:
+		    length=L_min
+		    width=L_min*sheet_resistance/resistance
+	    else:
+		    width=W_min
+		    length=W_min*resistance/sheet_resistance
+	
+	    #width=W_min-dW
+	    #length=width*resistance/sheet_resistance
+	
+	    return length,width
 
     #-----------------------------------------------------------------      
     # Function that converts capacitance to length and width for MOS capacitor
@@ -740,6 +732,7 @@ class Circuit():
             'am-pm-dev':'max',
             'ip1db_man':'min',
             'Voutdc':'mid',
+            'Rl_ext':'mid',
             #'s12_db':'max',
             #'s21_db':'max',
             #'s22_db':'max',

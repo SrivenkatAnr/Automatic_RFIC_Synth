@@ -43,7 +43,7 @@ parameters pin_sweep=(pin_start+pin_stop)/2
 Rin (Vin 0) resistor r=res_in
 Rd (T1 D1) resistor r=res_drain
 Rb (G1 Vb) resistor r=res_bias
-Rl (Vout 0) resistor r=res_load
+Rl (Vout_p 0) resistor r=res_load
 
 // ----- Inductors -----
 Ld (Vdd T1) inductor l=ind_drain
@@ -69,6 +69,8 @@ dc_test dc oppoint=logfile
 
 ac_test ac start=fund_1 stop=2*fund_1 dec=1
 
+ip (Vout Vout_p) iprobe
+
 gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
 
 swp sweep param=pin_sweep start=pin_start stop=pin_stop step=pin_step {
@@ -77,6 +79,6 @@ phdev_test hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"
 // ------------------------ PRINT STATEMENTS ------------------------------------
 print V(Vout), I(Vpower), V(Vs), I(Vs), V(G1), V(D1), M1:ids, M1:gm, M1:gds, M1:vth, M1:vds, M1:vdsat, M1:cgs, M1:cgd, M1:region, V(Vpower), name=dc_test to="dc.out"
 
-print re(V(Vout)), im(V(Vout)), re(V(Vin)), im(V(Vin)),mag(V(Vout))/mag(V(Vin)), name=ac_test to="ac.out"
+print re(V(Vout)), im(V(Vout)), re(V(Vin)), im(V(Vin)), mag(V(Vout))/mag(V(Vin)), mag(V(Vout)/I(ip)), name=ac_test to="ac.out"
 
 
