@@ -274,6 +274,7 @@ class Circuit():
         gdb_arr = np.zeros(npin,dtype=float)
         pout_arr = np.zeros(npin,dtype=float)
         p_sup_hb_arr = np.zeros(npin,dtype=float)
+        p_amp_hb_arr = np.zeros(npin,dtype=float)
 
         freq_flag=0
         dc_flag=0
@@ -300,6 +301,8 @@ class Circuit():
                 if ('"Vout"' in line) and ('"V"' not in line) and (freq_flag==1):
                     vout_re_arr[i],vout_im_arr[i] = extract_voltage_current(line)
                     freq_flag=0
+                if ('"ip_drain:in"' in line) and ('"I"' not in line) and (dc_flag==1):
+                    ids_hb_re,ids_hb_im = extract_voltage_current(line)
                 if ('"Vpower:p"' in line) and ('"I"' not in line) and (dc_flag==1):
                     isup_hb_re,isup_hb_im = extract_voltage_current(line)
                     dc_flag=0
@@ -307,6 +310,7 @@ class Circuit():
             gdb_arr[i] = calculate_gain_db(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
             pout_arr[i] = (vout_re_arr[i]**2 + vout_im_arr[i]**2)/(2*extracted_parameters['Rl_ext']*1e-3)
             p_sup_hb_arr[i] = np.sqrt(isup_hb_re**2 + isup_hb_im**2)*self.mos_parameters['Vdd']
+            p_amp_hb_arr[i] = np.sqrt(ids_hb_re**2 + ids_hb_im**2)*self.mos_parameters['Vdd']
 
         gdb_ss=gdb_arr[1]
         db1_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
@@ -315,7 +319,7 @@ class Circuit():
 
         psup_hb_1db = p_sup_hb_arr[db1_man_index]
         extracted_parameters["Isup_hb"]=psup_hb_1db/self.mos_parameters['Vdd']
-        extracted_parameters["Ids_hb"]=extracted_parameters["Isup_hb"] - self.circuit_parameters['Io']
+        extracted_parameters["Ids_hb"]=p_amp_hb_arr[db1_man_index]/self.mos_parameters['Vdd']
 
         ph_min=min(ph_arr[:db1_man_index+1])
         ph_max=max(ph_arr[:db1_man_index+1]) 
@@ -328,7 +332,7 @@ class Circuit():
         ckt_trends['gdb_arr']=gdb_arr
         ckt_trends['pout_arr']=10*np.log10(pout_arr)
         ckt_trends['psup_arr']=p_sup_hb_arr
-        ckt_trends['pamp_arr']=np.array(p_sup_hb_arr)-(self.circuit_parameters['Io']*self.mos_parameters['Vdd'])
+        ckt_trends['pamp_arr']=p_amp_hb_arr
         if (op_freq==fund_freq):
             self.ckt_trends=ckt_trends        
         
