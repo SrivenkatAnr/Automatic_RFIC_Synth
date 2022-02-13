@@ -345,85 +345,38 @@ class Circuit():
     def extract_tran_param(self,circuit_initialization_parameters,extracted_parameters):
 
         # Getting the filename
-        fname_template=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-{}_phdev_test.fd.pss_hb'
-"""        
-        pin_start=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
-        pin_stop=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
-        pin_step=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
-        npin=int((pin_stop-pin_start)/pin_step)
+        file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/tran_test.tran.tran'
+        lines=extract_file(file_name)
+
         fund_freq=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
-        op_freq=circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']
+        op_freq=circuit_initialization_parameters['simulation']['standard_parameters']['f_operating'] 
 
-        vin_re_arr = np.zeros(npin,dtype=float)
-        vin_im_arr = np.zeros(npin,dtype=float)
-        vout_re_arr = np.zeros(npin,dtype=float)
-        vout_im_arr = np.zeros(npin,dtype=float)
-        ph_arr = np.zeros(npin,dtype=float)
-        gdb_arr = np.zeros(npin,dtype=float)
-        pout_arr = np.zeros(npin,dtype=float)
-        p_sup_hb_arr = np.zeros(npin,dtype=float)
-        p_amp_hb_arr = np.zeros(npin,dtype=float)
+        t_flag=0
+        t_arr=[]
+        vin_arr=[]
+        vout_arr=[]
+        tran_trends={}
 
-        freq_flag=0
-        dc_flag=0
-        
-        for i in range(npin):
-            if (i==0):
-                filename=fname_template.replace("{}","000")  
-            elif (i<=9):
-                filename=str(fname_template.format("00"+str(i)))
-            elif (i<=99):
-                filename=str(fname_template.format("0"+str(i)))
-            else:
-                filename=str(fname_template.format(i))
-            for line in extract_file(filename):
-                if ('"freq"' in line) and ('"sweep"' not in line):
-                    freq=line.split()[1]
-                    freq=valueE_to_value(freq)
-                    if(freq==fund_freq):
-                        freq_flag=1
-                    if(freq==0):
-                        dc_flag=1
-                if ('"Vin"' in line) and ('"V"' not in line) and (freq_flag==1):
-                    vin_re_arr[i],vin_im_arr[i] = extract_voltage_current(line)
-                if ('"Vout"' in line) and ('"V"' not in line) and (freq_flag==1):
-                    vout_re_arr[i],vout_im_arr[i] = extract_voltage_current(line)
-                    freq_flag=0
-                if ('"ip_drain:in"' in line) and ('"I"' not in line) and (dc_flag==1):
-                    ids_hb_re,ids_hb_im = extract_voltage_current(line)
-                if ('"Vpower:p"' in line) and ('"I"' not in line) and (dc_flag==1):
-                    isup_hb_re,isup_hb_im = extract_voltage_current(line)
-                    dc_flag=0
-            ph_arr[i] = calculate_gain_phase(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
-            gdb_arr[i] = calculate_gain_db(vout_re_arr[i], vout_im_arr[i], vin_re_arr[i], vin_im_arr[i])
-            pout_arr[i] = (vout_re_arr[i]**2 + vout_im_arr[i]**2)/(2*extracted_parameters['Rl_ext']*1e-3)
-            p_sup_hb_arr[i] = np.sqrt(isup_hb_re**2 + isup_hb_im**2)*self.mos_parameters['Vdd']
-            p_amp_hb_arr[i] = np.sqrt(ids_hb_re**2 + ids_hb_im**2)*self.mos_parameters['Vdd']
+        for line in lines:
+            if ('"time"' in line) and ('"sweep"' not in line):
+                t_val=line.split()[1]
+                t_val=valueE_to_value(t_val)
+                t_arr.append(t_val)
+                t_flag=1
+            if ('"Vin"' in line) and ('"V"' not in line) and (t_flag==1):
+                vin_re,vin_im = extract_voltage_current(line)
+                vin_arr.append(np.sqrt(vin_re**2 + vin_im**2))
+            if ('"Vout"' in line) and ('"V"' not in line) and (t_flag==1):
+                vout_re,vout_im = extract_voltage_current(line)
+                vout_arr.append(np.sqrt(vout_re**2 + vout_im**2))
+                t_flag=0
 
-        gdb_ss=gdb_arr[1]
-        db1_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
-        extracted_parameters["ip1db_man"]=pin_start+(db1_man_index*pin_step)
-        extracted_parameters["op1db_man"]=10*np.log10(pout_arr[db1_man_index])
+        tran_trends['time_arr']=np.array(t_arr)
+        tran_trends['vin_arr']=np.array(vin_arr)
+        tran_trends['vout_arr']=np.array(vout_arr)
 
-        psup_hb_1db = p_sup_hb_arr[db1_man_index]
-        extracted_parameters["Isup_hb"]=psup_hb_1db/self.mos_parameters['Vdd']
-        extracted_parameters["Ids_hb"]=p_amp_hb_arr[db1_man_index]/self.mos_parameters['Vdd']
-
-        ph_min=min(ph_arr[:db1_man_index+1])
-        ph_max=max(ph_arr[:db1_man_index+1]) 
-        am_pm_dev=(ph_max-ph_min)
-        extracted_parameters["am-pm-dev"]=min(am_pm_dev,360-am_pm_dev)
-        
-        ckt_trends={}
-        ckt_trends['pin_arr']=np.linspace(pin_start,pin_stop,npin)
-        ckt_trends['ph_arr']=ph_arr
-        ckt_trends['gdb_arr']=gdb_arr
-        ckt_trends['pout_arr']=10*np.log10(pout_arr)
-        ckt_trends['psup_arr']=p_sup_hb_arr
-        ckt_trends['pamp_arr']=p_amp_hb_arr
-"""
         if (op_freq==fund_freq):
-            self.ckt_trends=ckt_trends        
+            self.tran_trends=tran_trends        
         
         return extracted_parameters    
 
