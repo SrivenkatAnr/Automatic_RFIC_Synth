@@ -93,6 +93,9 @@ class Circuit():
          print("Starting Plots output FFT")
          self.plot_pout_fft(f_dir)
          print("Plotting Over output FFT")
+         print("Starting Transient analysis plots")
+         self.plot_tran(f_dir)
+         print("Plotting Over tran analysis")
 
     def plot_pin_swp(self,arrX,paramY,f_dir):
         arrY=self.ckt_trends[paramY]
@@ -158,6 +161,21 @@ class Circuit():
         grid()
         savefig(f_dir+'pout_fft'+'.pdf')
         close()
+
+    def plot_tran(self,f_dir):
+        t_arr=self.tran_trends['time_arr']
+        if not os.path.exists(f_dir):
+            os.mkdir(f_dir)
+        for param in self.tran_trends.keys():
+            if (param != 'time_arr'):
+                arrY = self.tran_trends[param]
+                figure()
+                plot(t_arr,arrY,'g',label=param)
+                legend()
+                grid()
+                savefig(f_dir+param+'.pdf')
+                close()
+
     #===========================================================================================================================================================
     #------------------------------------------------------ Basic File Extraction Functions --------------------------------------------------------------------
 
@@ -356,7 +374,7 @@ class Circuit():
         vin_arr=[]
         vout_arr=[]
         tran_trends={}
-
+        
         for line in lines:
             if ('"time"' in line) and ('"sweep"' not in line):
                 t_val=line.split()[1]
@@ -364,13 +382,15 @@ class Circuit():
                 t_arr.append(t_val)
                 t_flag=1
             if ('"Vin"' in line) and ('"V"' not in line) and (t_flag==1):
-                vin_re,vin_im = extract_voltage_current(line)
-                vin_arr.append(np.sqrt(vin_re**2 + vin_im**2))
+                vin_val=line.split()[1]
+                vin_val=valueE_to_value(vin_val)
+                vin_arr.append(vin_val)
             if ('"Vout"' in line) and ('"V"' not in line) and (t_flag==1):
-                vout_re,vout_im = extract_voltage_current(line)
-                vout_arr.append(np.sqrt(vout_re**2 + vout_im**2))
+                vout_val=line.split()[1]
+                vout_val=valueE_to_value(vout_val)
+                vout_arr.append(vout_val)
                 t_flag=0
-
+        
         tran_trends['time_arr']=np.array(t_arr)
         tran_trends['vin_arr']=np.array(vin_arr)
         tran_trends['vout_arr']=np.array(vout_arr)
@@ -511,7 +531,13 @@ class Circuit():
         
         # Calculating the number of fingers
         n_finger=int(circuit_parameters['W']/circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max'])+1
+        multi=1
+
+        if (n_finger >= 350):
+            multi=int(n_finger/350)+1
+            n_finger=int(n_finger/multi)
         write_dict['n_finger']=n_finger
+        write_dict['multi']=multi
 
         # Getting the width and length for TSMC Resistors
         write_dict['res_bias_len'],write_dict['res_bias_wid']=self.get_TSMC_resistor(write_dict['res_bias'])

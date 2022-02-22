@@ -23,6 +23,7 @@ parameters len=6e-08
 parameters wid_bias=8e-05
 parameters wid_amp=wid_bias
 parameters n_finger=41
+parameters multi=1
 
 // ----- Sources -----
 parameters cur0=0.003
@@ -53,8 +54,8 @@ C1 (E1 G1) capacitor c=cap_coup_in
 C2 (D1 Vout) capacitor c=cap_coup_out
 
 // ----- MOSFETs -----
-M0 (Vb Vb 0 0) nch w=wid_bias l=len nf=n_finger
-M1 (D1 G1 0 0) nch w=wid_amp l=len nf=n_finger
+M0 (Vb Vb 0 0) nch w=wid_bias l=len nf=n_finger m=multi
+M1 (D1 G1 0 0) nch w=wid_amp l=len nf=n_finger m=multi
 
 // ----- Sources -----
 Vs (Vin 0) port type=sine dbm=pin_sweep freq=fund_1 fundname=fund1 mag=1e-4 r=50 num=1
@@ -73,6 +74,8 @@ ip_load (Vout Vout_p) iprobe
 ip_drain (D1_p D1) iprobe
 
 gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
+
+tran_test tran start=2n stop=4n maxstep=0.5p //skipdc=yes
 
 swp sweep param=pin_sweep start=pin_start stop=pin_stop step=pin_step {
 phdev_test hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"
