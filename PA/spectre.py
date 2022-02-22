@@ -122,8 +122,13 @@ class Circuit():
         data_dir=self.circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+'T2/'
         if not os.path.exists(f_dir):
             os.mkdir(f_dir)
+
         npin=len(self.ckt_trends['pin_arr'])
-        i=npin-1
+        pin_start=self.circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
+        pin_step=self.circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
+        ip1db=self.extracted_parameters["ip1db_man"]
+        i=int((ip1db-pin_start)/pin_step)
+
         fname_template=data_dir+self.circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-{}_phdev_test.fd.pss_hb'
         if (i==0):
             filename=fname_template.replace("{}","000")  
@@ -136,6 +141,7 @@ class Circuit():
 
         freq_arr=[]
         pout_arr=[]
+        ptot = 0
         freq_flag=0
         
         for line in extract_file(filename):
@@ -148,6 +154,7 @@ class Circuit():
                 vout_re_arr,vout_im_arr = extract_voltage_current(line)
                 pout=(vout_re_arr**2 + vout_im_arr**2)/(2*self.circuit_parameters['Rl']*1e-3)
                 freq_flag=0
+                ptot += pout
                 if pout!=0:
                     pout_arr.append(10*np.log10(pout))
                 else:
@@ -155,8 +162,13 @@ class Circuit():
         figure()
         bar(freq_arr,pout_arr,color='green',label="Pout FFT",width=0.2)
         #plot(freq_arr,pout_arr,color='green',label="Pout FFT")
+
+        pout_fund = 10**(pout_arr[1]/10)
+        pout_higher = 10*np.log10(ptot-pout_fund)
+        print("\n Power in higher harmonics: ", pout_higher)
         xlabel('Frequency')
         ylabel('Pout in dBm')
+        ylim([-50,20])
         legend()
         grid()
         savefig(f_dir+'pout_fft'+'.pdf')
