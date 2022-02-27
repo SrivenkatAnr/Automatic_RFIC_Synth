@@ -130,6 +130,23 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
 
 def update_initial_parameters(cir,optimization_input_parameters):
 
+    #setting Rin to 50
+    i=0
+    Rin_exp=cir.circuit_parameters['Rin']
+    Rin_ext=0
+    while i<3 and abs(Rin_ext-Rin_exp)/Rin_exp > 0.01:
+
+        # Printing the iteration number
+        i+=1
+        print('----- Iteration ',i,' -----')
+
+        # Updating the values
+        Rin_ext = cir.extracted_parameters['Rin_ext']
+        cir.circuit_parameters['Rin']=cir.circuit_parameters['Rin']*(Rin_exp/Rin_ext)
+        # Running the circuit
+        cir.run_circuit()
+
+    #increasing W to match specs
     i=0
     gain_exp=db_to_normal(optimization_input_parameters['output_conditions']['gain_db']/2)
     Rl=cir.circuit_parameters['Rl']

@@ -250,9 +250,11 @@ class Circuit():
         vin_re=valueE_to_value(lines[3])
         vin_im=valueE_to_value(lines[4])
         Rl_ext=valueE_to_value(lines[6])
+        Rin_ext=valueE_to_value(lines[7])
         extracted_parameters['gain_db']=calculate_gain_db(vout_re,vout_im,vin_re,vin_im)
         extracted_parameters['gain_phase']=calculate_gain_phase(vout_re,vout_im,vin_re,vin_im)
         extracted_parameters['Rl_ext']=Rl_ext
+        extracted_parameters['Rin_ext']=Rin_ext
         
         return extracted_parameters
 
@@ -832,6 +834,7 @@ class Circuit():
             'ip1db_man':'min',
             'Voutdc':'mid',
             'Rl_ext':'mid',
+            'Rin_ext':'mid',
             #'s12_db':'max',
             #'s21_db':'max',
             #'s22_db':'max',

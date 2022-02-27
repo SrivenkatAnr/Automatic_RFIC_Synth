@@ -462,7 +462,7 @@ get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo)
 optimization_input_parameters['filename']={}
 optimization_input_parameters['filename']['run_status']='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/run_status.txt'
 
-optimization_input_parameters['optimization']['run']='YES'
+optimization_input_parameters['optimization']['run']='NO'
 #optimization_input_parameters['temperature_analysis']['run']='YES'
 optimization_input_parameters['circuit_parameter_analysis']['run']='NO'
 
