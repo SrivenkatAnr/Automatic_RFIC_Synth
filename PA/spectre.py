@@ -488,6 +488,9 @@ class Circuit():
         write_dict['cap_in_len'],write_dict['cap_in_wid'],write_dict['cap_in_mf']=calculate_MiM_capacitor(write_dict['cap_coup_in'])
         write_dict['cap_out_len'],write_dict['cap_out_wid'],write_dict['cap_out_mf']=calculate_MiM_capacitor(write_dict['cap_coup_out'])
 
+        # Getting the parameters for Inductors
+        _,write_dict['ind_wid'],write_dict['ind_rad'],write_dict['ind_turn'],write_dict['ind_gdis'],write_dict['ind_spc']=find_TSMC_Inductor(15,circuit_parameters['Ld'])
+
         return write_dict
                 
     #-----------------------------------------------------------------

@@ -12,6 +12,7 @@ Functions structure in this file:
 #===========================================================================================================================
 #=========================================== IMPORT FILES ==================================================================
 import numpy as np
+import pandas as pd
 import common_functions as cff # type:ignore
 
 #===========================================================================================================================   
@@ -64,6 +65,12 @@ def get_TSMC_resistor(resistance):
 	
     return length,width
 
+
+"""
+===========================================================================================================================
+------------------------------------- TSMC CAPACITOR FUNCTIONS -------------------------------------------------------------
+"""
+
 #-----------------------------------------------------------------      
 # Function that converts capacitance to length and width for MOS capacitor
 def calculate_MOS_capacitor(cap):
@@ -90,3 +97,55 @@ def calculate_MiM_capacitor(cap):
         mf = 1 + int(cap/5.63e-15)
         w_min=2e-6
         return w_min,w_min,mf
+
+"""
+===========================================================================================================================
+------------------------------------- TSMC INDUCTOR FUNCTIONS -------------------------------------------------------------
+"""
+
+#---------------------------------------------------------------------------------------------------------------------------
+# Finding the location of L
+def find_target_L(data,L,start,end):
+
+	n1=int((start+end+1)/2)
+	
+	if data.at[n1,'L']>=L and data.at[n1-1,'L']<=L:
+		return n1
+	elif data.at[n1,'L']>=L and data.at[n1-1,'L']>=L:
+		return find_target_L(data,L,start,n1-1)
+	else:
+		return find_target_L(data,L,n1,end)
+
+
+#---------------------------------------------------------------------------------------------------------------------------
+# Finding the best point
+def find_TSMC_Inductor(Q,L):
+
+	# Print Finding Q and L
+	print('Finding the following inductor: Q={0}, L={1}'.format(Q,L))
+	# Reading the data
+	file_directory='/home/ee18b038/Auto_Ckt_Synth_Codes/TSMC_inductor_sweep/'
+	#file_directory='C:/Users/roope/Studies/IIT/Prof Projects/Circuit_Synthesis/Extra_Codes/'
+	data=pd.read_csv(file_directory+'inductor_sweep_1.csv')
+	n_rows=data.shape[0]
+
+	# Finding the location of 0.98L and 1.02L
+	n1=find_target_L(data,L*0.98,0,n_rows-1)
+	n2=find_target_L(data,L*1.02,0,n_rows-1)
+
+	# Finding the loss of all the points from n1 and n2
+	loss_iter=[]
+	for i in range(n1,1+n2):
+		Qi=data.at[i,'Q']
+		Li=data.at[i,'L']
+		loss=((Qi-Q)/Q)**2
+		loss+=((Li-L)/L)**2
+		loss_iter.append(loss)
+
+	# Finding the location of the smallest value in loss iter
+	min_value=min(loss_iter)
+	min_index=loss_iter.index(min_value)
+	min_index+=n1
+
+	return min_index,data.at[min_index,'Width'],data.at[min_index,'Radius'],data.at[min_index,'N_Turns'],data.at[min_index,'gdis'],data.at[min_index,'spc']
+

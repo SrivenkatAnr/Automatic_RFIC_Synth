@@ -75,7 +75,7 @@ ip_drain (D1_p D1) iprobe
 
 gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
 
-tr_test tran start=0s stop=20n skipdc=yes
+tran_test tran start=0s stop=20n skipdc=yes
 
 swp sweep param=pin_sweep start=pin_start stop=pin_stop step=pin_step {
 phdev_test hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"
