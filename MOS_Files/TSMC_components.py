@@ -105,33 +105,30 @@ def calculate_MiM_capacitor(cap):
 
 #---------------------------------------------------------------------------------------------------------------------------
 # Finding the location of L
-def find_target_L(data,L,start,end):
-
-	n1=int((start+end+1)/2)
-	
-	if data.at[n1,'L']>=L and data.at[n1-1,'L']<=L:
-		return n1
-	elif data.at[n1,'L']>=L and data.at[n1-1,'L']>=L:
-		return find_target_L(data,L,start,n1-1)
-	else:
-		return find_target_L(data,L,n1,end)
-
+def find_target_L(L_vals,L):
+    return np.abs(L_vals-L).argmin()
 
 #---------------------------------------------------------------------------------------------------------------------------
 # Finding the best point
-def find_TSMC_Inductor(Q,L):
+def load_TSMC_Inductor_data():
 
-	# Print Finding Q and L
-	print('Finding the following inductor: Q={0}, L={1}'.format(Q,L))
 	# Reading the data
 	file_directory='/home/ee18b038/Auto_Ckt_Synth_Codes/TSMC_inductor_sweep/'
 	#file_directory='C:/Users/roope/Studies/IIT/Prof Projects/Circuit_Synthesis/Extra_Codes/'
 	data=pd.read_csv(file_directory+'inductor_sweep_1.csv')
-	n_rows=data.shape[0]
+	return data
+
+#---------------------------------------------------------------------------------------------------------------------------
+# Finding the best point
+def find_TSMC_Inductor(Q,L,data):
+
+	#Print Finding Q and L
+	#print('Finding the following inductor: Q={0}, L={1}'.format(Q,L))
+	L_vals=data['L']
 
 	# Finding the location of 0.98L and 1.02L
-	n1=find_target_L(data,L*0.98,0,n_rows-1)
-	n2=find_target_L(data,L*1.02,0,n_rows-1)
+	n1=find_target_L(L_vals,L*0.98)
+	n2=find_target_L(L_vals,L*1.02)
 
 	# Finding the loss of all the points from n1 and n2
 	loss_iter=[]

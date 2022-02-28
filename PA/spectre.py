@@ -39,6 +39,7 @@ import common_functions as cff # type: ignore
 from MOS_Files.TSMC_components import *
 from pylab import *
 import copy 
+import pandas as pd
 
 """
 ====================================================================================================================================================================================
@@ -54,6 +55,7 @@ class Circuit():
         self.simulation_parameters={}
         self.circuit_initialization_parameters=circuit_initialization_parameters
         self.mos_parameters=calculate_mos_parameters(circuit_initialization_parameters)
+        self.tsmc_ind_data=load_TSMC_Inductor_data()
     
     def run_circuit(self):
         #if self.circuit_parameters['W']>900e-6:
@@ -489,7 +491,7 @@ class Circuit():
         write_dict['cap_out_len'],write_dict['cap_out_wid'],write_dict['cap_out_mf']=calculate_MiM_capacitor(write_dict['cap_coup_out'])
 
         # Getting the parameters for Inductors
-        _,write_dict['ind_wid'],write_dict['ind_rad'],write_dict['ind_turn'],write_dict['ind_gdis'],write_dict['ind_spc']=find_TSMC_Inductor(15,circuit_parameters['Ld'])
+        _,write_dict['ind_wid'],write_dict['ind_rad'],write_dict['ind_turn'],write_dict['ind_gdis'],write_dict['ind_spc']=find_TSMC_Inductor(15,circuit_parameters['Ld'],self.tsmc_ind_data)
 
         return write_dict
                 
