@@ -245,7 +245,8 @@ def print_extracted_parameters(extracted_parameters):
 	print ('\n____________________________________________________________________')
 	print ('-------------------------Extracted Outputs--------------------------\n')
 	for param_name in extracted_parameters:
-		print(param_name,' = ',num_trunc(extracted_parameters[param_name],trunc_val))
+		if ('comb_' not in param_name):
+			print(param_name,' = ',num_trunc(extracted_parameters[param_name],trunc_val))
 	
 #-----------------------------------------------------------------------------------------------
 # Printing the loss parameters

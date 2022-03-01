@@ -83,6 +83,6 @@ phdev_test hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"
 // ------------------------ PRINT STATEMENTS ------------------------------------
 print V(Vout), I(Vpower), V(Vs), I(Vs), V(G1), V(D1), M1:ids, M1:gm, M1:gds, M1:vth, M1:vds, M1:vdsat, M1:cgs, M1:cgd, M1:region, V(Vpower), I(ip_drain), name=dc_test to="dc.out"
 
-print re(V(Vout)), im(V(Vout)), re(V(Vin)), im(V(Vin)), mag(V(Vout))/mag(V(Vin)), mag(V(Vout)/I(ip_load)), name=ac_test to="ac.out"
+print re(V(Vout)), im(V(Vout)), re(V(Vin)), im(V(Vin)), mag(V(Vout))/mag(V(Vin)), mag(V(Vout)/I(ip_load)), mag(V(Vin)/I(Vs)), name=ac_test to="ac.out"
 
 

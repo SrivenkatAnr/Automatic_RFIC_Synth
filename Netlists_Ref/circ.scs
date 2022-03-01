@@ -6,28 +6,17 @@ include "/cad/library/TSMC/65/lp/models/spectre/crn65lp_2d5_lk_v1d7_usage.scs" s
 // ------------------------ SETTING PARAMETER VALUES ------------------------------------
 
 // ----- Resistors -----
-parameters res_in_len=50
-parameters res_in_wid=50
-parameters res_bias_len=50
-parameters res_bias_wid=50
-//parameters res_drain=50
-parameters res_load_len=50
-parameters res_load_wid=50
+parameters res_in=50
+parameters res_drain=3.01592894745
+parameters res_bias=1000
+parameters res_load=20
 
 // ----- Inductors -----
-parameters ind_w=3e-05
-parameters ind_rad=9e-05
-parameters ind_turn=5.5
-parameters ind_gdis=5e-05
-parameters ind_spc=4e-06
+parameters ind_drain=1.2e-08
 
 // ----- Capacitors -----
-parameters cap_in_len=5e-13
-parameters cap_in_wid=2.5e-09
-parameters cap_in_mf=2
-parameters cap_out_len=5e-13
-parameters cap_out_wid=2.5e-09
-parameters cap_out_mf=2
+parameters cap_coup_in=5e-13
+parameters cap_coup_out=2.5e-09
 
 // ----- MOSFETs -----
 parameters len=6e-08
@@ -52,16 +41,17 @@ parameters pin_sweep=(pin_start+pin_stop)/2
 // ------------------------ NETLIST STATEMENTS ------------------------------------
 
 // ----- Resistors -----
-Rin (Vin 0 0) rnpolywo_m wr=res_in_wid lr=res_in_len
-Rb (G1 Vb 0) rnpolywo_m wr=res_bias_wid lr=res_bias_len
-Rl (Vout_p 0 0) rnpolywo_m wr=res_load_wid lr=res_load_len
+Rin (Vin 0) resistor r=res_in
+Rd (T1 D1_p) resistor r=res_drain
+Rb (G1 Vb) resistor r=res_bias
+Rl (Vout_p 0) resistor r=res_load
 
 // ----- Inductors -----
-Ld (Vdd D1_p 0) spiral_std_mu_z rad=ind_rad w=ind_w nr=ind_turn gdis=ind_gdis spacing=ind_spc
+Ld (Vdd T1) inductor l=ind_drain
 
 // ----- Capacitors -----
-C1 (E1 G1 0) mimcap_sin_3t wt=cap_in_wid lt=cap_in_len mf=cap_in_mf
-C2 (D1 Vout 0) mimcap_sin_3t wt=cap_out_wid lt=cap_out_len mf=cap_out_mf
+C1 (E1 G1) capacitor c=cap_coup_in
+C2 (D1 Vout) capacitor c=cap_coup_out
 
 // ----- MOSFETs -----
 M0 (Vb Vb 0 0) nch w=wid_bias l=len nf=n_finger m=multi
@@ -83,10 +73,10 @@ ac_test ac start=fund_1 stop=2*fund_1 dec=1
 ip_load (Vout Vout_p) iprobe
 ip_drain (D1_p D1) iprobe
 
-//gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
+gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
 
 tran_test tran start=0s stop=20n skipdc=yes
- 
+
 swp sweep param=pin_sweep start=pin_start stop=pin_stop step=pin_step {
 phdev_test hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"
 }
