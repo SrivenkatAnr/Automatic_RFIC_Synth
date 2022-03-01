@@ -153,8 +153,12 @@ class Circuit():
                 freq=valueE_to_value(freq)
                 freq_flag=1
                 freq_arr.append(freq)
-            if ('"Vout"' in line) and ('"V"' not in line) and (freq_flag==1):
+            if ('"Vout_n"' in line) and ('"V"' not in line) and (freq_flag==1):
                 vout_re_arr,vout_im_arr = extract_voltage_current(line)
+            if ('"Vout_p"' in line) and ('"V"' not in line) and (freq_flag==1):
+                temp_re,temp_im = extract_voltage_current(line)
+                vout_re_arr = temp_re - vout_re_arr
+                vout_im_arr = temp_im - vout_im_arr
                 pout=(vout_re_arr**2 + vout_im_arr**2)/(2*self.circuit_parameters['Rl']*1e-3)
                 freq_flag=0
                 ptot += pout
@@ -171,7 +175,8 @@ class Circuit():
         print("\n Power in higher harmonics: ", pout_higher)
         xlabel('Frequency')
         ylabel('Pout in dBm')
-        ylim([-50,20])
+        ylim([-40,30])
+        xlim([0,2e10])
         legend()
         grid()
         savefig(f_dir+'pout_fft'+'.pdf')
@@ -333,8 +338,14 @@ class Circuit():
                         dc_flag=1
                 if ('"Vin"' in line) and ('"V"' not in line) and (freq_flag==1):
                     vin_re_arr[i],vin_im_arr[i] = extract_voltage_current(line)
-                if ('"Vout"' in line) and ('"V"' not in line) and (freq_flag==1):
-                    vout_re_arr[i],vout_im_arr[i] = extract_voltage_current(line)
+                if ('"Vout_n"' in line) and ('"V"' not in line) and (freq_flag==1):
+                    temp_re,temp_im = extract_voltage_current(line)
+                    vout_re_arr[i] -= temp_re
+                    vout_im_arr[i] -= temp_im
+                if ('"Vout_p"' in line) and ('"V"' not in line) and (freq_flag==1):
+                    temp_re,temp_im = extract_voltage_current(line)
+                    vout_re_arr[i] += temp_re
+                    vout_im_arr[i] += temp_im
                     freq_flag=0
                 if ('"ip_drain:in"' in line) and ('"I"' not in line) and (dc_flag==1):
                     ids_hb_re,ids_hb_im = extract_voltage_current(line)
@@ -402,9 +413,12 @@ class Circuit():
                 vin_val=line.split()[1]
                 vin_val=valueE_to_value(vin_val)
                 vin_arr.append(vin_val)
-            if ('"Vout"' in line) and ('"V"' not in line) and (t_flag==1):
+            if ('"Vout_n"' in line) and ('"V"' not in line) and (t_flag==1):
                 vout_val=line.split()[1]
                 vout_val=valueE_to_value(vout_val)
+            if ('"Vout_p"' in line) and ('"V"' not in line) and (t_flag==1):
+                temp=line.split()[1]
+                vout_val=valueE_to_value(temp) - vout_val
                 vout_arr.append(vout_val)
                 t_flag=0
         
