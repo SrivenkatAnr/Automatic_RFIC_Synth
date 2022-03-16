@@ -79,8 +79,8 @@ def get_mos_parameters(circuit_initialization_parameters,process_name):
 def get_output_conditions(optimization_input_parameters,fo):
     
     optimization_input_parameters['output_conditions']={
-        'gain_db':6.0,
-        'op1db':10,
+        'gain_db':12.0,
+        'op1db':13,
         'am-pm-dev':5,
         'wo':2.0*np.pi*fo,
         'delta_v':0.1,
