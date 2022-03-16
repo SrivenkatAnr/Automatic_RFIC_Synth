@@ -84,7 +84,8 @@ def get_output_conditions(optimization_input_parameters,fo):
         'am-pm-dev':5,
         'wo':2.0*np.pi*fo,
         'delta_v':0.1,
-        'Rin':50
+        'Rin':50,
+        'p-harm-ratio':15
     }
 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -221,7 +222,8 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     loss_weights['gain_db']=1/6.0  
     loss_weights['op1db']=1/10.0  
     loss_weights['am-pm-dev']=1/5.0   
-    loss_weights['Isup']=1000 
+    loss_weights['Isup']=1000
+    loss_weights['p-harm-ratio']=1/15.0
     optimization_input_parameters['optimization'][1]['loss_weights']=loss_weights
 
 
