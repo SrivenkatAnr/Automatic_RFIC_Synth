@@ -122,57 +122,19 @@ class Circuit():
         close()
     
     def plot_pout_fft(self,f_dir):
-        data_dir=self.circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+'T2/'
         if not os.path.exists(f_dir):
             os.mkdir(f_dir)
 
-        npin=len(self.ckt_trends['pin_arr'])
-        pin_start=self.circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
-        pin_step=self.circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
-        ip1db=self.extracted_parameters["ip1db_man"]
-        i=int((ip1db-pin_start)/pin_step)
+        freq_arr=self.fft_trends['freq_arr']
+        pout_arr=self.fft_trends['pout_arr']
 
-        fname_template=data_dir+self.circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-{}_phdev_test.fd.pss_hb'
-        if (i==0):
-            filename=fname_template.replace("{}","000")  
-        elif (i<=9):
-            filename=str(fname_template.format("00"+str(i)))
-        elif (i<=99):
-            filename=str(fname_template.format("0"+str(i)))
-        else:
-            filename=str(fname_template.format(i))
-
-        freq_arr=[]
-        pout_arr=[]
-        ptot = 0
-        freq_flag=0
-        
-        for line in extract_file(filename):
-            if ('"freq"' in line) and ('"sweep"' not in line):
-                freq=line.split()[1]
-                freq=valueE_to_value(freq)
-                freq_flag=1
-                freq_arr.append(freq)
-            if ('"Vout_n"' in line) and ('"V"' not in line) and (freq_flag==1):
-                vout_re_arr,vout_im_arr = extract_voltage_current(line)
-            if ('"Vout_p"' in line) and ('"V"' not in line) and (freq_flag==1):
-                temp_re,temp_im = extract_voltage_current(line)
-                vout_re_arr = temp_re - vout_re_arr
-                vout_im_arr = temp_im - vout_im_arr
-                pout=(vout_re_arr**2 + vout_im_arr**2)/(2*self.circuit_parameters['Rl']*1e-3)
-                freq_flag=0
-                ptot += pout
-                if pout!=0:
-                    pout_arr.append(10*np.log10(pout))
-                else:
-                    pout_arr.append(-np.inf)
         figure()
         bar(freq_arr,pout_arr,color='green',label="Pout FFT",width=0.2)
         #plot(freq_arr,pout_arr,color='green',label="Pout FFT")
 
-        pout_fund = 10**(pout_arr[1]/10)
-        pout_higher = 10*np.log10(ptot-pout_fund)
-        print("\n Power in higher harmonics: ", pout_higher)
+        #pout_fund = 10**(pout_arr[1]/10)
+        #pout_higher = 10*np.log10(ptot-pout_fund)
+        #print("\n Power in higher harmonics: ", pout_higher)
         xlabel('Frequency')
         ylabel('Pout in dBm')
         ylim([-40,30])
@@ -431,6 +393,63 @@ class Circuit():
         
         return extracted_parameters    
 
+    #---------------------------------------------------------------------------------------------------------------------------    
+    # Extracting the FFT data from the file
+    # Inputs: circuit_initialization_parameters
+    # Output: Dictionary with all the parameters
+    def extract_fft_param(self,circuit_initialization_parameters,extracted_parameters):
+
+        npin=len(self.ckt_trends['pin_arr'])
+        pin_start=self.circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
+        pin_step=self.circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
+        ip1db=self.extracted_parameters["ip1db_man"]
+        i=int((ip1db-pin_start)/pin_step)
+
+        data_dir=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']
+        fname_template=data_dir+self.circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-{}_phdev_test.fd.pss_hb'
+        if (i==0):
+            filename=fname_template.replace("{}","000")  
+        elif (i<=9):
+            filename=str(fname_template.format("00"+str(i)))
+        elif (i<=99):
+            filename=str(fname_template.format("0"+str(i)))
+        else:
+            filename=str(fname_template.format(i))
+
+        freq_arr=[]
+        pout_arr=[]
+        ptot = 0
+        freq_flag=0
+        
+        for line in extract_file(filename):
+            if ('"freq"' in line) and ('"sweep"' not in line):
+                freq=line.split()[1]
+                freq=valueE_to_value(freq)
+                freq_flag=1
+                freq_arr.append(freq)
+            if ('"Vout_n"' in line) and ('"V"' not in line) and (freq_flag==1):
+                vout_re_arr,vout_im_arr = extract_voltage_current(line)
+            if ('"Vout_p"' in line) and ('"V"' not in line) and (freq_flag==1):
+                temp_re,temp_im = extract_voltage_current(line)
+                vout_re_arr = temp_re - vout_re_arr
+                vout_im_arr = temp_im - vout_im_arr
+                pout=(vout_re_arr**2 + vout_im_arr**2)/(2*self.circuit_parameters['Rl']*1e-3)
+                freq_flag=0
+                ptot += pout
+                if pout!=0:
+                    pout_arr.append(10*np.log10(pout))
+                else:
+                    pout_arr.append(-np.inf)
+
+        fft_trends={}
+        fft_trends['freq_arr']=np.array(freq_arr)
+        fft_trends['pout_arr']=np.array(pout_arr)
+
+        if (op_freq==fund_freq):
+            self.fft_trends=fft_trends        
+        
+        return extracted_parameters 
+
 
     #---------------------------------------------------------------------------------------------------------------------------
     # Extracting all the output parameters from chi file
@@ -444,6 +463,7 @@ class Circuit():
         #self.extract_xdb_param(circuit_initialization_parameters,extracted_parameters)
         self.extract_comp_param(circuit_initialization_parameters,extracted_parameters)
         self.extract_tran_param(circuit_initialization_parameters,extracted_parameters)
+        self.extract_fft_param(circuit_initialization_parameters,extracted_parameters)
 
         return extracted_parameters
 
