@@ -131,10 +131,6 @@ class Circuit():
         figure()
         bar(freq_arr,pout_arr,color='green',label="Pout FFT",width=0.2)
         #plot(freq_arr,pout_arr,color='green',label="Pout FFT")
-
-        #pout_fund = 10**(pout_arr[1]/10)
-        #pout_higher = 10*np.log10(ptot-pout_fund)
-        #print("\n Power in higher harmonics: ", pout_higher)
         xlabel('Frequency')
         ylabel('Pout in dBm')
         ylim([-40,30])
@@ -438,7 +434,7 @@ class Circuit():
                 temp_re,temp_im = extract_voltage_current(line)
                 vout_re_arr = temp_re - vout_re_arr
                 vout_im_arr = temp_im - vout_im_arr
-                pout=(vout_re_arr**2 + vout_im_arr**2)/(2*self.circuit_parameters['Rl']*1e-3)
+                pout=(vout_re_arr**2 + vout_im_arr**2)/(2*extracted_parameters['Rl_ext']*1e-3)
                 freq_flag=0
                 ptot += pout
                 if pout!=0:
@@ -449,6 +445,12 @@ class Circuit():
         fft_trends={}
         fft_trends['freq_arr']=np.array(freq_arr)
         fft_trends['pout_arr']=np.array(pout_arr)
+
+        pout_fund = 10**(pout_arr[1]/10)
+        pout_higher = ptot-pout_fund
+        frac_higher = np.log10(pout_fund/pout_higher)
+        #print("\n Power in higher harmonics: ", pout_higher)
+        extracted_parameters["p_harm_ratio"]=frac_higher
 
         if (op_freq==fund_freq):
             self.fft_trends=fft_trends        
@@ -805,6 +807,7 @@ class Circuit():
             'Voutdc':'mid',
             'Rl_ext':'mid',
             'Rin_ext':'mid',
+            'p_harm_ratio':'min',
             #'s12_db':'max',
             #'s21_db':'max',
             #'s22_db':'max',
