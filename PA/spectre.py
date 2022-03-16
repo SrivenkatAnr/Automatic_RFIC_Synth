@@ -399,11 +399,16 @@ class Circuit():
     # Output: Dictionary with all the parameters
     def extract_fft_param(self,circuit_initialization_parameters,extracted_parameters):
 
-        npin=len(self.ckt_trends['pin_arr'])
-        pin_start=self.circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
-        pin_step=self.circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
-        ip1db=self.extracted_parameters["ip1db_man"]
+        pin_start=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
+        pin_stop=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
+        pin_step=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
+        npin=int((pin_stop-pin_start)/pin_step)
+
+        ip1db=extracted_parameters["ip1db_man"]
         i=int((ip1db-pin_start)/pin_step)
+
+        fund_freq=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
+        op_freq=circuit_initialization_parameters['simulation']['standard_parameters']['f_operating'] 
 
         data_dir=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']
         fname_template=data_dir+self.circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-{}_phdev_test.fd.pss_hb'
