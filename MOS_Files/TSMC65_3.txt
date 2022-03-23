@@ -22,4 +22,10 @@ include "/cad/library/TSMC/65/lp/models/spectre/crn65lp_2d5_lk_v1d7_usage.scs" s
 ss_file
 include "/cad/library/TSMC/65/lp/models/spectre/crn65lp_2d5_lk_v1d7_usage.scs" section=ss_lib
 
+sf_file
+include "/cad/library/TSMC/65/lp/models/spectre/crn65lp_2d5_lk_v1d7_usage.scs" section=sf_lib
+
+fs_file
+include "/cad/library/TSMC/65/lp/models/spectre/crn65lp_2d5_lk_v1d7_usage.scs" section=fs_lib
+
 

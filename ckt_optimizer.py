@@ -356,6 +356,10 @@ def get_process_analysis_parameters(optimization_input_parameters,fo):
 
     optimization_input_parameters['process_analysis']={}
 
+    optimization_input_parameters['process_analysis']['start_temp']=-40
+    optimization_input_parameters['process_analysis']['stop_temp']=120
+    optimization_input_parameters['process_analysis']['n_temp']=5
+
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Temperature Analysis Simulation Parameters
     optimization_input_parameters['process_analysis']['simulation']={}

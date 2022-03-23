@@ -21,7 +21,7 @@ import PA.pre_optimization as pr
 import PA.spectre as sp
 #import Ckt_Analysis.sensitivity_analysis as sensa
 import Ckt_Analysis.temp_analysis as tmpa
-#import Ckt_Analysis.process_analysis as proca
+import Ckt_Analysis.process_analysis as proca
 #import Ckt_Analysis.iip3_analysis as iip3a
 #import Ckt_Analysis.freq_analysis as freqa
 import Ckt_Analysis.circuit_parameter_analysis as cpa
@@ -215,7 +215,7 @@ def complete_optimization(circuit_initialization_parameters,optimization_input_p
 
 	#=============================== PROCESS ANALYSIS ==============================================
 
-	#proca.process_analysis(cir,optimization_input_parameters,timing_results)
+    proca.process_analysis(cir,optimization_input_parameters,timing_results)
 
 	#=============================== IIP3 ANALYSIS =================================================
 

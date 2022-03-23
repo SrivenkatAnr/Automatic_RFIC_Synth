@@ -102,7 +102,7 @@ def process_analysis(cir,optimization_input_parameters,timing_results):
     write_circuit_parameters(cir.circuit_parameters,optimization_input_parameters)
     
     # Creating the list of process corners
-    process_corner_list=['tt','ff','ss']
+    process_corner_list=['tt','ff','ss','sf','fs']
 
     # Creating an array for temperature analysis
     start_temp=optimization_input_parameters['process_analysis']['start_temp']
@@ -116,9 +116,10 @@ def process_analysis(cir,optimization_input_parameters,timing_results):
     # Performing the analysis
     for process_corner in process_corner_list:
         extracted_parameters_iter[process_corner]={}
-        cir.circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']=process_corner
+        circuit_initialization_parameters_cpy=cir.circuit_initialization_parameters.copy()
+        circuit_initialization_parameters_cpy['simulation']['standard_parameters']['process_corner']=process_corner
         write_extracted_parameters_initial(cir.extracted_parameters,optimization_input_parameters,process_corner)
-        cir.write_simulation_parameters()
+        cir.update_simulation_parameters(circuit_initialization_parameters_cpy)
         for temp in temp_array:
             cir.update_temp(temp)
             cir.run_circuit()
