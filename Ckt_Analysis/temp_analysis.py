@@ -157,8 +157,8 @@ def plot_temp_analysis(extracted_parameters_iter,file_directory,spec_current):
     file_sub_directory=file_directory+'/Temperature_Analysis/Plots/'
     extracted_matrix,temp_array,current_array,param_array=extract_temp_analysis(extracted_parameters_iter)
 
-    output_conditions={'gain_db':10.0,'s11_db':-15.0,'nf_db':4.0,'iip3_dbm':-5.0}
-    colour_dict={'iip3_dbm':'r','nf_db':'g','s11_db':'b','gain_db':'m'}
+    output_conditions={'gain_db':12.0,'op1db':13,'am-pm-dev':5,'p-harm-ratio':15}
+    colour_dict={'op1db':'r','gain_db':'g','am-pm-dev':'b','p-harm-ratio':'m'}
 
     plot_param_vs_current(extracted_matrix,temp_array,current_array,param_array,file_sub_directory+'X_current/',output_conditions,colour_dict,spec_current)
     plot_param_vs_temperature(extracted_matrix,temp_array,current_array,param_array,file_sub_directory+'X_temperature/',output_conditions,colour_dict,spec_current)

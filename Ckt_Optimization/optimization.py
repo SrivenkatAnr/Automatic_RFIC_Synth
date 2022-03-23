@@ -20,7 +20,7 @@ import common_functions as cf
 import PA.pre_optimization as pr
 import PA.spectre as sp
 #import Ckt_Analysis.sensitivity_analysis as sensa
-#import Ckt_Analysis.temperature_analysis as tmpa
+import Ckt_Analysis.temp_analysis as tmpa
 #import Ckt_Analysis.process_analysis as proca
 #import Ckt_Analysis.iip3_analysis as iip3a
 #import Ckt_Analysis.freq_analysis as freqa
@@ -211,7 +211,7 @@ def complete_optimization(circuit_initialization_parameters,optimization_input_p
 
 	#=============================== TEMPERATURE ANALYSIS ==========================================
 
-	#tmpa.temperature_analysis(cir,optimization_input_parameters,timing_results)
+    tmpa.temperature_analysis(cir,optimization_input_parameters,timing_results)
 
 	#=============================== PROCESS ANALYSIS ==============================================
 

@@ -448,7 +448,7 @@ class Circuit():
 
         pout_fund = 10**(pout_arr[1]/10)
         pout_higher = ptot-pout_fund
-        frac_higher = np.log10(pout_fund/pout_higher)
+        frac_higher = 10*np.log10(pout_fund/pout_higher)
         #print("\n Power in higher harmonics: ", pout_higher)
         extracted_parameters["p_harm_ratio"]=frac_higher
 
@@ -582,19 +582,20 @@ class Circuit():
         # Writing the simulation parameters to Basic File
         f=open(filename1,'r+')
         s=''
-        write_check=1
-        include_check=0
+        include_check=1
         
         # Replacing the lines of .scs file
-        for line in fileinput.FileInput(filename1):
-            if "include " in line:  # This line is used to include the MOS file in the .scs file
+        for line in fileinput.FileInput(filename1):            
+            write_check=1  
+            if "include " in line and include_check==1:  # This line is used to include the MOS file in the .scs file
+                line=line.replace(line,circuit_initialization_parameters['MOS']['filename'][process_corner])
                 include_check=0
                 write_check=1
 
-            elif "include" not in line and include_check==1:
-                s=s+circuit_initialization_parameters['MOS']['filename'][process_corner]
-                include_check=0
-                write_check=1
+            #elif "include" not in line and include_check==1:
+            #    s=s+circuit_initialization_parameters['MOS']['filename'][process_corner]
+            #    include_check=0
+            #    write_check=0
             
             for param_name in write_dict:   # This line is used to replace the MOS parameters and simulation_parameters
                 if "parameters "+param_name+'=' in line:

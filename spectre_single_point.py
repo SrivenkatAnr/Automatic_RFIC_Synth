@@ -109,8 +109,9 @@ t_start=time.time()
 circuit_initialization_parameters={}
 
 # ---------- MOSFET Parameters ----------
-get_mos_parameters(circuit_initialization_parameters,'TSMC65')
+#get_mos_parameters(circuit_initialization_parameters,'TSMC65')
 #get_mos_parameters(circuit_initialization_parameters,'TSMC65_2')
+get_mos_parameters(circuit_initialization_parameters,'TSMC65_3')
 
 # ---------- Simulation Conditions ----------
 fo=2e9

@@ -98,8 +98,8 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     # Getting the output conditions
     fo=output_conditions['wo']/(2*np.pi)
     Rin=output_conditions['Rin']
-    gain=db_to_normal(output_conditions['gain_db']/2)
-    Pout=db_to_normal(output_conditions['op1db'])*1e-3
+    gain=db_to_normal(output_conditions['gain_db']/2)/2
+    Pout=db_to_normal(output_conditions['op1db']-3)*1e-3
     Lmin=cir.mos_parameters['Lmin']
     Cox=cir.mos_parameters['cox']
     un=cir.mos_parameters['un']
@@ -109,7 +109,7 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     circuit_parameters={}
     circuit_parameters['Ld']=calculate_Ld()
     Vout_max=calculate_op_swing(Vdd,gain)
-    circuit_parameters['Rl']=calculate_Rl(Vout_max,Pout)
+    circuit_parameters['Rl']=2*calculate_Rl(Vout_max,Pout)
     circuit_parameters['W'],circuit_parameters['Io']=calculate_W_Io(Vout_max,gain,Lmin,circuit_parameters['Rl'],un,Cox)
     circuit_parameters['Rb']=calculate_Rb(circuit_parameters['W'],output_conditions['wo'])
     circuit_parameters['Rin']=Rin
