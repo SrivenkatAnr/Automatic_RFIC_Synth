@@ -68,6 +68,18 @@ def get_mos_parameters(circuit_initialization_parameters,process_name):
             while lines[j][:-1]!='':
                 circuit_initialization_parameters['MOS']['filename']['ss']+=lines[j]
                 j+=1
+        elif line=='sf_file':
+            circuit_initialization_parameters['MOS']['filename']['sf']=''
+            j=i+1
+            while lines[j][:-1]!='':
+                circuit_initialization_parameters['MOS']['filename']['sf']+=lines[j]
+                j+=1
+        elif line=='fs_file':
+            circuit_initialization_parameters['MOS']['filename']['fs']=''
+            j=i+1
+            while lines[j][:-1]!='':
+                circuit_initialization_parameters['MOS']['filename']['fs']+=lines[j]
+                j+=1
                 
     # Calculating Cox
     eo=8.85*1e-12

@@ -112,6 +112,7 @@ circuit_initialization_parameters={}
 #get_mos_parameters(circuit_initialization_parameters,'TSMC65')
 #get_mos_parameters(circuit_initialization_parameters,'TSMC65_2')
 get_mos_parameters(circuit_initialization_parameters,'TSMC65_3')
+#get_mos_parameters(circuit_initialization_parameters,'TSMC65_4')
 
 # ---------- Simulation Conditions ----------
 fo=2e9
@@ -120,7 +121,7 @@ get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 circuit_parameters={
 	'Rin':37.75,
 	'Rb':2359,
-	'Rl':70,
+	'Rl':57,
 	'Ld':6e-9,
 	#'C1':89.7e-12,
 	#'C2':35.5e-9,
