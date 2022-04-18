@@ -13,6 +13,8 @@ parameters res_load=20
 
 // ----- Inductors -----
 parameters ind_drain=1.2e-08
+parameters ind_mn_src=1.2e-08
+parameters ind_mn_load=1.2e-08
 
 // ----- Capacitors -----
 parameters cap_coup_in=5e-13

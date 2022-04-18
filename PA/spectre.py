@@ -495,6 +495,8 @@ class Circuit():
             'res_drain':'Rd',
             'res_load':'Rl',
             'ind_drain':'Ld',
+            'ind_mn_src':'Lsrc',
+            'ind_mn_load':'Lload',
             'cap_coup_in':'C1',
             'cap_coup_out':'C2',
         }
