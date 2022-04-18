@@ -61,10 +61,8 @@ Rb_n (G1n Vb 0) rnpolywo_m wr=res_bias_wid lr=res_bias_len
 Rl (Vout_p Vout_pr 0) rnpolywo_m wr=res_load_wid lr=res_load_len
 
 // ----- Inductors -----
-//Ld_p (Vdd D1p_pr 0) spiral_std_mu_z rad=ind_rad w=ind_w nr=ind_turn gdis=ind_gdis spacing=ind_spc
-//Ld_n (Vdd D1n 0) spiral_std_mu_z rad=ind_rad w=ind_w nr=ind_turn gdis=ind_gdis spacing=ind_spc
-Ld (D1p_pr D1n Vdd Vdd) spiral_sym_ct_mu_z rad=8.5e-5 w=3e-6 nr=5 gdis=1e-5 spacing=2e-6
-//Ld (D1p_pr D1n Vdd Vdd) spiral_sym_ct_mu_z rad=ind_rad w=ind_w nr=ind_turn gdis=ind_gdis spacing=ind_spc
+Ld_p (Vdd D1p_pr 0) spiral_std_mu_z rad=ind_rad w=ind_w nr=ind_turn gdis=ind_gdis spacing=ind_spc
+Ld_n (Vdd D1n 0) spiral_std_mu_z rad=ind_rad w=ind_w nr=ind_turn gdis=ind_gdis spacing=ind_spc
 
 // ----- Capacitors -----
 C1_p (E1p G1p 0) mimcap_sin_3t wt=cap_in_wid lt=cap_in_len mf=cap_in_mf

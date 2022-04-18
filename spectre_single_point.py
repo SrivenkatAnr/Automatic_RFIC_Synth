@@ -119,9 +119,9 @@ fo=2e9
 get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 
 circuit_parameters={
-	'Rin':37.75,
+	'Rin':50,
 	'Rb':2359,
-	'Rl':57,
+	'Rl':70,
 	'Ld':6e-9,
 	#'C1':89.7e-12,
 	#'C2':35.5e-9,

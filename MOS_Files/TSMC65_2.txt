@@ -14,12 +14,12 @@ vth0
 0.31703
 
 tt_file
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d1_usage.scs" section=tt_lib
+include "/cad/library/TSMC/65/gp/tsmcN65_gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d1_usage.scs" section=tt_lib
 
 ff_file
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d1_usage.scs" section=ff_lib
+include "/cad/library/TSMC/65/gp/tsmcN65_gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d1_usage.scs" section=ff_lib
 
 ss_file
-include "/cad/library/TSMC/65/gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d1_usage.scs" section=ss_lib
+include "/cad/library/TSMC/65/gp/tsmcN65_gp/oa_pdk/models/spectre/crn65gplus_2d5_lk_v1d1_usage.scs" section=ss_lib
 
 
