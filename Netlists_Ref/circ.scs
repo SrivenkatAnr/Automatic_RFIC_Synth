@@ -19,6 +19,7 @@ parameters ind_mn_load=1.2e-08
 // ----- Capacitors -----
 parameters cap_coup_in=5e-13
 parameters cap_coup_out=2.5e-09
+parameters cap_mn=2.5e-09
 
 // ----- MOSFETs -----
 parameters len=6e-08
@@ -60,8 +61,8 @@ Rl (Vout_p Vout_pr) resistor r=100
 Ld_p (Vdd T1p) inductor l=ind_drain
 Ld_n (Vdd T1n) inductor l=ind_drain
 
-Lsrc (Vout_p Vout_pr) inductor l=2.274e-9
-Lload (Vout_p_load Vout_n_load) inductor l=2.6526e-9
+Lsrc (Vout_p Vout_pr) inductor l=ind_mn_src
+Lload (Vout_p_load Vout_n_load) inductor l=ind_mn_load
 
 // ----- Capacitors -----
 C1_p (E1p G1p) capacitor c=cap_coup_in
@@ -70,8 +71,8 @@ C1_n (E1n G1n) capacitor c=cap_coup_in
 C2_p (D1p Vout_p) capacitor c=cap_coup_out
 C2_n (D1n Vout_n) capacitor c=cap_coup_out
 
-Cmn_p (Vout_p Vout_p_load) capacitor c=2.92e-12
-Cmn_n (Vout_pr Vout_n_load) capacitor c=2.92e-12
+Cmn_p (Vout_p Vout_p_load) capacitor c=cap_mn
+Cmn_n (Vout_pr Vout_n_load) capacitor c=cap_mn
 
 // ----- MOSFETs -----
 M0 (Vb Vb 0 0) nch w=wid_bias l=len nf=n_finger m=multi
