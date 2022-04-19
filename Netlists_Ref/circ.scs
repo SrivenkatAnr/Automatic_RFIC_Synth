@@ -53,7 +53,7 @@ Rb_p (G1p Vb) resistor r=res_bias
 Rb_n (G1n Vb) resistor r=res_bias
 
 //Rl (Vout_p Vout_pr) resistor r=res_load
-Rl (Vout_p Vout_pr) resistor r=100
+Rl (Vout_p_load Vout_n_load) resistor r=res_load
 //Rl_p (Vout_p_load 0) resistor r=50
 //Rl_n (Vout_n_load 0) resistor r=50
 
