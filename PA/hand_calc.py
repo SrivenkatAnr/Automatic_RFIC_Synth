@@ -84,6 +84,12 @@ def calculate_W_Io(Vout_max,gain,Lmin,Rl,un,cox):
     I=0.5*un*cox*(W/Lmin)*(Vdsat**2)
     return (W,I)
 
+#-----------------------------------------------------------------------------------------------
+# Calculating Matching Network params
+# Outputs : Lsrc,Lload,Cmn
+def calculate_MN_params(Rl_src):
+    return(Lsrc,Lload,Cmn)
+
 """
 ===========================================================================================================================
 -------------------------------------------- Main Functions ---------------------------------------------------------------
@@ -109,7 +115,9 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     circuit_parameters={}
     circuit_parameters['Ld']=calculate_Ld()
     Vout_max=calculate_op_swing(Vdd,gain)
-    circuit_parameters['Rl']=2*calculate_Rl(Vout_max,Pout)
+    #circuit_parameters['Rl']=2*calculate_Rl(Vout_max,Pout)
+    Rl_single_exp=calculate_Rl(Vout_max,Pout)
+    circuit_parameters['Lsrc'],circuit_parameters['Lload'],circuit_parameters['Cmn']=calculate_MN_params(Rl_single_exp)
     circuit_parameters['W'],circuit_parameters['Io']=calculate_W_Io(Vout_max,gain,Lmin,circuit_parameters['Rl'],un,Cox)
     circuit_parameters['Rb']=calculate_Rb(circuit_parameters['W'],output_conditions['wo'])
     circuit_parameters['Rin']=Rin
