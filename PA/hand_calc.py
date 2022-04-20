@@ -13,6 +13,7 @@ Functions structure in this file:
 #===========================================================================================================================
 #=========================================== IMPORT FILES ==================================================================
 import numpy as np
+from scipy.optimize import fsolve
 import common_functions as cff # type:ignore
 
 #===========================================================================================================================
@@ -87,8 +88,23 @@ def calculate_W_Io(Vout_max,gain,Lmin,Rl,un,cox):
 #-----------------------------------------------------------------------------------------------
 # Calculating Matching Network params
 # Outputs : Lsrc,Lload,Cmn
-def calculate_MN_params(Rl_src):
-    return(Lsrc,Lload,Cmn)
+def calculate_MN_params(Q,Rl,Rs,fo):
+    print(Q,Rl,Rs)
+    fn = lambda Ri: Q - np.sqrt((Rl/Ri)-1) - np.sqrt((Rs/Ri)-1)
+    initial_guess = min(Rs,Rl)/2
+    Ri = fsolve(fn,initial_guess)[0]
+    print(Ri)
+    Qr = np.sqrt((Rl/Ri)-1)
+    Ql = np.sqrt((Rs/Ri)-1)
+    print(Qr,Ql)
+    wo = 2*np.pi*fo
+    Cmn = 1/(Q*wo*Ri)
+    print(Cmn)
+    Lload = Rl/(wo*Qr)
+    print(Lload)
+    Lsrc = Rs/(wo*Ql)
+    print(Lsrc)  
+    return(2*Lsrc,2*Lload,Cmn)
 
 """
 ===========================================================================================================================
@@ -104,6 +120,7 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     # Getting the output conditions
     fo=output_conditions['wo']/(2*np.pi)
     Rin=output_conditions['Rin']
+    Rl=output_conditions['Rl']
     gain=db_to_normal(output_conditions['gain_db']/2)/2
     Pout=db_to_normal(output_conditions['op1db']-3)*1e-3
     Lmin=cir.mos_parameters['Lmin']
@@ -117,10 +134,11 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     Vout_max=calculate_op_swing(Vdd,gain)
     #circuit_parameters['Rl']=2*calculate_Rl(Vout_max,Pout)
     Rl_single_exp=calculate_Rl(Vout_max,Pout)
-    circuit_parameters['Lsrc'],circuit_parameters['Lload'],circuit_parameters['Cmn']=calculate_MN_params(Rl_single_exp)
-    circuit_parameters['W'],circuit_parameters['Io']=calculate_W_Io(Vout_max,gain,Lmin,circuit_parameters['Rl'],un,Cox)
+    circuit_parameters['W'],circuit_parameters['Io']=calculate_W_Io(Vout_max,gain,Lmin,Rl_single_exp,un,Cox)
     circuit_parameters['Rb']=calculate_Rb(circuit_parameters['W'],output_conditions['wo'])
     circuit_parameters['Rin']=Rin
+    circuit_parameters['Rl']=Rl
+    circuit_parameters['Lsrc'],circuit_parameters['Lload'],circuit_parameters['Cmn']=calculate_MN_params(3,Rl/2,Rl_single_exp,fo)
     #C1_thresh=cir.circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']
     #C2_thresh=cir.circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']
 
@@ -157,7 +175,7 @@ def update_initial_parameters(cir,optimization_input_parameters):
     #increasing W to match specs
     i=0
     gain_exp=db_to_normal(optimization_input_parameters['output_conditions']['gain_db']/2)
-    Rl=cir.circuit_parameters['Rl']
+    Rl=cir.extracted_parameters['Rl_ext']
     gm_exp=1.2*gain_exp/Rl
     while i<5 and cir.extracted_parameters['op1db_man']<optimization_input_parameters['output_conditions']['op1db']:
 

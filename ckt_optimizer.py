@@ -97,6 +97,7 @@ def get_output_conditions(optimization_input_parameters,fo):
         'wo':2.0*np.pi*fo,
         'delta_v':0.1,
         'Rin':50,
+        'Rl':100,
         'p-harm-ratio':15
     }
 
@@ -145,14 +146,14 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
 def get_pre_optimization_parameters(optimization_input_parameters,fo):
 
     optimization_input_parameters['pre_optimization']={}
-    optimization_input_parameters['pre_optimization']['type']='manual'
+    optimization_input_parameters['pre_optimization']['type']=1
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Manual Hand Calculations
     optimization_input_parameters['pre_optimization']['manual_circuit_parameters']={
-        'Rin':37.75,
+        #'Rin':37.75,
         'Rb':2359,
-        'Rl':70,
+        #'Rl':70,
         'Ld':5.99e-9,
         #'C1':3.2e-12,
         #'C2':1.25e-9,
@@ -485,7 +486,7 @@ optimization_input_parameters['filename']['run_status']='/home/ee18b038/Auto_Ckt
 
 optimization_input_parameters['optimization']['run']='NO'
 optimization_input_parameters['temperature_analysis']['run']='NO'
-optimization_input_parameters['process_analysis']['run']='YES'
+optimization_input_parameters['process_analysis']['run']='NO'
 optimization_input_parameters['circuit_parameter_analysis']['run']='NO'
 
 f_directory='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/'+str(optimization_name)+'/'
