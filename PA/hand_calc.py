@@ -138,6 +138,7 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     circuit_parameters['Rb']=calculate_Rb(circuit_parameters['W'],output_conditions['wo'])
     circuit_parameters['Rin']=Rin
     circuit_parameters['Rl']=Rl
+    circuit_parameters['Rl_expected']=2*Rl_single_exp
     circuit_parameters['Lsrc'],circuit_parameters['Lload'],circuit_parameters['Cmn']=calculate_MN_params(3,Rl/2,Rl_single_exp,fo)
     #C1_thresh=cir.circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']
     #C2_thresh=cir.circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']

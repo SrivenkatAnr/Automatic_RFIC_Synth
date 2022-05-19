@@ -5,21 +5,47 @@ include "/cad/library/TSMC/65/lp/models/spectre/crn65lp_2d5_lk_v1d7_usage.scs" s
 
 // ------------------------ SETTING PARAMETER VALUES ------------------------------------
 
+
 // ----- Resistors -----
-parameters res_in=50
-parameters res_drain=3.01592894745
-parameters res_bias=1000
-parameters res_load=20
+parameters res_in_len=50
+parameters res_in_wid=50
+parameters res_bias_len=50
+parameters res_bias_wid=50
+//parameters res_drain=50
+parameters res_load_len=50
+parameters res_load_wid=50
 
 // ----- Inductors -----
-parameters ind_drain=1.2e-08
-parameters ind_mn_src=1.2e-08
-parameters ind_mn_load=1.2e-08
+parameters ind_drain_w=3e-05
+parameters ind_drain_rad=9e-05
+parameters ind_drain_turn=5.5
+parameters ind_drain_gdis=5e-05
+parameters ind_drain_spc=4e-06
+
+parameters ind_mn_src_w=3e-05
+parameters ind_mn_src_rad=9e-05
+parameters ind_mn_src_turn=5.5
+parameters ind_mn_src_gdis=5e-05
+parameters ind_mn_src_spc=4e-06
+
+parameters ind_mn_load_w=3e-05
+parameters ind_mn_load_rad=9e-05
+parameters ind_mn_load_turn=5.5
+parameters ind_mn_load_gdis=5e-05
+parameters ind_mn_load_spc=4e-06
 
 // ----- Capacitors -----
-parameters cap_coup_in=5e-13
-parameters cap_coup_out=2.5e-09
-parameters cap_mn=2.5e-09
+parameters cap_in_len=5e-13
+parameters cap_in_wid=2.5e-09
+parameters cap_in_mf=2
+
+parameters cap_out_len=5e-13
+parameters cap_out_wid=2.5e-09
+parameters cap_out_mf=2
+
+parameters cap_mn_len=5e-13
+parameters cap_mn_wid=2.5e-09
+parameters cap_mn_mf=2
 
 // ----- MOSFETs -----
 parameters len=6e-08
@@ -44,35 +70,29 @@ parameters pin_sweep=(pin_start+pin_stop)/2
 // ------------------------ NETLIST STATEMENTS ------------------------------------
 
 // ----- Resistors -----
-Rin (Vin 0) resistor r=res_in
+Rin (Vin 0 0) rnpolywo_m wr=res_in_wid lr=res_in_len
 
-Rd_p (T1p D1p_pr) resistor r=res_drain
-Rd_n (T1n D1n) resistor r=res_drain
+Rb_p (G1p Vb 0) rnpolywo_m wr=res_bias_wid lr=res_bias_len
+Rb_n (G1n Vb 0) rnpolywo_m wr=res_bias_wid lr=res_bias_len
 
-Rb_p (G1p Vb) resistor r=res_bias
-Rb_n (G1n Vb) resistor r=res_bias
-
-//Rl (Vout_p Vout_pr) resistor r=res_load
-Rl (Vout_p_load Vout_n_load) resistor r=res_load
-//Rl_p (Vout_p_load 0) resistor r=50
-//Rl_n (Vout_n_load 0) resistor r=50
+Rl (Vout_p_load Vout_n_load 0) rnpolywo_m wr=res_load_wid lr=res_load_len
 
 // ----- Inductors -----
-Ld_p (Vdd T1p) inductor l=ind_drain
-Ld_n (Vdd T1n) inductor l=ind_drain
+Ld_p (Vdd D1p_pr 0) spiral_std_mu_z rad=ind_drain_rad w=ind_drain_w nr=ind_drain_turn gdis=ind_drain_gdis spacing=ind_drain_spc
+Ld_n (Vdd D1n 0) spiral_std_mu_z rad=ind_drain_rad w=ind_drain_w nr=ind_drain_turn gdis=ind_drain_gdis spacing=ind_drain_spc
 
-Lsrc (Vout_p Vout_pr) inductor l=ind_mn_src
-Lload (Vout_p_load Vout_n_load) inductor l=ind_mn_load
+Lsrc (Vout_p Vout_pr 0) spiral_std_mu_z rad=ind_mn_src_rad w=ind_mn_src_w nr=ind_mn_src_turn gdis=ind_mn_src_gdis spacing=ind_mn_src_spc
+Lload (Vout_p_load Vout_n_load 0) spiral_std_mu_z rad=ind_mn_load_rad w=ind_mn_load_w nr=ind_mn_load_turn gdis=ind_mn_load_gdis spacing=ind_mn_load_spc
 
 // ----- Capacitors -----
-C1_p (E1p G1p) capacitor c=cap_coup_in
-C1_n (E1n G1n) capacitor c=cap_coup_in
+C1_p (E1p G1p 0) mimcap_sin_3t wt=cap_in_wid lt=cap_in_len mf=cap_in_mf
+C1_n (E1n G1n 0) mimcap_sin_3t wt=cap_in_wid lt=cap_in_len mf=cap_in_mf
 
-C2_p (D1p Vout_p) capacitor c=cap_coup_out
-C2_n (D1n Vout_n) capacitor c=cap_coup_out
+C2_p (D1p Vout_p 0) mimcap_sin_3t wt=cap_out_wid lt=cap_out_len mf=cap_out_mf
+C2_n (D1n Vout_n 0) mimcap_sin_3t wt=cap_out_wid lt=cap_out_len mf=cap_out_mf
 
-Cmn_p (Vout_p Vout_p_load) capacitor c=cap_mn
-Cmn_n (Vout_pr Vout_n_load) capacitor c=cap_mn
+Cmn_p (Vout_p Vout_p_load 0) mimcap_sin_3t wt=cap_mn_wid lt=cap_mn_len mf=cap_mn_mf
+Cmn_n (Vout_pr Vout_n_load 0) mimcap_sin_3t wt=cap_mn_wid lt=cap_mn_len mf=cap_mn_mf
 
 // ----- MOSFETs -----
 M0 (Vb Vb 0 0) nch w=wid_bias l=len nf=n_finger m=multi
@@ -97,7 +117,7 @@ ac_test ac start=fund_1 stop=2*fund_1 dec=1
 ip_load (Vout_pr Vout_n) iprobe
 ip_drain (D1p_pr D1p) iprobe
 
-gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
+//gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
 
 tran_test tran start=0s stop=20n skipdc=yes
 

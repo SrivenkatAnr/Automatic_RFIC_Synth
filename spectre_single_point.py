@@ -119,17 +119,18 @@ fo=2e9
 get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 
 circuit_parameters={
-	'Rin':50,
-	'Rb':2359,
+	'Rin':37.7,
+	'Rb':29700,
 	'Rl':100,
-	'Ld':6e-9,
-	'Lsrc':4.262e-9,
-	'Lload':4.698e-9,
-	'Cmn':2.051e-12,
+    'Rl_expected':25,
+	'Ld':9.38e-9,
+	'Lsrc':3.59e-9,
+	'Lload':5.28e-9,
+	'Cmn':4.92e-12,
 	#'C1':89.7e-12,
 	#'C2':35.5e-9,
-	'W':1.38e-3,
-	'Io':17.8e-3
+	'W':0.638e-3,
+	'Io':23.3e-3
 }
 
 

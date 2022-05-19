@@ -153,7 +153,7 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
     optimization_input_parameters['pre_optimization']['manual_circuit_parameters']={
         #'Rin':37.75,
         'Rb':2359,
-        #'Rl':70,
+        #'Rl':100,
         'Ld':5.99e-9,
         #'C1':3.2e-12,
         #'C2':1.25e-9,
@@ -214,7 +214,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     # Parameters for Optimization Run 1
     optimization_input_parameters['optimization'][1]={}
     
-    optimization_input_parameters['optimization'][1]['max_iteration']=3
+    optimization_input_parameters['optimization'][1]['max_iteration']=300
     optimization_input_parameters['optimization'][1]['alpha_min']=-1
     optimization_input_parameters['optimization'][1]['consec_iter']=-1
 
@@ -224,7 +224,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization'][1]['update_check']=0
     optimization_input_parameters['optimization'][1]['allowance']=0
 
-    optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Rl','Ld','Io','W']
+    optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Ld','Io','W','Lsrc','Lload','Cmn']
     optimization_input_parameters['optimization'][1]['output_parameters_list']=['Isup_hb','Ids_dc','Ids_hb','gain_db','p_source','Psup_dc','op1db_man','ip1db_man','am-pm-dev','gm','Voutdc','vdsat','vg','vd','gds']
     
     optimization_input_parameters['optimization'][1]['optimization_type']=0
@@ -246,11 +246,14 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     alpha_parameters['common']=0.2
     alpha_parameters['Rb']=1
     alpha_parameters['Ld']=1
-    alpha_parameters['Rl']=1
+    alpha_parameters['Lsrc']=1
+    alpha_parameters['Lload']=1
+    #alpha_parameters['Rl']=1
     alpha_parameters['W']=1
     alpha_parameters['Io']=1
     alpha_parameters['C1']=1
     alpha_parameters['C2']=1
+    alpha_parameters['Cmn']=1
     optimization_input_parameters['optimization'][1]['alpha']={}
     optimization_input_parameters['optimization'][1]['alpha']['values']=alpha_parameters
 
@@ -484,7 +487,7 @@ get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo)
 optimization_input_parameters['filename']={}
 optimization_input_parameters['filename']['run_status']='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/run_status.txt'
 
-optimization_input_parameters['optimization']['run']='NO'
+optimization_input_parameters['optimization']['run']='YES'
 optimization_input_parameters['temperature_analysis']['run']='NO'
 optimization_input_parameters['process_analysis']['run']='NO'
 optimization_input_parameters['circuit_parameter_analysis']['run']='NO'

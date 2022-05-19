@@ -513,7 +513,10 @@ class Circuit():
         if ('C1' not in circuit_parameters.keys()):
             write_dict['cap_coup_in']=circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']/(wo*circuit_parameters['Rb'])
         if ('C2' not in circuit_parameters.keys()):
-            write_dict['cap_coup_out']=circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']/(wo*circuit_parameters['Rl'])
+            try:
+                write_dict['cap_coup_out']=circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']/(wo*self.extracted_parameters['Rl_ext'])
+            except:
+                write_dict['cap_coup_out']=circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']/(wo*self.circuit_parameters['Rl_expected'])
         
         # Calculating the number of fingers
         n_finger=int(circuit_parameters['W']/circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max'])+1
@@ -533,9 +536,12 @@ class Circuit():
         # Getting the width, length, mf for Capacitors
         write_dict['cap_in_len'],write_dict['cap_in_wid'],write_dict['cap_in_mf']=calculate_MiM_capacitor(write_dict['cap_coup_in'])
         write_dict['cap_out_len'],write_dict['cap_out_wid'],write_dict['cap_out_mf']=calculate_MiM_capacitor(write_dict['cap_coup_out'])
+        write_dict['cap_mn_len'],write_dict['cap_mn_wid'],write_dict['cap_mn_mf']=calculate_MiM_capacitor(write_dict['cap_mn'])
 
         # Getting the parameters for Inductors
-        _,write_dict['ind_wid'],write_dict['ind_rad'],write_dict['ind_turn'],write_dict['ind_gdis'],write_dict['ind_spc']=find_TSMC_Inductor(15,circuit_parameters['Ld'],self.tsmc_ind_data)
+        _,write_dict['ind_drain_wid'],write_dict['ind_drain_rad'],write_dict['ind_drain_turn'],write_dict['ind_drain_gdis'],write_dict['ind_drain_spc']=find_TSMC_Inductor(15,circuit_parameters['Ld'],self.tsmc_ind_data)
+        _,write_dict['ind_mn_src_wid'],write_dict['ind_mn_src_rad'],write_dict['ind_mn_src_turn'],write_dict['ind_mn_src_gdis'],write_dict['ind_mn_src_spc']=find_TSMC_Inductor(15,circuit_parameters['Lsrc'],self.tsmc_ind_data)
+        _,write_dict['ind_mn_load_wid'],write_dict['ind_mn_load_rad'],write_dict['ind_mn_load_turn'],write_dict['ind_mn_load_gdis'],write_dict['ind_mn_load_spc']=find_TSMC_Inductor(15,circuit_parameters['Lload'],self.tsmc_ind_data)
 
         return write_dict
                 
