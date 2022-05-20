@@ -252,7 +252,7 @@ class Circuit():
     # Extracting the COMPRESSION data from the file
     # Inputs: circuit_initialization_parameters
     # Output: Dictionary with all the parameters
-    def extract_comp_param(self,circuit_initialization_parameters,extracted_parameters):
+    def extract_comp_param_basic(self,circuit_initialization_parameters,extracted_parameters):
 
         # Getting the filename
         fname_template=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/swp-{}_phdev_test.fd.pss_hb'
@@ -393,7 +393,7 @@ class Circuit():
     # Extracting the FFT data from the file
     # Inputs: circuit_initialization_parameters
     # Output: Dictionary with all the parameters
-    def extract_fft_param(self,circuit_initialization_parameters,extracted_parameters):
+    def extract_fft_param_basic(self,circuit_initialization_parameters,extracted_parameters):
 
         pin_start=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
         pin_stop=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
@@ -468,12 +468,29 @@ class Circuit():
         self.extract_dc_param(circuit_initialization_parameters,extracted_parameters)
         self.extract_ac_param(circuit_initialization_parameters,extracted_parameters)
         #self.extract_xdb_param(circuit_initialization_parameters,extracted_parameters)
-        self.extract_comp_param(circuit_initialization_parameters,extracted_parameters)
+        self.extract_comp_param_basic(circuit_initialization_parameters,extracted_parameters)
         self.extract_tran_param(circuit_initialization_parameters,extracted_parameters)
-        self.extract_fft_param(circuit_initialization_parameters,extracted_parameters)
+        self.extract_fft_param_basic(circuit_initialization_parameters,extracted_parameters)
 
         return extracted_parameters
 
+    #---------------------------------------------------------------------------------------------------------------------------
+    # Extracting all the output parameters from chi file
+    # Inputs: optimization_input parameters
+    # Outputs: output parameters dictionary 
+    def extract_advanced_parameters(self,circuit_initialization_parameters,comp_param_dict):
+
+        extracted_parameters={}
+        self.extract_dc_param(circuit_initialization_parameters,extracted_parameters)
+        self.extract_ac_param(circuit_initialization_parameters,extracted_parameters)
+        self.extract_tran_param(circuit_initialization_parameters,extracted_parameters)
+
+        #function to extract op1db, am-pm-dev and other compression parameters
+
+
+        self.extract_fft_param_advanced(circuit_initialization_parameters,extracted_parameters)
+
+        return extracted_parameters
     """
     ====================================================================================================================================================================================
     ------------------------------------------------------------ EXTRACTION FUNCTION ---------------------------------------------------------------------------------------------------
@@ -703,6 +720,7 @@ class Circuit():
         pin_points=circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']
 
         pin=np.linspace(pin_start,pin_stop,pin_points)
+        comp_param_dict = {}
                 
         for i in range(pin_points): 
                 
@@ -717,11 +735,15 @@ class Circuit():
             # Running netlist file
             self.run_file(circuit_initialization_parameters)
 
+            # Extracting compression parameters from adv analysis
+            comp_param_dict[i] = self.extract_comp_param_advanced(circuit_initialization_parameters)
+
             # Extracting Vout Magnitude
         #    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
         #    pow_ph_params[i]=extract_dev_param(file_name,circuit_initialization_parameters)
 
-        #advanced_extracted_parameters=extract_advanced_parameters(pow_ph_params)
+        # Extracting the Advanced Parameters
+        advanced_extracted_parameters=self.extract_advanced_parameters(circuit_initialization_parameters,comp_param_dict)
         
         return advanced_extracted_parameters
 
