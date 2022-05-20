@@ -137,7 +137,7 @@ circuit_parameters={
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #----------------------------------------- FILE RUN --------------------------------------------
 cir=sp.Circuit(circuit_initialization_parameters)
-cir.update_circuit(circuit_parameters)
+cir.update_circuit(circuit_parameters,'basic')
 
 print ('____________________________________________________________________')
 print ('------------------------Circuit Parameters------------------------\n')

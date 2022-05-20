@@ -39,7 +39,7 @@ parameters pin_start=-70
 parameters pin_stop=5
 parameters pin_step=1
 parameters cir_temp=27
-parameters pin_sweep=(pin_start+pin_stop)/2
+parameters pin=-15
 
 // ------------------------ NETLIST STATEMENTS ------------------------------------
 
@@ -81,7 +81,7 @@ M1 (D1p G1p 0 0) nch w=wid_amp l=len nf=n_finger m=multi
 M2 (D1n G1n 0 0) nch w=wid_amp l=len nf=n_finger m=multi
 
 // ----- Sources -----
-Vs (Vin 0) port type=sine dbm=pin_sweep freq=fund_1 fundname=fund1 mag=1e-4 r=50 num=1
+Vs (Vin 0) port type=sine dbm=pin freq=fund_1 fundname=fund1 mag=1e-4 r=50 num=1
 Io (Vdd Vb) isource dc=cur0
 Vpower (Vdd 0) vsource dc=v_dd
 buf_p (E1p 0) bsource v=v(Vin,0)
@@ -101,7 +101,7 @@ gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdblo
 
 tran_test tran start=0s stop=20n skipdc=yes
 
-swp sweep param=pin_sweep start=pin_start stop=pin_stop step=pin_step {
+swp sweep param=pin start=pin_start stop=pin_stop step=pin_step {
 phdev_test hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"
 }
 // ------------------------ PRINT STATEMENTS ------------------------------------

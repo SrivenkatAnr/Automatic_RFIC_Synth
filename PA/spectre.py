@@ -62,11 +62,11 @@ class Circuit():
         #   self.circuit_parameters['W']=850e-6
         self.extracted_parameters=self.write_extract()
 
-    def update_circuit(self,circuit_parameters):
+    def update_circuit(self,circuit_parameters,analysis_type):
         self.circuit_parameters=circuit_parameters
         #if self.circuit_parameters['W']>900e-6:
         #   self.circuit_parameters['W']=850e-6
-        self.extracted_parameters=self.write_extract()
+        self.extracted_parameters=self.write_extract(analysis_type)
     
     def update_circuit_parameters(self,circuit_parameters):
         self.circuit_parameters=circuit_parameters
@@ -621,7 +621,7 @@ class Circuit():
     # Function that modifies tcsh file
     # Inputs  : circuit_initialization_parameters
     # Outputs : NONE
-    def write_tcsh_file(self,circuit_initialization_parameters,optimiztion_type):
+    def write_tcsh_file(self,circuit_initialization_parameters,optimization_type):
         
         filename=circuit_initialization_parameters['simulation']['standard_parameters']['tcsh']
         f=open(filename,'r+')
@@ -629,7 +629,7 @@ class Circuit():
         s='#tcsh\n'
         s=s+'source ~/.cshrc\n'
         
-        if optimiztion_type=='basic':
+        if optimization_type=='basic':
             s=s+'cd '+circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'\n'
         """
         else:
@@ -693,22 +693,58 @@ class Circuit():
 
 
     #-----------------------------------------------------------------------------------------------
+    # This function will perform Advanced simulation by externally sweeping the pin variable to counter the hbseep inductor pcell error
+    # Inputs  : Circuit_Parameters, circuit_initialization_parameters
+    # Outputs : Extracted_Parameters
+    def write_extract_advanced(circuit_initialization_parameters):
+
+        pin_start=circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']
+        pin_stop=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
+        pin_points=circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']
+
+        pin=np.linspace(pin_start,pin_stop,pin_points)
+                
+        for i in range(pin_points): 
+                
+            circuit_initialization_parameters['simulation']['netlist_parameters']['pin']=pin[i]
+                    
+            # Writing the tcsh file for Basic Analysis
+            self.write_tcsh_file(circuit_initialization_parameters,'basic')
+
+            # Writing the simulation parameters
+            self.write_simulation_parameters(circuit_initialization_parameters)
+
+            # Running netlist file
+            self.run_file(circuit_initialization_parameters)
+
+            # Extracting Vout Magnitude
+        #    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
+        #    pow_ph_params[i]=extract_dev_param(file_name,circuit_initialization_parameters)
+
+        #advanced_extracted_parameters=extract_advanced_parameters(pow_ph_params)
+        
+        return advanced_extracted_parameters
+
+    #-----------------------------------------------------------------------------------------------
     # This function will write the circuit parameters, run Eldo and extract the output parameters
     # Inputs  : Circuit_Parameters, circuit_initialization_parameters
     # Outputs : Extracted_Parameters
-    def write_extract_single(self,i,circuit_parameters,circuit_initialization_parameters):
+    def write_extract_single(self,i,circuit_parameters,circuit_initialization_parameters,analysis_type):
          
         # Writing to netlist file
         self.write_circuit_parameters(circuit_parameters,circuit_initialization_parameters)
         
-        # Extracting the Basic Parameters
-        basic_extracted_parameters=self.write_extract_basic(circuit_initialization_parameters)
-        
-        # Extracting the Advanced Parameters
-        #advanced_extracted_parameters=write_extract_advanced(circuit_initialization_parameters)
-        
-        # Extracting Parameters from output files
-        extracted_parameters=basic_extracted_parameters.copy()
+        if (analysis_type=='basic'):
+            # Extracting the Basic Parameters
+            basic_extracted_parameters=self.write_extract_basic(circuit_initialization_parameters)
+            # Extracting Parameters from output files
+            extracted_parameters=basic_extracted_parameters.copy()
+        elif (analysis_type=='advanced'):
+            # Extracting the Advanced Parameters
+            advanced_extracted_parameters=write_extract_advanced(circuit_initialization_parameters)
+            # Extracting Parameters from output files
+            extracted_parameters=advanced_extracted_parameters.copy()        
+
         #for param_name in advanced_extracted_parameters:
         #    extracted_parameters[param_name]=advanced_extracted_parameters[param_name]
 
@@ -719,7 +755,7 @@ class Circuit():
     # This function will write the circuit parameters, run Eldo and extract the output parameters
     # Inputs  : Circuit_Parameters, circuit_initialization_parameters
     # Outputs : Extracted_Parameters
-    def write_extract(self):
+    def write_extract(self,analysis_type):
 
         circuit_initialization_parameters=self.circuit_initialization_parameters
         circuit_parameters=self.circuit_parameters
@@ -761,7 +797,7 @@ class Circuit():
         self.copy_netlists(circuit_initialization_parameters,circuit_initialization_parameters_run)
             
         # Creating processes
-        results_async=[pool.apply_async(self.write_extract_single,args=(i,circuit_parameters_run[i],circuit_initialization_parameters_run[i])) for i in range(3)]
+        results_async=[pool.apply_async(self.write_extract_single,args=(i,circuit_parameters_run[i],circuit_initialization_parameters_run[i],analysis_type)) for i in range(3)]
         
         extracted_parameters_combined={}
         for r in results_async:
@@ -1023,42 +1059,7 @@ def extract_file(file_name):
 def print_param(param_var,val):
     return "parameters "+param_var+'='+str(val)+'\n'
 
-"""
-#-----------------------------------------------------------------------------------------------
-# This function will perform simulation for Advanced Parameters
-# Inputs  : Circuit_Parameters, circuit_initialization_parameters
-# Outputs : Extracted_Parameters
-def write_extract_advanced(circuit_initialization_parameters):
 
-    pin_start=circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']
-    pin_stop=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
-    pin_points=circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']
-
-    pin=np.linspace(pin_start,pin_stop,pin_points)
-            
-    pow_ph_params=np.zeros(pin_points,dtype=float)
-
-    for i in range(pin_points): 
-            
-        circuit_initialization_parameters['simulation']['netlist_parameters']['pin']=pin[i]
-                
-        # Writing the simulation parameters
-        write_simulation_parameters(circuit_initialization_parameters)
-
-        # Writing the tcsh file for Basic Analysis
-        write_tcsh_file(circuit_initialization_parameters,'basic')
-
-        # Running netlist file
-        run_file(circuit_initialization_parameters)
-
-        # Extracting Vout Magnitude
-        file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
-        pow_ph_params[i]=extract_dev_param(file_name,circuit_initialization_parameters)
-
-    advanced_extracted_parameters=extract_advanced_parameters(pow_ph_params)
-    
-    return advanced_extracted_parameters
-"""
 #===========================================================================================================================================================
 #------------------------------------------- AM-AM, AM-PM Deviation Extraction Functions --------------------------------------------------------------------
 
