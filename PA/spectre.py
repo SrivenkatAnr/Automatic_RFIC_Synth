@@ -350,6 +350,14 @@ class Circuit():
 
         # Getting the filename
         filename=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/phdev_test.fd.pss_hb'
+        fund_freq=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
+
+        freq_flag=0
+        dc_flag=0
+        vin_re_arr = 0
+        vin_im_arr = 0
+        vout_re_arr = 0
+        vout_im_arr = 0
                 
         for line in extract_file(filename):
             if ('"freq"' in line) and ('"sweep"' not in line):
@@ -383,7 +391,7 @@ class Circuit():
 
         comp_param_adv=[ph,gdb,pout,p_sup_hb,p_amp_hb]
         
-        return extracted_parameters    
+        return comp_param_adv    
 
     #---------------------------------------------------------------------------------------------------------------------------    
     # Extracting the TRAN data from the file
@@ -521,12 +529,11 @@ class Circuit():
     # Extracting all the output parameters from chi file
     # Inputs: optimization_input parameters
     # Outputs: output parameters dictionary 
-    def extract_advanced_parameters(self,circuit_initialization_parameters,comp_param_dict):
+    def extract_advanced_parameters(self,circuit_initialization_parameters,comp_param_dict,extracted_parameters):
 
-        extracted_parameters={}
-        self.extract_dc_param(circuit_initialization_parameters,extracted_parameters)
-        self.extract_ac_param(circuit_initialization_parameters,extracted_parameters)
-        self.extract_tran_param(circuit_initialization_parameters,extracted_parameters)
+        #self.extract_dc_param(circuit_initialization_parameters,extracted_parameters)
+        #self.extract_ac_param(circuit_initialization_parameters,extracted_parameters)
+        #self.extract_tran_param(circuit_initialization_parameters,extracted_parameters)
 
         #function to extract op1db, am-pm-dev and other compression parameters
         pin_start=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
@@ -791,19 +798,21 @@ class Circuit():
     # This function will perform Advanced simulation by externally sweeping the pin variable to counter the hbseep inductor pcell error
     # Inputs  : Circuit_Parameters, circuit_initialization_parameters
     # Outputs : Extracted_Parameters
-    def write_extract_advanced(circuit_initialization_parameters):
+    def write_extract_advanced(self,circuit_initialization_parameters):
 
-        pin_start=circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']
-        pin_stop=circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']
-        pin_points=circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']
+        pin_start=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
+        pin_stop=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
+        pin_points=int((pin_stop-pin_start)/circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step'])
 
-        pin=np.linspace(pin_start,pin_stop,pin_points)
+        pin=np.linspace(pin_start,pin_stop,pin_points+1)
         
         ph=np.zeros(pin_points)
         gdb=np.zeros(pin_points)
         pout=np.zeros(pin_points)
         p_sup_hb=np.zeros(pin_points)
         p_amp_hb=np.zeros(pin_points)
+
+        extracted_parameters={}
                 
         for i in range(pin_points): 
                 
@@ -818,18 +827,24 @@ class Circuit():
             # Running netlist file
             self.run_file(circuit_initialization_parameters)
 
+            if (i==0):
+                self.extract_ac_param(circuit_initialization_parameters,extracted_parameters)
+                self.extract_dc_param(circuit_initialization_parameters,extracted_parameters)
+                self.extract_tran_param(circuit_initialization_parameters,extracted_parameters)
+
             # Extracting compression parameters from adv analysis
-            ph[i],gdb[i],pout[i],p_sup_hb[i],p_amp_hb[i] = self.extract_comp_param_advanced(circuit_initialization_parameters)
+            ph[i],gdb[i],pout[i],p_sup_hb[i],p_amp_hb[i] = self.extract_comp_param_advanced(circuit_initialization_parameters,extracted_parameters)
 
             # Extracting Vout Magnitude
         #    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
         #    pow_ph_params[i]=extract_dev_param(file_name,circuit_initialization_parameters)
 
         comp_param_dict={'ph':ph, 'gdb':gdb, 'pout':pout, 'p_sup_hb':p_sup_hb, 'p_amp_hb':p_amp_hb}
-        # Extracting the Advanced Parameters
-        advanced_extracted_parameters=self.extract_advanced_parameters(circuit_initialization_parameters,comp_param_dict)
         
-        return advanced_extracted_parameters
+        # Extracting the Advanced Parameters
+        self.extract_advanced_parameters(circuit_initialization_parameters,comp_param_dict,extracted_parameters)
+        
+        return extracted_parameters
 
     #-----------------------------------------------------------------------------------------------
     # This function will write the circuit parameters, run Eldo and extract the output parameters
@@ -847,7 +862,7 @@ class Circuit():
             extracted_parameters=basic_extracted_parameters.copy()
         elif (analysis_type=='advanced'):
             # Extracting the Advanced Parameters
-            advanced_extracted_parameters=write_extract_advanced(circuit_initialization_parameters)
+            advanced_extracted_parameters=self.write_extract_advanced(circuit_initialization_parameters)
             # Extracting Parameters from output files
             extracted_parameters=advanced_extracted_parameters.copy()        
 
