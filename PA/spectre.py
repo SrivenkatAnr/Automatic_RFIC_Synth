@@ -343,6 +343,49 @@ class Circuit():
         return extracted_parameters    
 
     #---------------------------------------------------------------------------------------------------------------------------    
+    # Extracting the COMPRESSION data from the file
+    # Inputs: circuit_initialization_parameters
+    # Output: Dictionary with all the parameters
+    def extract_comp_param_advanced(self,circuit_initialization_parameters,extracted_parameters):
+
+        # Getting the filename
+        filename=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/phdev_test.fd.pss_hb'
+                
+        for line in extract_file(filename):
+            if ('"freq"' in line) and ('"sweep"' not in line):
+                freq=line.split()[1]
+                freq=valueE_to_value(freq)
+                if(freq==fund_freq):
+                    freq_flag=1
+                if(freq==0):
+                    dc_flag=1
+            if ('"Vin"' in line) and ('"V"' not in line) and (freq_flag==1):
+                vin_re_arr,vin_im_arr = extract_voltage_current(line)
+            if ('"Vout_n"' in line) and ('"V"' not in line) and (freq_flag==1):
+                temp_re,temp_im = extract_voltage_current(line)
+                vout_re_arr -= temp_re
+                vout_im_arr -= temp_im
+            if ('"Vout_p"' in line) and ('"V"' not in line) and (freq_flag==1):
+                temp_re,temp_im = extract_voltage_current(line)
+                vout_re_arr += temp_re
+                vout_im_arr += temp_im
+                freq_flag=0
+            if ('"ip_drain:in"' in line) and ('"I"' not in line) and (dc_flag==1):
+                ids_hb_re,ids_hb_im = extract_voltage_current(line)
+            if ('"Vpower:p"' in line) and ('"I"' not in line) and (dc_flag==1):
+                isup_hb_re,isup_hb_im = extract_voltage_current(line)
+                dc_flag=0
+        ph = calculate_gain_phase(vout_re_arr, vout_im_arr, vin_re_arr, vin_im_arr)
+        gdb = calculate_gain_db(vout_re_arr, vout_im_arr, vin_re_arr, vin_im_arr)
+        pout = (vout_re_arr**2 + vout_im_arr**2)/(2*extracted_parameters['Rl_ext']*1e-3)
+        p_sup_hb = np.sqrt(isup_hb_re**2 + isup_hb_im**2)*self.mos_parameters['Vdd']
+        p_amp_hb = np.sqrt(ids_hb_re**2 + ids_hb_im**2)*self.mos_parameters['Vdd'] 
+
+        comp_param_adv=[ph,gdb,pout,p_sup_hb,p_amp_hb]
+        
+        return extracted_parameters    
+
+    #---------------------------------------------------------------------------------------------------------------------------    
     # Extracting the TRAN data from the file
     # Inputs: circuit_initialization_parameters
     # Output: Dictionary with all the parameters
@@ -486,7 +529,42 @@ class Circuit():
         self.extract_tran_param(circuit_initialization_parameters,extracted_parameters)
 
         #function to extract op1db, am-pm-dev and other compression parameters
+        pin_start=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
+        pin_stop=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
+        pin_step=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
+        npin=int((pin_stop-pin_start)/pin_step)
+        fund_freq=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
+        op_freq=circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']
 
+        ph_arr=comp_param_dict['ph']
+        gdb_arr=comp_param_dict['gdb']
+        pout_arr=comp_param_dict['pout']
+        p_sup_hb_arr=comp_param_dict['p_sup_hb']
+        p_amp_hb_arr=comp_param_dict['p_amp_hb']
+
+        gdb_ss=gdb_arr[1]
+        db1_man_index=np.argmin(abs(gdb_arr-(gdb_ss-1)))
+        extracted_parameters["ip1db_man"]=pin_start+(db1_man_index*pin_step)
+        extracted_parameters["op1db_man"]=10*np.log10(pout_arr[db1_man_index])
+
+        psup_hb_1db = p_sup_hb_arr[db1_man_index]
+        extracted_parameters["Isup_hb"]=psup_hb_1db/self.mos_parameters['Vdd']
+        extracted_parameters["Ids_hb"]=p_amp_hb_arr[db1_man_index]/self.mos_parameters['Vdd']
+
+        ph_min=min(ph_arr[:db1_man_index+1])
+        ph_max=max(ph_arr[:db1_man_index+1]) 
+        am_pm_dev=(ph_max-ph_min)
+        extracted_parameters["am-pm-dev"]=min(am_pm_dev,360-am_pm_dev)
+        
+        ckt_trends={}
+        ckt_trends['pin_arr']=np.linspace(pin_start,pin_stop,npin)
+        ckt_trends['ph_arr']=ph_arr
+        ckt_trends['gdb_arr']=gdb_arr
+        ckt_trends['pout_arr']=10*np.log10(pout_arr)
+        ckt_trends['psup_arr']=p_sup_hb_arr
+        ckt_trends['pamp_arr']=p_amp_hb_arr
+        if (op_freq==fund_freq):
+            self.ckt_trends=ckt_trends  
 
         self.extract_fft_param_advanced(circuit_initialization_parameters,extracted_parameters)
 
@@ -720,7 +798,12 @@ class Circuit():
         pin_points=circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']
 
         pin=np.linspace(pin_start,pin_stop,pin_points)
-        comp_param_dict = {}
+        
+        ph=np.zeros(pin_points)
+        gdb=np.zeros(pin_points)
+        pout=np.zeros(pin_points)
+        p_sup_hb=np.zeros(pin_points)
+        p_amp_hb=np.zeros(pin_points)
                 
         for i in range(pin_points): 
                 
@@ -736,12 +819,13 @@ class Circuit():
             self.run_file(circuit_initialization_parameters)
 
             # Extracting compression parameters from adv analysis
-            comp_param_dict[i] = self.extract_comp_param_advanced(circuit_initialization_parameters)
+            ph[i],gdb[i],pout[i],p_sup_hb[i],p_amp_hb[i] = self.extract_comp_param_advanced(circuit_initialization_parameters)
 
             # Extracting Vout Magnitude
         #    file_name=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
         #    pow_ph_params[i]=extract_dev_param(file_name,circuit_initialization_parameters)
 
+        comp_param_dict={'ph':ph, 'gdb':gdb, 'pout':pout, 'p_sup_hb':p_sup_hb, 'p_amp_hb':p_amp_hb}
         # Extracting the Advanced Parameters
         advanced_extracted_parameters=self.extract_advanced_parameters(circuit_initialization_parameters,comp_param_dict)
         
