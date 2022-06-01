@@ -87,18 +87,24 @@ class Circuit():
         self.circuit_initialization_parameters['simulation']['netlist_parameters']['cir_temp']=self.circuit_initialization_parameters['simulation']['standard_parameters']['std_temp'] 
 
     def plot_ckt_trends(self,f_dir):
-         print("Starting Plots ckt_trends")
-         pin_arr = self.ckt_trends['pin_arr']
-         for param in self.ckt_trends.keys():
-             if (param!='pin_arr'):
-                 self.plot_pin_swp(pin_arr,param,f_dir)
-         print("Plotting Over ckt_trends")
-         print("Starting Plots output FFT")
-         self.plot_pout_fft(f_dir)
-         print("Plotting Over output FFT")
-         print("Starting Transient analysis plots")
-         self.plot_tran(f_dir)
-         print("Plotting Over tran analysis")
+        print("Starting Plots ckt_trends")
+        pin_arr = self.ckt_trends['pin_arr']
+        for param in self.ckt_trends.keys():
+            if (param!='pin_arr'):
+                self.plot_pin_swp(pin_arr,param,f_dir)
+        print("Plotting Over ckt_trends")
+        print("Starting Plots output FFT")
+        try:
+            self.plot_pout_fft(f_dir)
+            print("Plotting Over output FFT")
+        except:
+            print("fft plot unavailable")            
+        print("Starting Transient analysis plots")
+        try:
+            self.plot_tran(f_dir)
+            print("Plotting Over tran analysis")
+        except:
+            print("trans analysis plots unavailable")    
 
     def plot_pin_swp(self,arrX,paramY,f_dir):
         arrY=self.ckt_trends[paramY]
@@ -508,6 +514,65 @@ class Circuit():
         
         return extracted_parameters 
 
+    #---------------------------------------------------------------------------------------------------------------------------    
+    # Extracting the FFT data from the file
+    # Inputs: circuit_initialization_parameters
+    # Output: Dictionary with all the parameters
+    def extract_fft_param_advanced(self,circuit_initialization_parameters,extracted_parameters):
+
+        pin_start=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_start']
+        pin_stop=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_stop']
+        pin_step=circuit_initialization_parameters['simulation']['netlist_parameters']['pin_step']
+        npin=int((pin_stop-pin_start)/pin_step)
+
+        ip1db=extracted_parameters["ip1db_man"]
+        circuit_initialization_parameters['simulation']['netlist_parameters']['pin']=ip1db
+
+        fund_freq=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
+        op_freq=circuit_initialization_parameters['simulation']['standard_parameters']['f_operating'] 
+
+        data_dir=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']
+        filename=data_dir+self.circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/phdev_test.fd.pss_hb'
+
+        freq_arr=[]
+        pout_arr=[]
+        ptot = 0
+        freq_flag=0
+        
+        for line in extract_file(filename):
+            if ('"freq"' in line) and ('"sweep"' not in line):
+                freq=line.split()[1]
+                freq=valueE_to_value(freq)
+                freq_flag=1
+                freq_arr.append(freq)
+            if ('"Vout_n"' in line) and ('"V"' not in line) and (freq_flag==1):
+                vout_re_arr,vout_im_arr = extract_voltage_current(line)
+            if ('"Vout_p"' in line) and ('"V"' not in line) and (freq_flag==1):
+                temp_re,temp_im = extract_voltage_current(line)
+                vout_re_arr = temp_re - vout_re_arr
+                vout_im_arr = temp_im - vout_im_arr
+                pout=(vout_re_arr**2 + vout_im_arr**2)/(2*extracted_parameters['Rl_ext']*1e-3)
+                freq_flag=0
+                ptot += pout
+                if pout!=0:
+                    pout_arr.append(10*np.log10(pout))
+                else:
+                    pout_arr.append(-np.inf)
+
+        fft_trends={}
+        fft_trends['freq_arr']=np.array(freq_arr)
+        fft_trends['pout_arr']=np.array(pout_arr)
+
+        pout_fund = 10**(pout_arr[1]/10)
+        pout_higher = ptot-pout_fund
+        frac_higher = 10*np.log10(pout_fund/pout_higher)
+        #print("\n Power in higher harmonics: ", pout_higher)
+        extracted_parameters["p_harm_ratio"]=frac_higher
+
+        if (op_freq==fund_freq):
+            self.fft_trends=fft_trends        
+        
+        return extracted_parameters 
 
     #---------------------------------------------------------------------------------------------------------------------------
     # Extracting all the output parameters from chi file
