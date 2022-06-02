@@ -536,7 +536,7 @@ class Circuit():
         filename_template=data_dir+self.circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/{}.fd.pss_hb'
         filename=filename_template.replace('{}',circuit_initialization_parameters['simulation']['netlist_parameters']['hb_anal_name'])
         
-        circuit_initialization_parameters['simulation']['netlist_parameters']['hb_anal_name']='phdev_test_'+string(ip1db)
+        circuit_initialization_parameters['simulation']['netlist_parameters']['hb_anal_name']='phdev_test_ip1db'
                     
         # Writing the tcsh file for Basic Analysis
         self.write_tcsh_file(circuit_initialization_parameters,'basic')
@@ -900,7 +900,7 @@ class Circuit():
         for i in range(pin_points): 
                 
             circuit_initialization_parameters['simulation']['netlist_parameters']['pin']=pin_arr[i]
-            circuit_initialization_parameters['simulation']['netlist_parameters']['hb_anal_name']='phdev_test_'+string(pin_arr[i])
+            circuit_initialization_parameters['simulation']['netlist_parameters']['hb_anal_name']='phdev_test_'+str(i)
                     
             # Writing the tcsh file for Basic Analysis
             self.write_tcsh_file(circuit_initialization_parameters,'basic')
