@@ -97,13 +97,13 @@ ac_test ac start=fund_1 stop=2*fund_1 dec=1
 ip_load (Vout_pr Vout_n) iprobe
 ip_drain (D1p_pr D1p) iprobe
 
-gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
+//gcomp_test hb xdbcompression="yes" xdblevel=1 xdbgain="power" xdbsource=Vs xdbload=Rl xdbharm=[1] xdbstart=pin_start xdbmax=20 fundfreqs=[fund_1] maxharms=[n_harm] save="all" 
 
 tran_test tran start=0s stop=20n skipdc=yes
 
-//swp sweep param=pin start=pin_start stop=pin_stop step=pin_step {
+swp sweep param=pin start=pin_start stop=pin_stop step=pin_step {
 phdev_test hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"
-//}
+}
 // ------------------------ PRINT STATEMENTS ------------------------------------
 print V(Vout_p)-V(Vout_n), I(Vpower), V(Vs), I(Vs), V(G1p), V(D1p), M1:ids, M1:gm, M1:gds, M1:vth, M1:vds, M1:vdsat, M1:cgs, M1:cgd, M1:region, V(Vpower), I(ip_drain), name=dc_test to="dc.out"
 

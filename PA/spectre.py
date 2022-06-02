@@ -527,26 +527,16 @@ class Circuit():
         npin=int((pin_stop-pin_start)/pin_step)
 
         ip1db=extracted_parameters["ip1db_man"]
-        circuit_initialization_parameters['simulation']['netlist_parameters']['pin']=ip1db
+        i=int((ip1db-pin_start)/pin_step)
+        hb_anal_name="phdev_test_"+str(i)
 
         fund_freq=circuit_initialization_parameters['simulation']['netlist_parameters']['fund_1']
         op_freq=circuit_initialization_parameters['simulation']['standard_parameters']['f_operating'] 
 
         data_dir=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']
         filename_template=data_dir+self.circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.raw/{}.fd.pss_hb'
-        filename=filename_template.replace('{}',circuit_initialization_parameters['simulation']['netlist_parameters']['hb_anal_name'])
+        filename=filename_template.replace('{}',hb_anal_name)
         
-        circuit_initialization_parameters['simulation']['netlist_parameters']['hb_anal_name']='phdev_test_ip1db'
-                    
-        # Writing the tcsh file for Basic Analysis
-        self.write_tcsh_file(circuit_initialization_parameters,'basic')
-
-        # Writing the simulation parameters
-        self.write_simulation_parameters(circuit_initialization_parameters)
-
-        # Running netlist file
-        self.run_file(circuit_initialization_parameters)        
-
         freq_arr=[]
         pout_arr=[]
         ptot = 0
@@ -765,8 +755,11 @@ class Circuit():
         write_dict['len']=circuit_initialization_parameters['MOS']['Lmin']
         write_dict['v_dd']=circuit_initialization_parameters['MOS']['Vdd']
 
-        write_dict['hb_anal_name']=circuit_initialization_parameters['simulation']['netlist_parameters']['hb_anal_name']
-        hb_template=' hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"'
+        try:
+            write_dict['hb_anal_name']=circuit_initialization_parameters['simulation']['netlist_parameters']['hb_anal_name']
+            hb_template=' hb fundfreqs=[fund_1] maxharms=[n_harm] save="all"\n'
+        except:
+            pass
 
         # Getting the filenames
         filename1=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']+'/circ.scs'
@@ -792,7 +785,7 @@ class Circuit():
             for param_name in write_dict:   # This line is used to replace the MOS parameters and simulation_parameters
                 if "parameters "+param_name+'=' in line:
                     line=line.replace(line,print_param(param_name,write_dict[param_name]))
-                if 'hb fundfreqs' in line:
+                if ('hb fundfreqs' in line) and ('hb_anal_name' in write_dict):
                     line=write_dict['hb_anal_name']+hb_template
             
             if write_check==1:
