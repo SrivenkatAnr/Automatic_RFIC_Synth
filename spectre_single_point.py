@@ -110,8 +110,8 @@ circuit_initialization_parameters={}
 
 # ---------- MOSFET Parameters ----------
 #get_mos_parameters(circuit_initialization_parameters,'TSMC65')
-get_mos_parameters(circuit_initialization_parameters,'TSMC65_2')
-#get_mos_parameters(circuit_initialization_parameters,'TSMC65_3')
+#get_mos_parameters(circuit_initialization_parameters,'TSMC65_2')
+get_mos_parameters(circuit_initialization_parameters,'TSMC65_3')
 #get_mos_parameters(circuit_initialization_parameters,'TSMC65_4')
 
 # ---------- Simulation Conditions ----------
@@ -137,7 +137,7 @@ circuit_parameters={
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #----------------------------------------- FILE RUN --------------------------------------------
 cir=sp.Circuit(circuit_initialization_parameters)
-cir.update_circuit(circuit_parameters,'advanced')
+cir.update_circuit(circuit_parameters,'basic')
 
 print ('____________________________________________________________________')
 print ('------------------------Circuit Parameters------------------------\n')

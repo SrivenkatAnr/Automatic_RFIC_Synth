@@ -53,7 +53,7 @@ def get_TSMC_resistor(resistance):
     W_min=0.4e-6
     dW=0.0691e-6
 
-    if resistance<sheet_resistance:
+    if resistance<(sheet_resistance*L_min/W_min):
 	    length=L_min
 	    width=L_min*sheet_resistance/resistance
     else:
