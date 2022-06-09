@@ -15,7 +15,7 @@ Functions structure in this file:
 
 import PA.spectre as sp
 import time
-
+from collections import OrderedDict
 #===========================================================================================================================
 #------------------------------------ Other Functions ----------------------------------------------------------------------
 
@@ -23,9 +23,9 @@ import time
 # Function that sets the MOSFET parameters to the circuit_initialization_parameters dictionary
 def get_mos_parameters(circuit_initialization_parameters,process_name):
 	
-	circuit_initialization_parameters['MOS']={}
+	circuit_initialization_parameters['MOS']=OrderedDict()
 	circuit_initialization_parameters['MOS']['Process']=process_name
-	circuit_initialization_parameters['MOS']['filename']={}
+	circuit_initialization_parameters['MOS']['filename']=OrderedDict()
 	
 	f=open('/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/MOS_Files/'+process_name+'.txt')
 	lines=f.readlines()
@@ -72,8 +72,8 @@ def get_mos_parameters(circuit_initialization_parameters,process_name):
 # Function that sets the simulation conditions to the optimization_input_parameters dictionary
 def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	
-	circuit_initialization_parameters['simulation']={}
-	circuit_initialization_parameters['simulation']['standard_parameters']={}
+	circuit_initialization_parameters['simulation']=OrderedDict()
+	circuit_initialization_parameters['simulation']['standard_parameters']=OrderedDict()
 
 	circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']='/home/ee18b038/cadence_project/PA_single_pt_2/'
 	circuit_initialization_parameters['simulation']['standard_parameters']['basic_circuit']='basic_tsmc_65_rcm'
@@ -106,7 +106,7 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 t_start=time.time()
 
 # Creating a dictionary with the optimization parameters
-circuit_initialization_parameters={}
+circuit_initialization_parameters=OrderedDict()
 
 # ---------- MOSFET Parameters ----------
 #get_mos_parameters(circuit_initialization_parameters,'TSMC65')
@@ -124,13 +124,13 @@ circuit_parameters={
 	'Rl':74,
     'Rl_expected':100,
 	'Ld':10e-9,
-	'Lsrc':3.93e-9,
-	'Lload':5.08e-9,
-	'Cmn':4.73e-12,
+	'Lsrc':2.274e-9,
+	'Lload':2.69e-9,
+	'Cmn':2.92e-12,
 	#'C1':89.7e-12,
 	#'C2':35.5e-9,
-	'W':438e-6,
-	'Io':23.3e-3
+	'W':1.38e-3,
+	'Io':17.8e-3
 }
 
 
@@ -157,6 +157,6 @@ for param_name in cir.extracted_parameters:
 cir.plot_ckt_trends("Output_Trends/")
 
 t_end = time.time()
-print("\n time taken is {} seconds\n".format(t_end-t_start))
+print("\n time taken is OrderedDict() seconds\n".format(t_end-t_start))
 
 #===========================================================================================================================

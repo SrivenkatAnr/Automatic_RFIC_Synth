@@ -11,6 +11,7 @@ import os
 import common_functions as cf # type: ignore
 from matplotlib import pylab
 from pylab import *
+from collections import OrderedDict
 #===========================================================================================================================
 
 
@@ -92,7 +93,7 @@ def temperature_analysis(cir,optimization_input_parameters,timing_results):
     initial_circuit_parameters=cir.circuit_parameters.copy()
 
     # Creating Dictionaries to Store Values
-    extracted_parameters_iter={}
+    extracted_parameters_iter=OrderedDict()
     
     # Creating an array for temperature analysis
     start_temp=optimization_input_parameters['temperature_analysis']['start_temp']
@@ -118,7 +119,7 @@ def temperature_analysis(cir,optimization_input_parameters,timing_results):
     
     # Performing the analysis
     for temp in temp_array:
-        extracted_parameters_iter[temp]={}
+        extracted_parameters_iter[temp]=OrderedDict()
         write_extracted_parameters_initial(cir.extracted_parameters,optimization_input_parameters,temp)
         for current in current_array:
             cir.circuit_parameters['Io']=current
@@ -129,7 +130,7 @@ def temperature_analysis(cir,optimization_input_parameters,timing_results):
 
     # Restoring the value of initial extracted and circuit parameters
     cir.reset_temp()
-    cir.update_circuit(initial_circuit_parameters.copy())
+    cir.update_circuit(initial_circuit_parameters.copy(),'basic')
 
     # Plotting the graphs
     file_directory=optimization_input_parameters['filename']['output']

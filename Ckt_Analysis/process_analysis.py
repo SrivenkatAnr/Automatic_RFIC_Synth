@@ -11,6 +11,7 @@ import os
 import common_functions as cf # type: ignore
 from matplotlib import pylab
 from pylab import *
+from collections import OrderedDict
 #===========================================================================================================================
 
 
@@ -96,7 +97,7 @@ def process_analysis(cir,optimization_input_parameters,timing_results):
     initial_circuit_parameters=cir.circuit_parameters.copy()
 
     # Creating Dictionaries to Store Values
-    extracted_parameters_iter={}
+    extracted_parameters_iter=OrderedDict()
     
     # Writing the values to output files
     write_circuit_parameters(cir.circuit_parameters,optimization_input_parameters)
@@ -115,7 +116,7 @@ def process_analysis(cir,optimization_input_parameters,timing_results):
 
     # Performing the analysis
     for process_corner in process_corner_list:
-        extracted_parameters_iter[process_corner]={}
+        extracted_parameters_iter[process_corner]=OrderedDict()
         circuit_initialization_parameters_cpy=cir.circuit_initialization_parameters.copy()
         circuit_initialization_parameters_cpy['simulation']['standard_parameters']['process_corner']=process_corner
         write_extracted_parameters_initial(cir.extracted_parameters,optimization_input_parameters,process_corner)
@@ -128,7 +129,7 @@ def process_analysis(cir,optimization_input_parameters,timing_results):
         
     # Restoring the value of initial extracted and circuit parameters
     cir.reset_temp()
-    cir.update_circuit(initial_circuit_parameters.copy())
+    cir.update_circuit(initial_circuit_parameters.copy(),'basic')
     
     # Plotting the graphs
     file_directory=optimization_input_parameters['filename']['output']

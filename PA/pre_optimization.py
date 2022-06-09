@@ -20,7 +20,7 @@ Functions structure in this file:
 import datetime
 import common_functions as cff     # type: ignore
 import PA.hand_calc as hc1 # type: ignore
-
+from collections import OrderedDict
 """
 ===========================================================================================================================
 ----------------------------------- File Writing Functions ----------------------------------------------------------------
@@ -101,7 +101,7 @@ def save_output_results_pre_optimization(optimization_results,optimization_input
 def manual_initial_parameters(cir,optimization_input_parameters):
 
     # Running Eldo
-    cir.update_circuit(optimization_input_parameters['pre_optimization']['manual_circuit_parameters'].copy())
+    cir.update_circuit(optimization_input_parameters['pre_optimization']['manual_circuit_parameters'].copy(),'basic')
 
 
 
@@ -122,7 +122,7 @@ def pre_optimization(cir,optimization_input_parameters,timing_results):
     f.close()
 
     # Storing the starting time
-    timing_results['pre_optimization']={}
+    timing_results['pre_optimization']=OrderedDict()
     timing_results['pre_optimization']['start']=datetime.datetime.now()
 
     print('************************************************************************************************************')
@@ -132,7 +132,7 @@ def pre_optimization(cir,optimization_input_parameters,timing_results):
 
     cir.update_simulation_parameters(optimization_input_parameters['pre_optimization']['simulation'])
 
-    optimization_results={}
+    optimization_results=OrderedDict()
     
     #======================================================== Manual Initial Points =============================================================================================================
 
@@ -147,7 +147,7 @@ def pre_optimization(cir,optimization_input_parameters,timing_results):
         manual_initial_parameters(cir,optimization_input_parameters)
 
         # Storing the Circuit and Extracted Parameters
-        optimization_results['manual_hc']={}
+        optimization_results['manual_hc']=OrderedDict()
         optimization_results['manual_hc']['circuit_parameters']=cir.circuit_parameters.copy()
         optimization_results['manual_hc']['extracted_parameters']=cir.extracted_parameters.copy()
 

@@ -20,7 +20,7 @@ Functions structure in this file:
 import numpy as np
 import Ckt_Optimization.optimization as opt
 import sys 
-
+from collections import OrderedDict
 #===========================================================================================================================
 #------------------------------------ Other Functions ----------------------------------------------------------------------
 
@@ -29,9 +29,9 @@ import sys
 # Function that sets the MOSFET parameters to the circuit_initialization_parameters dictionary
 def get_mos_parameters(circuit_initialization_parameters,process_name):
     
-    circuit_initialization_parameters['MOS']={}
+    circuit_initialization_parameters['MOS']=OrderedDict()
     circuit_initialization_parameters['MOS']['Process']=process_name
-    circuit_initialization_parameters['MOS']['filename']={}
+    circuit_initialization_parameters['MOS']['filename']=OrderedDict()
     
     f=open('/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/MOS_Files/'+process_name+'.txt')
     lines=f.readlines()
@@ -99,15 +99,15 @@ def get_output_conditions(optimization_input_parameters,fo):
         'Rin':50,
         'Rl':100,
         'p-harm-ratio':15,
-        'gain-phase-dev':10
+        'gain-phase-dev':20,
     }
 
 #---------------------------------------------------------------------------------------------------------------------------
 # Function that sets the simulation conditions to the circuit_initialization_parameters dictionary
 def get_simulation_conditions(circuit_initialization_parameters,fo):
     
-    circuit_initialization_parameters['simulation']={}
-    circuit_initialization_parameters['simulation']['standard_parameters']={}
+    circuit_initialization_parameters['simulation']=OrderedDict()
+    circuit_initialization_parameters['simulation']['standard_parameters']=OrderedDict()
 
     #file names
     circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']='/home/ee18b038/cadence_project/PA_tri3/'
@@ -146,22 +146,25 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
 # Function that sets the pre_optimization parameters to the optimization_input_parameters dictionary
 def get_pre_optimization_parameters(optimization_input_parameters,fo):
 
-    optimization_input_parameters['pre_optimization']={}
-    optimization_input_parameters['pre_optimization']['type']=1
+    optimization_input_parameters['pre_optimization']=OrderedDict()
+    optimization_input_parameters['pre_optimization']['type']='manual'
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Manual Hand Calculations
     optimization_input_parameters['pre_optimization']['manual_circuit_parameters']={
         'Rin':37.75,
-        'Rb':2359,
-        #'Rl':100,
+        'Rb':31600,
+        'Rl':74,
+        'Rl_expected':24.8,
         'Ld':10e-9,
         #'C1':3.2e-12,
         #'C2':1.25e-9,
         'W':1.38e-3,
-        'Io':17.8e-3,
-        #'C2':1.25e-9,
-        'W':1.38e-3,
+        'Io':20e-3,
+        'Lsrc':2.71e-9,
+        'Lload':3.5e-9,
+        'Cmn':3.26e-12,
+        'W':481e-6,
         'Io':17.8e-3,         
     }
     
@@ -178,8 +181,8 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Pre Optimization Simulation Parameters
-    optimization_input_parameters['pre_optimization']['simulation']={}
-    optimization_input_parameters['pre_optimization']['simulation']['standard_parameters']={}
+    optimization_input_parameters['pre_optimization']['simulation']=OrderedDict()
+    optimization_input_parameters['pre_optimization']['simulation']['standard_parameters']=OrderedDict()
 
     optimization_input_parameters['pre_optimization']['simulation']['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65_rcm'
     #optimization_input_parameters['pre_optimization']['simulation']['standard_parameters']['iip3_circuit']='iip3_hb_tsmc_65_rcm'
@@ -205,7 +208,7 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
 # Function that sets the optimization parameters to the optimization_input_parameters dictionary
 def get_optimization_parameters(optimization_input_parameters,fo,optimization_name):
 
-    optimization_input_parameters['optimization']={}
+    optimization_input_parameters['optimization']=OrderedDict()
 
     optimization_input_parameters['optimization']['n_runs']=1
 
@@ -216,14 +219,14 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Parameters for Optimization Run 1
-    optimization_input_parameters['optimization'][1]={}
+    optimization_input_parameters['optimization'][1]=OrderedDict()
     
-    optimization_input_parameters['optimization'][1]['max_iteration']=150
+    optimization_input_parameters['optimization'][1]['max_iteration']=5
     optimization_input_parameters['optimization'][1]['alpha_min']=-1
     optimization_input_parameters['optimization'][1]['consec_iter']=-1
 
     optimization_input_parameters['optimization'][1]['delta_threshold']=0.001
-    optimization_input_parameters['optimization'][1]['alpha_mult']=1
+    optimization_input_parameters['optimization'][1]['alpha_mult']=0.97
     optimization_input_parameters['optimization'][1]['loss_type']=0
     optimization_input_parameters['optimization'][1]['update_check']=0
     optimization_input_parameters['optimization'][1]['allowance']=0
@@ -236,11 +239,11 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Assigning values to the loss weights
-    loss_weights={}
+    loss_weights=OrderedDict()
     loss_weights['gain_db']=1/12.0  
     loss_weights['op1db']=1/13.0  
     loss_weights['am-pm-dev']=1/5.0   
-    loss_weights['Isup']=50
+    loss_weights['Isup']=100
     loss_weights['p-harm-ratio']=1/15.0
     loss_weights['gain-phase']=1/10.0
     optimization_input_parameters['optimization'][1]['loss_weights']=loss_weights
@@ -248,19 +251,19 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Assigning Values of Alpha
-    alpha_parameters={}
-    alpha_parameters['common']=0.2
-    alpha_parameters['Rb']=0.1
+    alpha_parameters=OrderedDict()
+    alpha_parameters['common']=1
+    alpha_parameters['Rb']=1
     alpha_parameters['Ld']=1
-    alpha_parameters['Lsrc']=0.5
-    alpha_parameters['Lload']=0.5
-    alpha_parameters['Rl']=1
+    alpha_parameters['Lsrc']=1
+    alpha_parameters['Lload']=1
+    #alpha_parameters['Rl']=1
     alpha_parameters['W']=1
     alpha_parameters['Io']=1
-    alpha_parameters['C1']=1
-    alpha_parameters['C2']=1
-    alpha_parameters['Cmn']=0.5
-    optimization_input_parameters['optimization'][1]['alpha']={}
+    #alpha_parameters['C1']=1
+    #alpha_parameters['C2']=1
+    alpha_parameters['Cmn']=1
+    optimization_input_parameters['optimization'][1]['alpha']=OrderedDict()
     optimization_input_parameters['optimization'][1]['alpha']['values']=alpha_parameters
 
     optimization_input_parameters['optimization'][1]['alpha']['type']='Normal'
@@ -269,9 +272,9 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Optimization Simulation Parameters
-    optimization_input_parameters['optimization']['simulation']={}
-    optimization_input_parameters['optimization']['simulation'][1]={}
-    optimization_input_parameters['optimization']['simulation'][1]['standard_parameters']={}
+    optimization_input_parameters['optimization']['simulation']=OrderedDict()
+    optimization_input_parameters['optimization']['simulation'][1]=OrderedDict()
+    optimization_input_parameters['optimization']['simulation'][1]['standard_parameters']=OrderedDict()
 
     optimization_input_parameters['optimization']['simulation'][1]['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65_rcm'
     #optimization_input_parameters['optimization']['simulation'][1]['standard_parameters']['iip3_circuit']='iip3_hb_tsmc_65_rcm'
@@ -294,8 +297,8 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     }
 
     """
-    optimization_input_parameters['optimization']['simulation'][2]={}
-    optimization_input_parameters['optimization']['simulation'][2]['standard_parameters']={}
+    optimization_input_parameters['optimization']['simulation'][2]=OrderedDict()
+    optimization_input_parameters['optimization']['simulation'][2]['standard_parameters']=OrderedDict()
 
     optimization_input_parameters['optimization']['simulation'][2]['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65'
     optimization_input_parameters['optimization']['simulation'][2]['standard_parameters']['iip3_circuit']='iip3_hb_tsmc_65'
@@ -322,7 +325,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     # Conditions for acceptable solution 
     """
     if optimization_name=='FOM':
-        optimization_input_parameters['acceptable_solution']={}
+        optimization_input_parameters['acceptable_solution']=OrderedDict()
         optimization_input_parameters['acceptable_solution']['s11_db']=-15
         optimization_input_parameters['acceptable_solution']['gain_db']=6
         optimization_input_parameters['acceptable_solution']['iip3_dbm']=-15
@@ -336,7 +339,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
 
 def get_temperature_analysis_parameters(optimization_input_parameters,fo):
 
-    optimization_input_parameters['temperature_analysis']={}
+    optimization_input_parameters['temperature_analysis']=OrderedDict()
 
     optimization_input_parameters['temperature_analysis']['start_temp']=-40
     optimization_input_parameters['temperature_analysis']['stop_temp']=120
@@ -349,8 +352,8 @@ def get_temperature_analysis_parameters(optimization_input_parameters,fo):
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Temperature Analysis Simulation Parameters
-    optimization_input_parameters['temperature_analysis']['simulation']={}
-    optimization_input_parameters['temperature_analysis']['simulation']['standard_parameters']={}
+    optimization_input_parameters['temperature_analysis']['simulation']=OrderedDict()
+    optimization_input_parameters['temperature_analysis']['simulation']['standard_parameters']=OrderedDict()
 
     optimization_input_parameters['temperature_analysis']['simulation']['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65_rcm'
     #optimization_input_parameters['temperature_analysis']['simulation']['standard_parameters']['iip3_circuit']='iip3_hb_tsmc_65_rcm'
@@ -376,7 +379,7 @@ def get_temperature_analysis_parameters(optimization_input_parameters,fo):
 # Function that sets the process analysis parameters to the optimization_input_parameters dictionary
 def get_process_analysis_parameters(optimization_input_parameters,fo):
 
-    optimization_input_parameters['process_analysis']={}
+    optimization_input_parameters['process_analysis']=OrderedDict()
 
     optimization_input_parameters['process_analysis']['start_temp']=-40
     optimization_input_parameters['process_analysis']['stop_temp']=120
@@ -384,8 +387,8 @@ def get_process_analysis_parameters(optimization_input_parameters,fo):
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Temperature Analysis Simulation Parameters
-    optimization_input_parameters['process_analysis']['simulation']={}
-    optimization_input_parameters['process_analysis']['simulation']['standard_parameters']={}
+    optimization_input_parameters['process_analysis']['simulation']=OrderedDict()
+    optimization_input_parameters['process_analysis']['simulation']['standard_parameters']=OrderedDict()
 
     optimization_input_parameters['process_analysis']['simulation']['standard_parameters']['basic_circuit']='basic_parameters_tsmc_65_rcm'
     #optimization_input_parameters['process_analysis']['simulation']['standard_parameters']['iip3_circuit']='iip3_hb_tsmc_65_rcm'
@@ -413,12 +416,12 @@ def get_process_analysis_parameters(optimization_input_parameters,fo):
 # Function that sets the frequency analysis parameters to the optimization_input_parameters dictionary
 def get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo):
 
-	optimization_input_parameters['circuit_parameter_analysis']={}
+	optimization_input_parameters['circuit_parameter_analysis']=OrderedDict()
 
 	optimization_input_parameters['circuit_parameter_analysis']['run']='YES'
 	optimization_input_parameters['circuit_parameter_analysis']['n_runs']=1
 	
-	optimization_input_parameters['circuit_parameter_analysis'][0]={}
+	optimization_input_parameters['circuit_parameter_analysis'][0]=OrderedDict()
 	optimization_input_parameters['circuit_parameter_analysis'][0]['parameter_name']='W'
 	optimization_input_parameters['circuit_parameter_analysis'][0]['parameter_select_type']='relative'
 	optimization_input_parameters['circuit_parameter_analysis'][0]['start']=0.25
@@ -428,8 +431,8 @@ def get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo):
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~
 	# Frequency Analysis Simulation Parameters
-	optimization_input_parameters['circuit_parameter_analysis']['simulation']={}
-	optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']={}
+	optimization_input_parameters['circuit_parameter_analysis']['simulation']=OrderedDict()
+	optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']=OrderedDict()
 
 	#optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['iip3_type']='basic'
 	optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['std_temp']=27
@@ -455,8 +458,8 @@ def get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo):
 sys.setrecursionlimit(5000)
 
 # Creating a dictionary with the optimization parameters
-circuit_initialization_parameters={}
-optimization_input_parameters={}
+circuit_initialization_parameters=OrderedDict()
+optimization_input_parameters=OrderedDict()
 optimization_name='LOSS'
 
 # ---------- MOSFET Parameters ----------
@@ -490,7 +493,7 @@ get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #----------------------------------------- FILE NAMES ------------------------------------------
 
-optimization_input_parameters['filename']={}
+optimization_input_parameters['filename']=OrderedDict()
 optimization_input_parameters['filename']['run_status']='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/run_status.txt'
 
 optimization_input_parameters['optimization']['run']='YES'

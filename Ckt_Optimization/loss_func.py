@@ -15,7 +15,7 @@ Functions structure in this file:
 """
 #===========================================================================================================================
 
-
+from collections import OrderedDict
 #===========================================================================================================================
 #------------------------------------Defining the functions -----------------------------------------
 
@@ -94,18 +94,27 @@ def update_circuit_parameters(cir,circuit_parameters_slope,check_loss,optimizati
         else:
             change=(circuit_parameters_slope[param_name]['loss']-circuit_parameters_slope[param_name]['loss_Io'])
             change=change*(cir.circuit_parameters[param_name]**2)*alpha_parameters['common']*alpha_parameters[param_name]
+
+        print(change,param_name,'hi1')
     
     
         # Checking if the parameter is updated by a large value
         change_limit=0.25 # If the incremented value is more than +- change_limit*parameter_name, then we will limit the change
         if change>change_limit*cir.circuit_parameters[param_name]:
             change=change_limit*cir.circuit_parameters[param_name]
-        if change<-1*change_limit*cir.circuit_parameters[param_name]:
+        elif change<-1*change_limit*cir.circuit_parameters[param_name]:
             change=-1*change_limit*cir.circuit_parameters[param_name]
+
+        print(change,param_name,'hi2')
         
+        #if (param_name=='Rl') and ((cir.circuit_parameters[param_name]-change)>50):
+        #    change=cir.circuit_parameters[param_name]-50  
+        if (param_name=='Ld') and ((cir.circuit_parameters[param_name]-change)>10e-9):
+            change=cir.circuit_parameters[param_name]-10e-9
         
         # Updating circuit_parameters
         cir.circuit_parameters[param_name]=cir.circuit_parameters[param_name]-change
+        print(cir.circuit_parameters[param_name],param_name)
         
     
 #-----------------------------------------------------------------------------------------------
@@ -151,7 +160,7 @@ def check_best_solution(optimization_results,loss_max):
             flag=1
 
     # Creating output dictionary
-    opt_dict={}
+    opt_dict=OrderedDict()
     opt_dict['loss_max']=loss_max
     if flag==1:
         opt_dict['perfect_point']='Yes'

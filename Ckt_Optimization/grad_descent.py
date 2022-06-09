@@ -33,6 +33,7 @@ import common_functions as cf
 import Ckt_Optimization.loss_func as lf
 import os
 from pylab import *
+from collections import OrderedDict
 #===========================================================================================================================
 
 """
@@ -451,7 +452,7 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_input_parameter
     delta_threshold=optimization_input_parameters['optimization'][run_number]['delta_threshold']
     
     # Getting the sensitivity dictionary
-    circuit_parameters_sensitivity={}
+    circuit_parameters_sensitivity=OrderedDict()
     for param_name in optimization_input_parameters['optimization'][run_number]['optimizing_parameters']:
         circuit_parameters_sensitivity[param_name]=0
     
@@ -460,7 +461,7 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_input_parameter
     extracted_parameters_initial=cir.extracted_parameters.copy()
     circuit_parameters1=cir.circuit_parameters.copy() # This dictionary will store the values of parameters after increment to calculate the slope
     extracted_parameters1=cir.extracted_parameters.copy() # This dictionary will store the values of parameters after increment to calculate the slope
-    circuit_parameters_slope={} # This dictionary will store the values of slope of different losses with change of all circuit parameters
+    circuit_parameters_slope=OrderedDict() # This dictionary will store the values of slope of different losses with change of all circuit parameters
     
     # Calculating the value to update each parameter with
     for param_name in optimization_input_parameters['optimization'][run_number]['optimizing_parameters']:
@@ -468,10 +469,10 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_input_parameter
         # Calculating the increment value
         increment_factor=delta_threshold # The value by which parameter increases = increment_factor*parameter
         increment=cir.circuit_parameters[param_name]*increment_factor
-        if (param_name=='Rl') and ((cir.circuit_parameters[param_name]+increment)>50):
-            increment=50-cir.circuit_parameters[param_name]        
-        if (param_name=='Ld') and ((cir.circuit_parameters[param_name]+increment)>10e-9):
-            increment=10e-9-cir.circuit_parameters[param_name] 
+        #if (param_name=='Rl') and ((cir.circuit_parameters[param_name]+increment)>50):
+        #    increment=50-cir.circuit_parameters[param_name]        
+        #if (param_name=='Ld') and ((cir.circuit_parameters[param_name]+increment)>10e-9):
+        #   increment=10e-9-cir.circuit_parameters[param_name] 
     
         # Incrementing the circuit parameter
         circuit_parameters1=cir.circuit_parameters.copy()
@@ -487,14 +488,14 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_input_parameter
         #    loss_dict1=off.calc_fom_1(extracted_parameters1,output_conditions,loss_weights)
         
         # Calculating Slope 
-        circuit_parameters_slope[param_name]={}
+        circuit_parameters_slope[param_name]=OrderedDict()
         for param in loss_dict:
             if (increment !=0):
                 circuit_parameters_slope[param_name][param]=(loss_dict1[param]-loss_dict[param])/increment
             else:
                 circuit_parameters_slope[param_name][param]=0
 
-        circuit_parameters_sensitivity[param_name]={}
+        circuit_parameters_sensitivity[param_name]=OrderedDict()
         
         # Calculating Sensitivity
         for categ_name in optimization_input_parameters['optimization'][run_number]['output_parameters_list']:
@@ -602,7 +603,7 @@ def check_stop_loss(loss_iter,i,n_iter,optimization_type):
 # Outputs : circuit_parameters,extracted_parameters
 def opt_single_run(cir,optimization_input_parameters,run_number):
 
-    optimization_results={}
+    optimization_results=OrderedDict()
     optimization_results['run_number']=run_number
 
     # Defining some values
@@ -627,19 +628,19 @@ def opt_single_run(cir,optimization_input_parameters,run_number):
     old_circuit_parameters=cir.circuit_parameters.copy() # This dictionary will store the value of parameters for previous iterations
     
     # Creating the dictionaries
-    loss_iter={}                # This dictionary will store the value of all loss values for different iterations
-    loss_slope_iter={}          # This dictionary will store the value of slope of losses for all parameters for different iterations
-    alpha_parameters_iter={}    # This dictionary will store the value of threshold for different iterations
-    extracted_parameters_iter={}# This dictionary will store the value of output parameters for different iterations
-    circuit_parameters_iter={}  # This dictionary will store the value of circuit parameters for different iterations
-    sensitivity_iter={}         # This dictionary will store the value of output parameter sensitivty for different circuit parameters 
+    loss_iter=OrderedDict()             # This dictionary will store the value of all loss values for different iterations
+    loss_slope_iter=OrderedDict()          # This dictionary will store the value of slope of losses for all parameters for different iterations
+    alpha_parameters_iter=OrderedDict()    # This dictionary will store the value of threshold for different iterations
+    extracted_parameters_iter=OrderedDict()    # This dictionary will store the value of output parameters for different iterations
+    circuit_parameters_iter=OrderedDict()  # This dictionary will store the value of circuit parameters for different iterations
+    sensitivity_iter=OrderedDict()         # This dictionary will store the value of output parameter sensitivty for different circuit parameters 
     check_loss=1    
     
     # Running Eldo
     cir.run_circuit()
     
     # Storing the Circuit and Extracted Parameters
-    optimization_results['optimization_start']={}
+    optimization_results['optimization_start']=OrderedDict()
     optimization_results['optimization_start']['circuit_parameters']=cir.circuit_parameters.copy()
     optimization_results['optimization_start']['extracted_parameters']=cir.extracted_parameters.copy()
 
@@ -787,8 +788,8 @@ def main_opt(cir,optimization_input_parameters,timing_results):
     n_runs=optimization_input_parameters['optimization']['n_runs']
     
     # Storing the starting time
-    timing_results['optimization']={}
-    timing_results['optimization']['overall']={}
+    timing_results['optimization']=OrderedDict()
+    timing_results['optimization']['overall']=OrderedDict()
     timing_results['optimization']['overall']['start']=datetime.datetime.now()
 
     print('************************************************************************************************************')
@@ -804,7 +805,7 @@ def main_opt(cir,optimization_input_parameters,timing_results):
         f.close()
 
         # Storing the starting time
-        timing_results['optimization'][i]={}
+        timing_results['optimization'][i]=OrderedDict()
         timing_results['optimization'][i]['start']=datetime.datetime.now()
 
         cir.update_simulation_parameters(optimization_input_parameters['optimization']['simulation'][i])

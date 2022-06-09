@@ -26,7 +26,7 @@ import Ckt_Analysis.process_analysis as proca
 #import Ckt_Analysis.freq_analysis as freqa
 import Ckt_Analysis.circuit_parameter_analysis as cpa
 import os
-
+from collections import OrderedDict
 #===========================================================================================================================
 #------------------------------------ File Writing Functions ---------------------------------------------------------------
 
@@ -172,8 +172,8 @@ def save_mos_results(mos_parameters,optimization_input_parameters):
 def complete_optimization(circuit_initialization_parameters,optimization_input_parameters,name):
 
     # Calculating Starting Time
-    timing_results={}
-    timing_results['complete_analysis']={}
+    timing_results=OrderedDict()
+    timing_results['complete_analysis']=OrderedDict()
     timing_results['complete_analysis']['start']=datetime.datetime.now()
 
     # Saving the optimization input and output results initially

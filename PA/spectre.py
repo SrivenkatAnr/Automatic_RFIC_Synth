@@ -40,7 +40,7 @@ from MOS_Files.TSMC_components import *
 from pylab import *
 import copy 
 import pandas as pd
-
+from collections import OrderedDict
 """
 ====================================================================================================================================================================================
 ------------------------------------------------------------ CIRCUIT CLASS ---------------------------------------------------------------------------------------------------------
@@ -50,9 +50,9 @@ import pandas as pd
 # Creating a class for the circuit 
 class Circuit():
     def __init__(self,circuit_initialization_parameters):
-        self.circuit_parameters={}
-        self.extracted_parameters={}
-        self.simulation_parameters={}
+        self.circuit_parameters=OrderedDict()
+        self.extracted_parameters=OrderedDict()
+        self.simulation_parameters=OrderedDict()
         self.circuit_initialization_parameters=circuit_initialization_parameters
         self.mos_parameters=calculate_mos_parameters(circuit_initialization_parameters)
         self.tsmc_ind_data=load_TSMC_Inductor_data()
@@ -336,7 +336,7 @@ class Circuit():
         am_pm_dev=(ph_max-ph_min)
         extracted_parameters["am-pm-dev"]=min(am_pm_dev,360-am_pm_dev)
         
-        ckt_trends={}
+        ckt_trends=OrderedDict()
         ckt_trends['pin_arr']=np.linspace(pin_start,pin_stop,npin)
         ckt_trends['ph_arr']=ph_arr
         ckt_trends['gdb_arr']=gdb_arr
@@ -417,7 +417,7 @@ class Circuit():
         t_arr=[]
         vin_arr=[]
         vout_arr=[]
-        tran_trends={}
+        tran_trends=OrderedDict()
         
         for line in lines:
             if ('"time"' in line) and ('"sweep"' not in line):
@@ -500,7 +500,7 @@ class Circuit():
                 else:
                     pout_arr.append(-np.inf)
 
-        fft_trends={}
+        fft_trends=OrderedDict()
         fft_trends['freq_arr']=np.array(freq_arr)
         fft_trends['pout_arr']=np.array(pout_arr)
 
@@ -562,7 +562,7 @@ class Circuit():
                 else:
                     pout_arr.append(-np.inf)
 
-        fft_trends={}
+        fft_trends=OrderedDict()
         fft_trends['freq_arr']=np.array(freq_arr)
         fft_trends['pout_arr']=np.array(pout_arr)
 
@@ -583,7 +583,7 @@ class Circuit():
     # Outputs: output parameters dictionary 
     def extract_basic_parameters(self,circuit_initialization_parameters):
 
-        extracted_parameters={}
+        extracted_parameters=OrderedDict()
         self.extract_dc_param(circuit_initialization_parameters,extracted_parameters)
         self.extract_ac_param(circuit_initialization_parameters,extracted_parameters)
         #self.extract_xdb_param(circuit_initialization_parameters,extracted_parameters)
@@ -631,7 +631,7 @@ class Circuit():
         am_pm_dev=(ph_max-ph_min)
         extracted_parameters["am-pm-dev"]=min(am_pm_dev,360-am_pm_dev)
         
-        ckt_trends={}
+        ckt_trends=OrderedDict()
         ckt_trends['pin_arr']=np.linspace(pin_start,pin_stop,npin)
         ckt_trends['ph_arr']=ph_arr
         ckt_trends['gdb_arr']=gdb_arr
@@ -655,7 +655,7 @@ class Circuit():
     # Outputs : The dictionary containing the parameters to be written to the .scs file
     def dict_convert(self,circuit_parameters,circuit_initialization_parameters):
 
-        write_dict={}
+        write_dict=OrderedDict()
         # param_names in write_dict will contain the name of the parameters as it is written in the .scs file
         cir_writing_dict={
             'wid_bias':'W',
@@ -747,7 +747,7 @@ class Circuit():
     def write_simulation_parameters(self,circuit_initialization_parameters):
         
         # Adding simulation_parameters to write_dict
-        write_dict={}
+        write_dict=OrderedDict()
         for param_name in circuit_initialization_parameters['simulation']['netlist_parameters']:
             write_dict[param_name]=circuit_initialization_parameters['simulation']['netlist_parameters'][param_name]
         process_corner=circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']
@@ -888,7 +888,7 @@ class Circuit():
         p_sup_hb=np.zeros(pin_points)
         p_amp_hb=np.zeros(pin_points)
 
-        extracted_parameters={}
+        extracted_parameters=OrderedDict()
                 
         for i in range(pin_points): 
                 
@@ -961,11 +961,11 @@ class Circuit():
         pool=Pool()      
        
         # Creating new circuit parameter files
-        circuit_parameters_run={}
+        circuit_parameters_run=OrderedDict()
         circuit_parameters_run[0]=circuit_parameters.copy()
         circuit_parameters_run[1]=circuit_parameters.copy()
         circuit_parameters_run[2]=circuit_parameters.copy()
-        circuit_initialization_parameters_run={}
+        circuit_initialization_parameters_run=OrderedDict()
         
 
         # Getting the values of frequency and range
@@ -973,19 +973,19 @@ class Circuit():
         f_range=circuit_initialization_parameters['simulation']['standard_parameters']['f_range']
 
         # Creating new circuit initialization parameters
-        circuit_initialization_parameters_run[0]={}
+        circuit_initialization_parameters_run[0]=OrderedDict()
         circuit_initialization_parameters_run[0]=copy.deepcopy(circuit_initialization_parameters)
         circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['sim_directory']=circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['sim_directory']+'T1/'
         circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[0]['simulation']['standard_parameters']['tcsh']+'T1/spectre_run.tcsh'
         circuit_initialization_parameters_run[0]['simulation']['netlist_parameters']['fund_1']=f_operating-f_range
 
-        circuit_initialization_parameters_run[1]={}
+        circuit_initialization_parameters_run[1]=OrderedDict()
         circuit_initialization_parameters_run[1]=copy.deepcopy(circuit_initialization_parameters)
         circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['sim_directory']=circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['sim_directory']+'T2/'
         circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[1]['simulation']['standard_parameters']['tcsh']+'T2/spectre_run.tcsh'
         circuit_initialization_parameters_run[1]['simulation']['netlist_parameters']['fund_1']=f_operating
        
-        circuit_initialization_parameters_run[2]={}
+        circuit_initialization_parameters_run[2]=OrderedDict()
         circuit_initialization_parameters_run[2]=copy.deepcopy(circuit_initialization_parameters)
         circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['sim_directory']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['sim_directory']+'T3/'
         circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']+'T3/spectre_run.tcsh'
@@ -997,7 +997,7 @@ class Circuit():
         # Creating processes
         results_async=[pool.apply_async(self.write_extract_single,args=(i,circuit_parameters_run[i],circuit_initialization_parameters_run[i],analysis_type)) for i in range(3)]
         
-        extracted_parameters_combined={}
+        extracted_parameters_combined=OrderedDict()
         for r in results_async:
             try:
                 (i,extracted_parameters)=r.get()
@@ -1024,7 +1024,7 @@ class Circuit():
     # Outputs : Extracted_Parameters
     def get_final_extracted_parameters(self,extracted_parameters_combined):
         
-        final_extracted_parameters={}
+        final_extracted_parameters=OrderedDict()
 
         extracted_parameters_select={
             'vg':'mid',
