@@ -60,7 +60,7 @@ class Circuit():
     def run_circuit(self):
         #if self.circuit_parameters['W']>900e-6:
         #   self.circuit_parameters['W']=850e-6
-        self.extracted_parameters=self.write_extract()
+        self.extracted_parameters=self.write_extract('basic')
 
     def update_circuit(self,circuit_parameters,analysis_type):
         self.circuit_parameters=circuit_parameters

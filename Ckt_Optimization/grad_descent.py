@@ -469,14 +469,16 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_input_parameter
         increment_factor=delta_threshold # The value by which parameter increases = increment_factor*parameter
         increment=cir.circuit_parameters[param_name]*increment_factor
         if (param_name=='Rl') and ((cir.circuit_parameters[param_name]+increment)>50):
-            increment=50-cir.circuit_parameters[param_name]         
+            increment=50-cir.circuit_parameters[param_name]        
+        if (param_name=='Ld') and ((cir.circuit_parameters[param_name]+increment)>10e-9):
+            increment=10e-9-cir.circuit_parameters[param_name] 
     
         # Incrementing the circuit parameter
         circuit_parameters1=cir.circuit_parameters.copy()
         circuit_parameters1[param_name]=circuit_parameters1[param_name]+increment
         
         # Extracting Loss
-        cir.update_circuit(circuit_parameters1)
+        cir.update_circuit(circuit_parameters1,'basic')
         extracted_parameters1=cir.extracted_parameters.copy()
         
         if optimization_input_parameters['optimization']['optimization_name']=='loss1':
@@ -758,7 +760,7 @@ def opt_single_run(cir,optimization_input_parameters,run_number):
     print_dict=optimization_results['optimized_results']
     iter_number=print_dict['iter_number']-1
 
-    cir.update_circuit(optimization_results['circuit_parameters_iter'][iter_number].copy())
+    cir.update_circuit(optimization_results['circuit_parameters_iter'][iter_number].copy(),'basic')
     
     # Printing the values
     cf.print_circuit_parameters(cir.circuit_parameters)

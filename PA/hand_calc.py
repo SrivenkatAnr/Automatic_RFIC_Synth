@@ -148,7 +148,7 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     #circuit_parameters['C2']=calculate_Ccoup(fo,circuit_parameters['Rl'],C2_thresh)
 
     # Running the circuit
-    cir.update_circuit(circuit_parameters)
+    cir.update_circuit(circuit_parameters,'basic')
 
 #---------------------------------------------------------------------------------------------------------------------------
 # Function to update the Initial Circuit Parameters after calculating the new value of vt

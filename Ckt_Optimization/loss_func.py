@@ -44,12 +44,14 @@ def calc_loss(extracted_parameters,output_conditions,loss_weights):
     am_pm_dev=extracted_parameters['am-pm-dev']
     Io=extracted_parameters['Isup_hb']
     p_harm_ratio=extracted_parameters['p_harm_ratio']
+    gain_phase=extracted_parameters['gain_phase']
     
     # Reference Values
     gain_ref=output_conditions['gain_db']
     op1db_ref=output_conditions['op1db']
     am_pm_dev_ref=output_conditions['am-pm-dev']
     p_harm_ratio_ref=output_conditions['p-harm-ratio']
+    gain_phase_dev=output_conditions['gain-phase-dev']
     
     #Defining the weights to calculate Loss
     A1=loss_weights['gain_db']  # Weight for gain
@@ -57,6 +59,7 @@ def calc_loss(extracted_parameters,output_conditions,loss_weights):
     A3=loss_weights['am-pm-dev']   # Weight for am-pm-deviation
     A4=loss_weights['Isup']   # Weight for Io
     A5=loss_weights['p-harm-ratio']   # Weight for Io
+    A6=loss_weights['gain-phase'] #Weight for gain-phase
     
     # Calculating Loss
     loss_gain=A1*ramp_func(gain_ref-gain)
@@ -64,9 +67,10 @@ def calc_loss(extracted_parameters,output_conditions,loss_weights):
     loss_am_pm_dev=A3*ramp_func(am_pm_dev-am_pm_dev_ref)
     loss_Io=A4*Io
     loss_p_harm=A5*ramp_func(p_harm_ratio_ref-p_harm_ratio)
-    loss=loss_gain+loss_op1db+loss_am_pm_dev+loss_Io+loss_p_harm
+    loss_gain_phase=A6*ramp_func(min(abs(gain_phase+180),abs(gain_phase-180))-gain_phase_dev)
+    loss=loss_gain+loss_op1db+loss_am_pm_dev+loss_Io+loss_p_harm+loss_gain_phase
     #loss=loss_gain+loss_s11+loss_nf+loss_Io
-    loss_dict={'loss':loss,'loss_gain':loss_gain,'loss_op1db':loss_op1db,'loss_am_pm_dev':loss_am_pm_dev,'loss_Io':loss_Io,'loss_p_harm':loss_p_harm}
+    loss_dict={'loss':loss,'loss_gain':loss_gain,'loss_op1db':loss_op1db,'loss_am_pm_dev':loss_am_pm_dev,'loss_Io':loss_Io,'loss_p_harm':loss_p_harm,'loss_gain_phase':loss_gain_phase}
     #loss_dict={'loss':loss,'loss_gain':loss_gain,'loss_s11':loss_s11,'loss_nf':loss_nf,'loss_Io':loss_Io}
     
     return loss_dict

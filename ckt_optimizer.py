@@ -98,7 +98,8 @@ def get_output_conditions(optimization_input_parameters,fo):
         'delta_v':0.1,
         'Rin':50,
         'Rl':100,
-        'p-harm-ratio':15
+        'p-harm-ratio':15,
+        'gain-phase-dev':10
     }
 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -134,8 +135,8 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
     circuit_initialization_parameters['simulation']['standard_parameters']['Rbias_minimum']=1000
 
     circuit_initialization_parameters['simulation']['netlist_parameters']={
-        'pin_start':-25,
-        'pin_stop':15,
+        'pin_start':-15,
+        'pin_stop':10,
         'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
@@ -151,14 +152,17 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Manual Hand Calculations
     optimization_input_parameters['pre_optimization']['manual_circuit_parameters']={
-        #'Rin':37.75,
+        'Rin':37.75,
         'Rb':2359,
         #'Rl':100,
-        'Ld':5.99e-9,
+        'Ld':10e-9,
         #'C1':3.2e-12,
         #'C2':1.25e-9,
         'W':1.38e-3,
-        'Io':17.8e-3
+        'Io':17.8e-3,
+        #'C2':1.25e-9,
+        'W':1.38e-3,
+        'Io':17.8e-3,         
     }
     
     optimization_input_parameters['pre_optimization']['Step1b_Limit']=5
@@ -190,8 +194,8 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
     optimization_input_parameters['pre_optimization']['simulation']['standard_parameters']['conservative']='NO'
 
     optimization_input_parameters['pre_optimization']['simulation']['netlist_parameters']={
-        'pin_start':-25,
-        'pin_stop':15,
+        'pin_start':-15,
+        'pin_stop':10,
         'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
@@ -214,7 +218,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     # Parameters for Optimization Run 1
     optimization_input_parameters['optimization'][1]={}
     
-    optimization_input_parameters['optimization'][1]['max_iteration']=300
+    optimization_input_parameters['optimization'][1]['max_iteration']=150
     optimization_input_parameters['optimization'][1]['alpha_min']=-1
     optimization_input_parameters['optimization'][1]['consec_iter']=-1
 
@@ -225,6 +229,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization'][1]['allowance']=0
 
     optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Ld','Io','W','Lsrc','Lload','Cmn']
+    #optimization_input_parameters['optimization'][1]['optimizing_parameters']=['Rb','Ld','Io','W','Rl']
     optimization_input_parameters['optimization'][1]['output_parameters_list']=['Isup_hb','Ids_dc','Ids_hb','gain_db','p_source','Psup_dc','op1db_man','ip1db_man','am-pm-dev','gm','Voutdc','vdsat','vg','vd','gds']
     
     optimization_input_parameters['optimization'][1]['optimization_type']=0
@@ -232,11 +237,12 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Assigning values to the loss weights
     loss_weights={}
-    loss_weights['gain_db']=1/6.0  
-    loss_weights['op1db']=1/10.0  
+    loss_weights['gain_db']=1/12.0  
+    loss_weights['op1db']=1/13.0  
     loss_weights['am-pm-dev']=1/5.0   
-    loss_weights['Isup']=1000
+    loss_weights['Isup']=50
     loss_weights['p-harm-ratio']=1/15.0
+    loss_weights['gain-phase']=1/10.0
     optimization_input_parameters['optimization'][1]['loss_weights']=loss_weights
 
 
@@ -244,16 +250,16 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     # Assigning Values of Alpha
     alpha_parameters={}
     alpha_parameters['common']=0.2
-    alpha_parameters['Rb']=1
+    alpha_parameters['Rb']=0.1
     alpha_parameters['Ld']=1
-    alpha_parameters['Lsrc']=1
-    alpha_parameters['Lload']=1
-    #alpha_parameters['Rl']=1
+    alpha_parameters['Lsrc']=0.5
+    alpha_parameters['Lload']=0.5
+    alpha_parameters['Rl']=1
     alpha_parameters['W']=1
     alpha_parameters['Io']=1
     alpha_parameters['C1']=1
     alpha_parameters['C2']=1
-    alpha_parameters['Cmn']=1
+    alpha_parameters['Cmn']=0.5
     optimization_input_parameters['optimization'][1]['alpha']={}
     optimization_input_parameters['optimization'][1]['alpha']['values']=alpha_parameters
 
@@ -280,8 +286,8 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     optimization_input_parameters['optimization']['simulation'][1]['standard_parameters']['conservative']='NO'
 
     optimization_input_parameters['optimization']['simulation'][1]['netlist_parameters']={
-        'pin_start':-25,
-        'pin_stop':15,
+        'pin_start':-15,
+        'pin_stop':10,
         'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
@@ -359,8 +365,8 @@ def get_temperature_analysis_parameters(optimization_input_parameters,fo):
     optimization_input_parameters['temperature_analysis']['simulation']['standard_parameters']['conservative']='YES'
 
     optimization_input_parameters['temperature_analysis']['simulation']['netlist_parameters']={
-        'pin_start':-25,
-        'pin_stop':15,
+        'pin_start':-15,
+        'pin_stop':10,
         'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
@@ -394,8 +400,8 @@ def get_process_analysis_parameters(optimization_input_parameters,fo):
     optimization_input_parameters['process_analysis']['simulation']['standard_parameters']['conservative']='YES'
 
     optimization_input_parameters['process_analysis']['simulation']['netlist_parameters']={
-        'pin_start':-25,
-        'pin_stop':15,
+        'pin_start':-15,
+        'pin_stop':10,
         'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
@@ -436,8 +442,8 @@ def get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo):
 	optimization_input_parameters['circuit_parameter_analysis']['simulation']['standard_parameters']['conservative']='YES'
 
 	optimization_input_parameters['circuit_parameter_analysis']['simulation']['netlist_parameters']={
-        'pin_start':-25,
-        'pin_stop':15,
+        'pin_start':-15,
+        'pin_stop':10,
         'pin_step':0.5,
         'cir_temp':27,
         'n_harm':10
