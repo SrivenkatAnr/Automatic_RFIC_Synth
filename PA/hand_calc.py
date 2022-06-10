@@ -15,7 +15,7 @@ Functions structure in this file:
 import numpy as np
 from scipy.optimize import fsolve
 import common_functions as cff # type:ignore
-
+from collections import OrderedDict
 #===========================================================================================================================
 
 
@@ -129,7 +129,7 @@ def calculate_initial_parameters(cir,optimization_input_parameters):
     Vdd=cir.mos_parameters['Vdd']
 
     # Calculating the circuit parameters
-    circuit_parameters={}
+    circuit_parameters=OrderedDict()
     circuit_parameters['Ld']=calculate_Ld()
     Vout_max=calculate_op_swing(Vdd,gain)
     #circuit_parameters['Rl']=2*calculate_Rl(Vout_max,Pout)
@@ -213,7 +213,7 @@ def automatic_initial_parameters(cir,optimization_input_parameters,optimization_
     calculate_initial_parameters(cir,optimization_input_parameters)
 
     # Storing the Circuit and Extracted Parameters
-    optimization_results['auto_hc']={}
+    optimization_results['auto_hc']=OrderedDict()
     optimization_results['auto_hc']['circuit_parameters']=cir.circuit_parameters.copy()
     optimization_results['auto_hc']['extracted_parameters']=cir.extracted_parameters.copy()
 
@@ -228,7 +228,7 @@ def automatic_initial_parameters(cir,optimization_input_parameters,optimization_
     update_initial_parameters(cir,optimization_input_parameters)
 
     # Storing the Circuit and Extracted Parameters
-    optimization_results['hc_update']={}
+    optimization_results['hc_update']=OrderedDict()
     optimization_results['hc_update']['circuit_parameters']=cir.circuit_parameters.copy()
     optimization_results['hc_update']['extracted_parameters']=cir.extracted_parameters.copy()
 

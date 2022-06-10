@@ -152,20 +152,18 @@ def get_pre_optimization_parameters(optimization_input_parameters,fo):
     #~~~~~~~~~~~~~~~~~~~~~~~~~
     # Manual Hand Calculations
     optimization_input_parameters['pre_optimization']['manual_circuit_parameters']={
-        'Rin':37.75,
-        'Rb':31600,
+        'Rin':37.7,
+        'Rb':5840,
         'Rl':74,
-        'Rl_expected':24.8,
-        'Ld':10e-9,
+        'Rl_expected':100,
+        'Ld':3.46e-9,
         #'C1':3.2e-12,
         #'C2':1.25e-9,
-        'W':1.38e-3,
-        'Io':20e-3,
-        'Lsrc':2.71e-9,
-        'Lload':3.5e-9,
-        'Cmn':3.26e-12,
-        'W':481e-6,
-        'Io':17.8e-3,         
+        'Lsrc':2.6e-9,
+        'Lload':2.01e-9,
+        'Cmn':1.87e-12,
+        'W':461e-6,
+        'Io':16.7e-3,         
     }
     
     optimization_input_parameters['pre_optimization']['Step1b_Limit']=5
@@ -221,7 +219,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     # Parameters for Optimization Run 1
     optimization_input_parameters['optimization'][1]=OrderedDict()
     
-    optimization_input_parameters['optimization'][1]['max_iteration']=5
+    optimization_input_parameters['optimization'][1]['max_iteration']=100
     optimization_input_parameters['optimization'][1]['alpha_min']=-1
     optimization_input_parameters['optimization'][1]['consec_iter']=-1
 
@@ -240,12 +238,12 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Assigning values to the loss weights
     loss_weights=OrderedDict()
-    loss_weights['gain_db']=1/12.0  
-    loss_weights['op1db']=1/13.0  
+    loss_weights['gain_db']=5/12.0  
+    loss_weights['op1db']=2/13.0  
     loss_weights['am-pm-dev']=1/5.0   
     loss_weights['Isup']=100
     loss_weights['p-harm-ratio']=1/15.0
-    loss_weights['gain-phase']=1/10.0
+    loss_weights['gain-phase']=0
     optimization_input_parameters['optimization'][1]['loss_weights']=loss_weights
 
 
@@ -496,9 +494,9 @@ get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo)
 optimization_input_parameters['filename']=OrderedDict()
 optimization_input_parameters['filename']['run_status']='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/run_status.txt'
 
-optimization_input_parameters['optimization']['run']='YES'
+optimization_input_parameters['optimization']['run']='NO'
 optimization_input_parameters['temperature_analysis']['run']='NO'
-optimization_input_parameters['process_analysis']['run']='NO'
+optimization_input_parameters['process_analysis']['run']='YES'
 optimization_input_parameters['circuit_parameter_analysis']['run']='NO'
 
 f_directory='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/'+str(optimization_name)+'/'

@@ -95,7 +95,7 @@ def update_circuit_parameters(cir,circuit_parameters_slope,check_loss,optimizati
             change=(circuit_parameters_slope[param_name]['loss']-circuit_parameters_slope[param_name]['loss_Io'])
             change=change*(cir.circuit_parameters[param_name]**2)*alpha_parameters['common']*alpha_parameters[param_name]
 
-        print(change,param_name,'hi1')
+        #print(change,param_name,'hi1')
     
     
         # Checking if the parameter is updated by a large value
@@ -105,7 +105,7 @@ def update_circuit_parameters(cir,circuit_parameters_slope,check_loss,optimizati
         elif change<-1*change_limit*cir.circuit_parameters[param_name]:
             change=-1*change_limit*cir.circuit_parameters[param_name]
 
-        print(change,param_name,'hi2')
+        #print(change,param_name,'hi2')
         
         #if (param_name=='Rl') and ((cir.circuit_parameters[param_name]-change)>50):
         #    change=cir.circuit_parameters[param_name]-50  
@@ -114,7 +114,7 @@ def update_circuit_parameters(cir,circuit_parameters_slope,check_loss,optimizati
         
         # Updating circuit_parameters
         cir.circuit_parameters[param_name]=cir.circuit_parameters[param_name]-change
-        print(cir.circuit_parameters[param_name],param_name)
+        #print(cir.circuit_parameters[param_name],param_name)
         
     
 #-----------------------------------------------------------------------------------------------

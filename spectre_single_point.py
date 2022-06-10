@@ -120,17 +120,17 @@ get_simulation_conditions_PA(circuit_initialization_parameters,fo)
 
 circuit_parameters={
 	'Rin':37.7,
-	'Rb':29700,
-	'Rl':74,
+	'Rb':5840,
+	'Rl':75.4,
     'Rl_expected':100,
-	'Ld':10e-9,
-	'Lsrc':2.274e-9,
-	'Lload':2.69e-9,
-	'Cmn':2.92e-12,
+	'Ld':3.46e-9,
+	'Lsrc':2.6e-9,
+	'Lload':2.01e-9,
+	'Cmn':1.87e-12,
 	#'C1':89.7e-12,
 	#'C2':35.5e-9,
-	'W':1.38e-3,
-	'Io':17.8e-3
+	'W':461e-6,
+	'Io':16.7e-3
 }
 
 
@@ -157,6 +157,6 @@ for param_name in cir.extracted_parameters:
 cir.plot_ckt_trends("Output_Trends/")
 
 t_end = time.time()
-print("\n time taken is OrderedDict() seconds\n".format(t_end-t_start))
+print("\n time taken is {} seconds\n".format(t_end-t_start))
 
 #===========================================================================================================================
