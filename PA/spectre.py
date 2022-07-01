@@ -960,6 +960,52 @@ class Circuit():
         
         pool=Pool()      
        
+        # Getting the values of frequency and range
+        f_list=circuit_initialization_parameters['simulation']['standard_parameters']['f_list']
+        n_freq=len(f_list)
+
+        # Getting the different processes
+        process_list=circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']
+        n_process=len(process_list)
+
+        # Getting the temperature list
+        temp_list=circuit_initialization_parameters['simulation']['standard_parameters']['temp_list']
+        n_temp=len(temp_list)
+
+        # Getting the total number of runs
+        n_runs=n_freq*n_process*n_temp
+
+        # Creating new circuit parameter files
+        circuit_parameters_run={}
+        for i in range(n_runs):
+            circuit_parameters_run[i]=circuit_parameters.copy()
+        
+        # Creating new circuit initialization parameters
+        circuit_initialization_parameters_run={}
+        for i in range(n_runs):
+            i_freq,i_process,i_temp=sp.get_iteration(i,n_freq,n_process,n_temp)
+            circuit_initialization_parameters_run[i]={}
+            circuit_initialization_parameters_run[i]=copy.deepcopy(circuit_initialization_parameters)
+            
+            # Creating netlist directory
+            netlist_folder=circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['directory']
+            netlist_path=netlist_folder+'T'+str(i)+'/'
+            if not os.path.exists(netlist_path):
+                shutil.copytree(netlist_folder+'T_extra/',netlist_path)
+
+            # Creating spectre run directory
+            spectre_folder=circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/'
+            spectre_path=spectre_folder+'T'+str(i)+'/'
+            if not os.path.exists(spectre_path):
+                shutil.copytree(spectre_folder+'T_extra/',spectre_path)
+            
+            circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['sim_directory']=circuit_initialization_parameters['simulation']['standard_parameters']['sim_directory']+'T'+str(i)+'/'
+            circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters['simulation']['standard_parameters']['tcsh']+'T'+str(i)+'/spectre_run.tcsh'
+            circuit_initialization_parameters_run[i]['simulation']['netlist_parameters']['fund_1']=f_list[i_freq]
+            circuit_initialization_parameters_run[i]['simulation']['netlist_parameters']['process_corner']=process_list[i_process]
+            circuit_initialization_parameters_run[i]['simulation']['netlist_parameters']['cir_temp']=temp_list[i_temp]
+
+        """   
         # Creating new circuit parameter files
         circuit_parameters_run=OrderedDict()
         circuit_parameters_run[0]=circuit_parameters.copy()
@@ -990,12 +1036,13 @@ class Circuit():
         circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['sim_directory']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['sim_directory']+'T3/'
         circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters_run[2]['simulation']['standard_parameters']['tcsh']+'T3/spectre_run.tcsh'
         circuit_initialization_parameters_run[2]['simulation']['netlist_parameters']['fund_1']=f_operating+f_range
+        """
 
         #copying netlist files
         self.copy_netlists(circuit_initialization_parameters,circuit_initialization_parameters_run)
             
         # Creating processes
-        results_async=[pool.apply_async(self.write_extract_single,args=(i,circuit_parameters_run[i],circuit_initialization_parameters_run[i],analysis_type)) for i in range(3)]
+        results_async=[pool.apply_async(self.write_extract_single,args=(i,circuit_parameters_run[i],circuit_initialization_parameters_run[i],analysis_type)) for i in range(n_runs)]
         
         extracted_parameters_combined=OrderedDict()
         for r in results_async:
@@ -1011,13 +1058,15 @@ class Circuit():
         #extracted_parameters_combined[1]=extracted_parameters
         #extracted_parameters_combined[2]=extracted_parameters
 
-        final_extracted_parameters=self.get_final_extracted_parameters(extracted_parameters_combined)
+        extracted_parameters_split=cff.split_extracted_parameters(extracted_parameters_combined,f_list,process_list,temp_list)
+
+        final_extracted_parameters=self.get_final_extracted_parameters(extracted_parameters_split,f_list,process_list,temp_list)
         
         pool.close()
         pool.join()
 
         return final_extracted_parameters
-
+    """    
     #-----------------------------------------------------------------------------------------------
     # This function will write the circuit parameters, run Eldo and extract the output parameters
     # Inputs  : Circuit_Parameters, circuit_initialization_parameters
@@ -1090,6 +1139,7 @@ class Circuit():
         final_extracted_parameters['gain_phase']=extracted_parameters_combined[gain_index]['gain_phase']
 
         """
+        """
         # Calculating the value of 1dB compression point automatically
         ip1db_array=[]
         op1db_array=[]
@@ -1101,7 +1151,7 @@ class Circuit():
         final_extracted_parameters['op1db_auto']=op1db_min
         final_extracted_parameters['ip1db_auto']=extracted_parameters_combined[op1db_index]['ip1db_auto']
         """
-
+        """
         # Calculating the value of automatic 1dB compression point manually
         ip1db_array=[]
         op1db_array=[]
@@ -1114,6 +1164,314 @@ class Circuit():
         final_extracted_parameters['ip1db_man']=extracted_parameters_combined[op1db_index]['ip1db_man']
 
         return final_extracted_parameters
+    """
+
+    #-----------------------------------------------------------------------------------------------
+    # This function will write the circuit parameters, run spectre and extract the output parameters
+    def get_final_extracted_parameters(extracted_parameters_split,f_list,process_list,temp_list):
+        
+        extracted_parameters_frequency=get_final_extracted_parameters_frequency(extracted_parameters_split,f_list,process_list,temp_list)
+
+        extracted_parameters_process=get_final_extracted_parameters_process(extracted_parameters_frequency,process_list,temp_list)
+
+        final_extracted_parameters=get_final_extracted_parameters_temperature(extracted_parameters_process,temp_list)
+        
+        return final_extracted_parameters
+
+    #-----------------------------------------------------------------------------------------------
+    # This function will write the circuit parameters, run spectre and extract the output parameters
+    def get_final_extracted_parameters_frequency(extracted_parameters_split,f_list,process_list,temp_list):
+        
+        if len(f_list)==1:
+            extracted_parameters_frequency={}
+            for temp in temp_list:
+                extracted_parameters_frequency[temp]={}
+                for process in process_list:
+                    extracted_parameters_frequency[temp][process]={}
+                    for freq in extracted_parameters_split[temp][process]:
+                        for param in extracted_parameters_split[temp][process][freq]:
+                            extracted_parameters_frequency[temp][process][param]=extracted_parameters_split[temp][process][freq][param]
+        
+        else:
+            # Getting the least, middle, and maximum frequency
+            f_len=len(f_list)
+            small_frequency=f_list[0]
+            mid_frequency=f_list[(f_len-1)//2]
+            large_frequency=f_list[f_len-1]
+
+            # Selecting which parameters are DC, and which parameter to select for AC among different frequencies
+            extracted_parameters_select={
+                'vg':'dc',
+                'vd':'dc',
+                'gm':'dc',
+                'gds':'dc',
+                'vth':'dc',
+                'vdsat':'dc',
+                'cgs':'dc',
+                'cgd':'dc',
+                
+                'vg1':'dc',
+                'vd1':'dc',
+                'vg2':'dc',
+                'region':'dc',
+
+                'freq':'mid',
+                'i_source':'mid',
+                'v_source':'mid',
+                'p_source':'mid',
+                'Isup_dc':'max',
+                'Isup_hb':'max',
+                'Vsup':'max',
+                'Psup_dc':'max',
+                'Ids_dc':'max',
+                'Ids_hb':'max',
+                'am-pm-dev':'max',
+                'ip1db_man':'min',
+                'Voutdc':'mid',
+                'Rl_ext':'mid',
+                'Rin_ext':'mid',
+                'p_harm_ratio':'min',
+            }
+
+            # First, we will iterate among different temperature and process lists
+            extracted_parameters_frequency={}
+            for temp in temp_list:
+                extracted_parameters_frequency[temp]={}
+                for process in process_list:
+                
+                    extracted_parameters_frequency[temp][process]={}
+
+                    # Now, we have a given process and temperature ; We need to find the extracted parameters for this set
+                    final_extracted_parameters={}
+                    extracted_parameters_combined=extracted_parameters_split[temp][process]
+
+                    # Getting the values for all frequencies in case it is AC
+                    for param in extracted_parameters_combined[mid_frequency]:
+                        if param in extracted_parameters_select:
+                            if extracted_parameters_select[param]=='dc':
+                                continue
+                        for freq in f_list:
+                            final_extracted_parameters[str(freq)+'_'+param]=extracted_parameters_combined[freq][param]
+                    
+                    # Getting the min or mid or max parameter values for the best values
+                    for param in extracted_parameters_select:
+
+                        # Case I : DC Parameter or AC Parameter with mid value
+                        if extracted_parameters_select[param]=='mid' or extracted_parameters_select[param]=='dc':
+                            final_extracted_parameters[param]=extracted_parameters_combined[mid_frequency][param]
+
+                        # Case II : AC Parameter with minimum value
+                        elif extracted_parameters_select[param]=='min':
+                            param_array=[]
+                            for i in extracted_parameters_combined:
+                                param_array.append(extracted_parameters_combined[i][param])
+                            final_extracted_parameters[param]=min(param_array)
+                        
+                        # Case III : AC Parameter with maximum value
+                        else:
+                            param_array=[]
+                            for i in extracted_parameters_combined:
+                                param_array.append(extracted_parameters_combined[i][param])
+                            final_extracted_parameters[param]=max(param_array)
+                    
+                    # Calculating the value of gain
+                    gain_array=[]
+                    gain_phase_array=[]
+                    for i in extracted_parameters_combined:
+                        gain_array.append(extracted_parameters_combined[i]['gain_db'])
+                        gain_phase_array.append(extracted_parameters_combined[i]['gain_phase'])
+                    gain_min=min(gain_array)
+                    gain_index=gain_array.index(gain_min)
+                    final_extracted_parameters['gain_db']=gain_min
+                    final_extracted_parameters['gain_phase']=extracted_parameters_combined[gain_index]['gain_phase']
+
+                    """
+                    # Calculating the value of 1dB compression point automatically
+                    ip1db_array=[]
+                    op1db_array=[]
+                    for i in extracted_parameters_combined:
+                        ip1db_array.append(extracted_parameters_combined[i]['ip1db_auto'])
+                        op1db_array.append(extracted_parameters_combined[i]['op1db_auto'])
+                    op1db_min=min(op1db_array)
+                    op1db_index=op1db_array.index(op1db_min)
+                    final_extracted_parameters['op1db_auto']=op1db_min
+                    final_extracted_parameters['ip1db_auto']=extracted_parameters_combined[op1db_index]['ip1db_auto']
+                    """
+                    
+                    # Calculating the value of automatic 1dB compression point manually
+                    ip1db_array=[]
+                    op1db_array=[]
+                    for i in extracted_parameters_combined:
+                        ip1db_array.append(extracted_parameters_combined[i]['ip1db_man'])
+                        op1db_array.append(extracted_parameters_combined[i]['op1db_man'])
+                    op1db_min=min(op1db_array)
+                    op1db_index=op1db_array.index(op1db_min)
+                    final_extracted_parameters['op1db_man']=op1db_min
+                    final_extracted_parameters['ip1db_man']=extracted_parameters_combined[op1db_index]['ip1db_man']
+                    
+                    extracted_parameters_frequency[temp][process]=final_extracted_parameters.copy()
+
+        return extracted_parameters_frequency
+
+    #-----------------------------------------------------------------------------------------------
+    # This function will combine the extracted_parameters
+    def get_final_extracted_parameters_process(extracted_parameters_frequency,process_list,temp_list):
+        
+        # Getting the centre process
+        process_len=len(process_list)
+        middle_process=process_list[(process_len-1)//2]
+
+        # Getting the values for all process for all temperature
+        extracted_parameters_process={}
+        for temp in temp_list:
+            extracted_parameters_process[temp]={}
+
+            if len(process_list)==1:
+                for process in process_list:
+                    for param_name in extracted_parameters_frequency[temp][process]:
+                        extracted_parameters_process[temp][param_name]=extracted_parameters_frequency[temp][process][param_name]
+
+            else:
+                for process in process_list:
+                    for param_name in extracted_parameters_frequency[temp][process]:
+                        extracted_parameters_process[temp][process+'_'+param_name]=extracted_parameters_frequency[temp][process][param_name]
+        
+        if len(process_list)!=1:
+            
+            extracted_parameters_select={
+                'freq':'mid',
+                'vg':'mid',
+                'vd':'mid',
+                'i_source':'mid',
+                'v_source':'mid',
+                'p_source':'mid',
+                'Isup_dc':'max',
+                'Isup_hb':'max',
+                'Vsup':'max',
+                'Psup_dc':'max',
+                'gm':'mid',
+                'gds':'mid',
+                'vth':'mid',
+                'vdsat':'mid',
+                'Ids_dc':'max',
+                'Ids_hb':'max',
+                'cgs':'mid',
+                'cgd':'mid',
+                'region':'mid',
+                'am-pm-dev':'max',
+                'ip1db_man':'min',
+                'Voutdc':'mid',
+                'Rl_ext':'mid',
+                'Rin_ext':'mid',
+                'p_harm_ratio':'min',
+            }
+
+            # Choosing the best process among the different temperatures
+            for temp in temp_list:
+                
+                # Getting the min or mid or max parameter values for the best values
+                for param in extracted_parameters_select:
+
+                    # Case I : Minimum value
+                    if extracted_parameters_select[param]=='min':
+                        param_array=[]
+                        for process in process_list:
+                            param_array.append(extracted_parameters_frequency[temp][process][param])
+                        extracted_parameters_process[temp][param]=min(param_array)
+                    
+                    # Case II : Maximum value
+                    elif extracted_parameters_select[param]=='max':
+                        param_array=[]
+                        for process in process_list:
+                            param_array.append(extracted_parameters_frequency[temp][process][param])
+                        extracted_parameters_process[temp][param]=max(param_array)
+                    
+                    # Case III : Middle value ( for typical corner )
+                    else:
+                        extracted_parameters_process[temp][param]=extracted_parameters_frequency[temp][middle_process][param]
+            
+        return extracted_parameters_process
+
+    #-----------------------------------------------------------------------------------------------
+    # This function will combine the extracted_parameters
+    def get_final_extracted_parameters_temperature(extracted_parameters_process,temp_list):
+        
+        # Getting the centre temperature
+        temp_len=len(temp_list)
+        middle_temp=temp_list[(temp_len-1)//2]
+
+        # Getting the values for all temperatures
+        extracted_parameters={}
+
+        if len(temp_list)==1:
+            for temp in extracted_parameters_process:
+                for param_name in extracted_parameters_process[temp]:
+                    extracted_parameters[param_name]=extracted_parameters_process[temp][param_name]
+
+        else:
+            for temp in extracted_parameters_process:
+                for param_name in extracted_parameters_process[temp]:
+                    extracted_parameters[str(temp)+'_'+param_name]=extracted_parameters_process[temp][param_name]
+        
+        if len(temp_list)!=1:
+            extracted_parameters_select={
+                'freq':'mid',
+                'vg':'mid',
+                'vd':'mid',
+                'i_source':'mid',
+                'v_source':'mid',
+                'p_source':'mid',
+                'Isup_dc':'max',
+                'Isup_hb':'max',
+                'Vsup':'max',
+                'Psup_dc':'max',
+                'gm':'mid',
+                'gds':'mid',
+                'vth':'mid',
+                'vdsat':'mid',
+                'Ids_dc':'max',
+                'Ids_hb':'max',
+                'cgs':'mid',
+                'cgd':'mid',
+                'region':'mid',
+                'am-pm-dev':'max',
+                'ip1db_man':'min',
+                'Voutdc':'mid',
+                'Rl_ext':'mid',
+                'Rin_ext':'mid',
+                'p_harm_ratio':'min',
+            }
+
+            # Getting the min or mid or max parameter values for the best values
+            for param in extracted_parameters_select:
+                
+                # Case I : Minimum value
+                if extracted_parameters_select[param]=='min':
+                    param_array=[]
+                    for temp in temp_list:
+                        param_array.append(extracted_parameters_process[temp][param])
+                    extracted_parameters[param]=min(param_array)
+                
+                # Case II : Maximum value
+                elif extracted_parameters_select[param]=='max':
+                    param_array=[]
+                    for temp in temp_list:
+                        param_array.append(extracted_parameters_process[temp][param])
+                    extracted_parameters[param]=max(param_array)
+                
+                # Case III : Middle value ( for central temperature )
+                else:
+                    extracted_parameters[param]=extracted_parameters_process[middle_temp][param]
+            
+        return extracted_parameters
+
+
+
+    #==========================================================================================================================
+
+
+
+
 
 
 
