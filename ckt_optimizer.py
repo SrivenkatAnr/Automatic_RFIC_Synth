@@ -118,16 +118,19 @@ def get_simulation_conditions(circuit_initialization_parameters,fo):
     #circuit_initialization_parameters['simulation']['standard_parameters']['iip3_type']='basic'     # 'basic' or 'advanced' 
 
     circuit_initialization_parameters['simulation']['standard_parameters']['std_temp']=27
+    circuit_initialization_parameters['simulation']['standard_parameters']['temp_list']=[0,27,100]
     #circuit_initialization_parameters['simulation']['standard_parameters']['pin_fixed']=-65
     #circuit_initialization_parameters['simulation']['standard_parameters']['pin_start']=-70
     #circuit_initialization_parameters['simulation']['standard_parameters']['pin_stop']=-40
     #circuit_initialization_parameters['simulation']['standard_parameters']['pin_points']=6
     #circuit_initialization_parameters['simulation']['standard_parameters']['iip3_calc_points']=3
     circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']='tt'
+    circuit_initialization_parameters['simulation']['standard_parameters']['process_list']=['ss','tt','ff']
     circuit_initialization_parameters['simulation']['standard_parameters']['conservative']='NO'
     circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max']=2e-6
     circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']=fo
     circuit_initialization_parameters['simulation']['standard_parameters']['f_range']=1e8
+    circuit_initialization_parameters['simulation']['standard_parameters']['f_list']=[fo-1e8,fo,fo+1e8]
 
     circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']=2000
     circuit_initialization_parameters['simulation']['standard_parameters']['C2_threshold']=100
@@ -219,7 +222,7 @@ def get_optimization_parameters(optimization_input_parameters,fo,optimization_na
     # Parameters for Optimization Run 1
     optimization_input_parameters['optimization'][1]=OrderedDict()
     
-    optimization_input_parameters['optimization'][1]['max_iteration']=100
+    optimization_input_parameters['optimization'][1]['max_iteration']=2
     optimization_input_parameters['optimization'][1]['alpha_min']=-1
     optimization_input_parameters['optimization'][1]['consec_iter']=-1
 
@@ -494,9 +497,9 @@ get_circuit_parameter_analysis_parameters(optimization_input_parameters,fo)
 optimization_input_parameters['filename']=OrderedDict()
 optimization_input_parameters['filename']['run_status']='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/run_status.txt'
 
-optimization_input_parameters['optimization']['run']='NO'
+optimization_input_parameters['optimization']['run']='YES'
 optimization_input_parameters['temperature_analysis']['run']='NO'
-optimization_input_parameters['process_analysis']['run']='YES'
+optimization_input_parameters['process_analysis']['run']='NO'
 optimization_input_parameters['circuit_parameter_analysis']['run']='NO'
 
 f_directory='/home/ee18b038/Auto_Ckt_Synth_Codes/Simulation_Results/'+str(optimization_name)+'/'
@@ -523,7 +526,7 @@ if file_choose=='M':
 
         # ------- Set Any Additional Parameters Here --------
         filename=f_directory+'tsmc_str_1'+str(i)            # SET THE FILENAME HERE
-        fo=1e9
+        fo=2e9
         wo=2*np.pi*fo
         optimization_input_parameters['output_conditions']['wo']=wo
         iip_mtd=['basic_hb','basic_pss','advanced_hb','advanced_pss','hb_sweep']

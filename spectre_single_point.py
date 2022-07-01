@@ -86,7 +86,7 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['standard_parameters']['conservative']='NO'
 	circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max']=2e-6
 	circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']=fo
-	circuit_initialization_parameters['simulation']['standard_parameters']['f_list']=[fo-1e6,fo,fo+1e6]
+	circuit_initialization_parameters['simulation']['standard_parameters']['f_list']=[fo-1e8,fo,fo+1e8]
 	circuit_initialization_parameters['simulation']['standard_parameters']['f_range']=1e8
 
 	circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']=2000
