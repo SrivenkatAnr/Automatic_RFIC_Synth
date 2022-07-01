@@ -41,6 +41,7 @@ from pylab import *
 import copy 
 import pandas as pd
 from collections import OrderedDict
+import shutil
 """
 ====================================================================================================================================================================================
 ------------------------------------------------------------ CIRCUIT CLASS ---------------------------------------------------------------------------------------------------------
@@ -965,7 +966,7 @@ class Circuit():
         n_freq=len(f_list)
 
         # Getting the different processes
-        process_list=circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']
+        process_list=circuit_initialization_parameters['simulation']['standard_parameters']['process_list']
         n_process=len(process_list)
 
         # Getting the temperature list
@@ -983,18 +984,18 @@ class Circuit():
         # Creating new circuit initialization parameters
         circuit_initialization_parameters_run={}
         for i in range(n_runs):
-            i_freq,i_process,i_temp=sp.get_iteration(i,n_freq,n_process,n_temp)
+            i_freq,i_process,i_temp=cff.get_iteration(i,n_freq,n_process,n_temp)
             circuit_initialization_parameters_run[i]={}
             circuit_initialization_parameters_run[i]=copy.deepcopy(circuit_initialization_parameters)
             
             # Creating netlist directory
-            netlist_folder=circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['directory']
+            netlist_folder=circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['sim_directory']
             netlist_path=netlist_folder+'T'+str(i)+'/'
             if not os.path.exists(netlist_path):
                 shutil.copytree(netlist_folder+'T_extra/',netlist_path)
-
+            
             # Creating spectre run directory
-            spectre_folder=circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['tcsh']+'Spectre_Run/'
+            spectre_folder=circuit_initialization_parameters_run[i]['simulation']['standard_parameters']['tcsh']
             spectre_path=spectre_folder+'T'+str(i)+'/'
             if not os.path.exists(spectre_path):
                 shutil.copytree(spectre_folder+'T_extra/',spectre_path)
@@ -1138,8 +1139,8 @@ class Circuit():
         final_extracted_parameters['gain_db']=gain_min
         final_extracted_parameters['gain_phase']=extracted_parameters_combined[gain_index]['gain_phase']
 
-        """
-        """
+        
+        
         # Calculating the value of 1dB compression point automatically
         ip1db_array=[]
         op1db_array=[]
@@ -1150,8 +1151,8 @@ class Circuit():
         op1db_index=op1db_array.index(op1db_min)
         final_extracted_parameters['op1db_auto']=op1db_min
         final_extracted_parameters['ip1db_auto']=extracted_parameters_combined[op1db_index]['ip1db_auto']
-        """
-        """
+        
+        
         # Calculating the value of automatic 1dB compression point manually
         ip1db_array=[]
         op1db_array=[]
@@ -1168,19 +1169,19 @@ class Circuit():
 
     #-----------------------------------------------------------------------------------------------
     # This function will write the circuit parameters, run spectre and extract the output parameters
-    def get_final_extracted_parameters(extracted_parameters_split,f_list,process_list,temp_list):
+    def get_final_extracted_parameters(self,extracted_parameters_split,f_list,process_list,temp_list):
         
-        extracted_parameters_frequency=get_final_extracted_parameters_frequency(extracted_parameters_split,f_list,process_list,temp_list)
+        extracted_parameters_frequency=self.get_final_extracted_parameters_frequency(extracted_parameters_split,f_list,process_list,temp_list)
 
-        extracted_parameters_process=get_final_extracted_parameters_process(extracted_parameters_frequency,process_list,temp_list)
+        extracted_parameters_process=self.get_final_extracted_parameters_process(extracted_parameters_frequency,process_list,temp_list)
 
-        final_extracted_parameters=get_final_extracted_parameters_temperature(extracted_parameters_process,temp_list)
+        final_extracted_parameters=self.get_final_extracted_parameters_temperature(extracted_parameters_process,temp_list)
         
         return final_extracted_parameters
 
     #-----------------------------------------------------------------------------------------------
     # This function will write the circuit parameters, run spectre and extract the output parameters
-    def get_final_extracted_parameters_frequency(extracted_parameters_split,f_list,process_list,temp_list):
+    def get_final_extracted_parameters_frequency(self,extracted_parameters_split,f_list,process_list,temp_list):
         
         if len(f_list)==1:
             extracted_parameters_frequency={}
@@ -1209,10 +1210,6 @@ class Circuit():
                 'vdsat':'dc',
                 'cgs':'dc',
                 'cgd':'dc',
-                
-                'vg1':'dc',
-                'vd1':'dc',
-                'vg2':'dc',
                 'region':'dc',
 
                 'freq':'mid',
@@ -1283,7 +1280,7 @@ class Circuit():
                     gain_min=min(gain_array)
                     gain_index=gain_array.index(gain_min)
                     final_extracted_parameters['gain_db']=gain_min
-                    final_extracted_parameters['gain_phase']=extracted_parameters_combined[gain_index]['gain_phase']
+                    final_extracted_parameters['gain_phase']=gain_phase_array[gain_index]#['gain_phase']
 
                     """
                     # Calculating the value of 1dB compression point automatically
@@ -1307,7 +1304,7 @@ class Circuit():
                     op1db_min=min(op1db_array)
                     op1db_index=op1db_array.index(op1db_min)
                     final_extracted_parameters['op1db_man']=op1db_min
-                    final_extracted_parameters['ip1db_man']=extracted_parameters_combined[op1db_index]['ip1db_man']
+                    final_extracted_parameters['ip1db_man']=ip1db_array[op1db_index]#['ip1db_man']
                     
                     extracted_parameters_frequency[temp][process]=final_extracted_parameters.copy()
 
@@ -1315,7 +1312,7 @@ class Circuit():
 
     #-----------------------------------------------------------------------------------------------
     # This function will combine the extracted_parameters
-    def get_final_extracted_parameters_process(extracted_parameters_frequency,process_list,temp_list):
+    def get_final_extracted_parameters_process(self,extracted_parameters_frequency,process_list,temp_list):
         
         # Getting the centre process
         process_len=len(process_list)
@@ -1394,7 +1391,7 @@ class Circuit():
 
     #-----------------------------------------------------------------------------------------------
     # This function will combine the extracted_parameters
-    def get_final_extracted_parameters_temperature(extracted_parameters_process,temp_list):
+    def get_final_extracted_parameters_temperature(self,extracted_parameters_process,temp_list):
         
         # Getting the centre temperature
         temp_len=len(temp_list)

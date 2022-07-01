@@ -80,10 +80,13 @@ def get_simulation_conditions_PA(circuit_initialization_parameters,fo):
 	circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']='/home/ee18b038/Auto_Ckt_Synth_Codes/Automatic_RFIC_Synth/'
 	circuit_initialization_parameters['simulation']['standard_parameters']['tcsh']=circuit_initialization_parameters['simulation']['standard_parameters']['run_directory']+'Spectre_Run/'
 	circuit_initialization_parameters['simulation']['standard_parameters']['std_temp']=27
+	circuit_initialization_parameters['simulation']['standard_parameters']['temp_list']=[0,27,100]
 	circuit_initialization_parameters['simulation']['standard_parameters']['process_corner']='tt'
+	circuit_initialization_parameters['simulation']['standard_parameters']['process_list']=['ss','tt','ff']
 	circuit_initialization_parameters['simulation']['standard_parameters']['conservative']='NO'
 	circuit_initialization_parameters['simulation']['standard_parameters']['w_finger_max']=2e-6
 	circuit_initialization_parameters['simulation']['standard_parameters']['f_operating']=fo
+	circuit_initialization_parameters['simulation']['standard_parameters']['f_list']=[fo-1e6,fo,fo+1e6]
 	circuit_initialization_parameters['simulation']['standard_parameters']['f_range']=1e8
 
 	circuit_initialization_parameters['simulation']['standard_parameters']['C1_threshold']=2000
